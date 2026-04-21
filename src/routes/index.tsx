@@ -3,6 +3,7 @@ import { lazy, Suspense } from "react";
 
 // CRA app loaded only on the client (uses BrowserRouter, react-router-dom v7,
 // browser-only APIs like ServiceWorker, window, etc.)
+// @ts-expect-error — JS module without types
 const App = lazy(() => import("@/App.js"));
 
 export const Route = createFileRoute("/")({
