@@ -1,15 +1,13 @@
 import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import axios from "axios";
+import { api as ax, API_BASE as API } from "@/lib/api";
+import { uploadToCloudinary } from "@/lib/cloudinaryUpload";
 import {
   Plus, Pencil, Trash2, Package, Tag, LayoutGrid, Users, LogOut,
   ChevronLeft, Upload, X, Image as ImageIcon, Bell, Shield, BarChart3,
   Send, Eye
 } from "lucide-react";
-
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-const ax = axios.create({ baseURL: API, withCredentials: true });
 
 /* ═══════════ Sidebar ═══════════ */
 function Sidebar({ activeTab, setActiveTab, user, onLogout }) {
@@ -63,11 +61,14 @@ function ProductForm({ product, categories, onSave, onCancel }) {
     if (!file) return;
     setUploading(true);
     try {
-      const fd = new FormData(); fd.append("file", file);
-      const { data } = await ax.post("/upload", fd);
-      set("images", [...form.images, `${process.env.REACT_APP_BACKEND_URL}${data.url}`]);
-    } catch (err) { alert("Yükləmə xətası"); }
-    finally { setUploading(false); }
+      const url = await uploadToCloudinary(file, { folder: "modamall/products" });
+      set("images", [...form.images, url]);
+    } catch (err) {
+      console.error(err);
+      alert("Yükləmə xətası: " + (err?.message || "naməlum"));
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
