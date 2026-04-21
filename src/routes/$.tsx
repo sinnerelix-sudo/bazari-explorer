@@ -3,7 +3,7 @@ import { lazy, Suspense } from "react";
 
 // Catch-all route — defer all routing to the CRA app's BrowserRouter.
 // @ts-expect-error — JS module without types
-const App = lazy(() => import("@/App.js"));
+const App = lazy(() => import("@/App.jsx"));
 
 export const Route = createFileRoute("/$")({
   component: SplatRoute,
