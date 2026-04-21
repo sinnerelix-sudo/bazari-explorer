@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Search, X } from "lucide-react";
 import axios from "axios";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { API_BASE as API } from "@/lib/api";
 
 export default function SearchAutocomplete() {
   const [query, setQuery] = useState("");

@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";
+import { API_BASE as API } from "@/lib/api";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-const VAPID_PUBLIC_KEY = process.env.REACT_APP_VAPID_PUBLIC_KEY;
+const VAPID_PUBLIC_KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY;
 
 function urlBase64ToUint8Array(base64String) {
   const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
