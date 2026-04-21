@@ -1,0 +1,28 @@
+{
+  "short_name": "Modamall",
+  "name": "Modamall - Premium Marketplace",
+  "description": "Premium marketplace - keyfiyyət və stil bir yerdə. Ən yaxşı endirimlər və kampaniyalar.",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512x512.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#E05A33",
+  "background_color": "#FDFCFB",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "categories": ["shopping", "lifestyle"],
+  "lang": "az",
+  "dir": "ltr"
+}
