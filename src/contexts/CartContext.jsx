@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useCallback } from "react";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { API_BASE as API } from "@/lib/api";
 const CartContext = createContext(null);
 
 export function CartProvider({ children }) {

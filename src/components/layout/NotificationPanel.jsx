@@ -3,7 +3,7 @@ import { Bell, X, Check } from "lucide-react";
 import axios from "axios";
 import { useAuth } from "@/contexts/AuthContext";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { API_BASE as API } from "@/lib/api";
 
 export default function NotificationPanel() {
   const { user } = useAuth();

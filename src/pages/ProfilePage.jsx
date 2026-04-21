@@ -11,7 +11,7 @@ import Header from "@/components/layout/Header";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import { PushNotificationToggle } from "@/components/notifications/PushNotificationBanner";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { API_BASE as API } from "@/lib/api";
 
 export default function ProfilePage() {
   const { user, logout, loading: authLoading } = useAuth();

@@ -12,7 +12,7 @@ import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/home/ProductCard";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+import { API_BASE as API } from "@/lib/api";
 
 function RatingStars({ rating, size = 14 }) {
   return (
