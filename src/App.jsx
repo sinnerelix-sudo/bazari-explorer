@@ -2,7 +2,7 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { TrendingUp, Sparkles } from "lucide-react";
-import axios from "axios";
+import { api } from "@/lib/api";
 
 import { AuthProvider } from "@/contexts/AuthContext";
 import { CartProvider } from "@/contexts/CartContext";
@@ -31,15 +31,13 @@ import {
   recommendedProducts as staticRecommended,
 } from "@/data/mockData";
 
-const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
-
 function HomePage() {
   const [homeData, setHomeData] = useState(null);
 
   useEffect(() => {
     const load = async () => {
       try {
-        const { data } = await axios.get(`${API}/homepage`);
+        const { data } = await api.get(`/homepage`);
         setHomeData(data);
       } catch {
         // fallback to static
