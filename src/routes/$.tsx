@@ -1,15 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { lazy, Suspense } from "react";
 
-// CRA app loaded only on the client (uses BrowserRouter, react-router-dom v7,
-// browser-only APIs like ServiceWorker, window, etc.)
+// Catch-all route — defer all routing to the CRA app's BrowserRouter.
 const App = lazy(() => import("@/App.js"));
 
-export const Route = createFileRoute("/")({
-  component: IndexRoute,
+export const Route = createFileRoute("/$")({
+  component: SplatRoute,
 });
 
-function IndexRoute() {
+function SplatRoute() {
   if (typeof window === "undefined") {
     return null;
   }
