@@ -80,13 +80,19 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - visible `Modamall` wordmarks replaced with `Bazari`
   - metadata/SEO/PWA brand strings updated to `Bazari`
   - frontend `npm run build` passed
+- On 2026-04-24 after that, the Bazari rebrand was deployed live:
+  - commit `b6e879c` pushed to `main`
+  - Vercel production deploy `dpl_MZoPDHSTcXEuH3j1qd6CBJtSviNn` completed and was aliased to `www.bazari.site`
+  - live smoke confirmed `Bazari` in homepage/login HTML
+  - `https://www.bazari.site/bazari-logo.jpg` returns `200`
+  - live `manifest.json` now reports `short_name = "Bazari"`
 
 ## Open deployment tasks
 1. Obtain the real WhatsApp order number if it has not been provided yet
 2. Set the live WhatsApp order number from the admin panel
 3. Verify `GET /api/payment-methods` and admin payload after that update
 4. Verify WhatsApp checkout redirect after that admin update
-5. Deploy the Bazari branding update to production
+5. Optionally update the PWA icon PNG files if the browser/install icon must also match the new Bazari mark
 
 ## Constraints
 - preserve the dirty worktree; do not reset it

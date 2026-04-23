@@ -82,6 +82,17 @@ Keep the local cart/payment flow testable while finishing production deployment 
     - `public/manifest.json`
     - `public/sw.js`
   - frontend `npm run build` passed after the branding swap
+- On 2026-04-24 after that branding change, the frontend rebrand was pushed and deployed live:
+  - commit pushed to `main`: `b6e879c` - `Rebrand storefront to Bazari`
+  - manual Vercel production deploy succeeded:
+    - deployment id: `dpl_MZoPDHSTcXEuH3j1qd6CBJtSviNn`
+    - deployment url: `https://bazari-explorer-jh2bk678b-metrekareup1-3268s-projects.vercel.app`
+    - alias confirmed again on `https://www.bazari.site`
+  - live smoke passed:
+    - homepage HTML contains `Bazari - Premium Marketplace`
+    - login route HTML contains `Bazari`
+    - `https://www.bazari.site/bazari-logo.jpg` returns `200`
+    - live `manifest.json` now reports `short_name = "Bazari"`
 
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:
