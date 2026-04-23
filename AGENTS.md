@@ -70,5 +70,10 @@
   - safe production smoke passed without setting a fake number:
     - `PUT https://api.bazari.site/api/admin/payment-methods/whatsapp-phone` with empty string returned `whatsapp_source = "unset"`
     - live frontend bundle on `www.bazari.site` contains the new admin WhatsApp input/button strings
+- On 2026-04-24 later in the same thread, branding work started to replace the legacy `Modamall` wordmark:
+  - new shared frontend mark component: `src/components/layout/BrandMark.jsx`
+  - source image copied into `public/bazari-logo.jpg` from the user-provided Bazari logo
+  - header, footer, login, admin sidebar, SEO JSON-LD, root meta, manifest, and service worker branding were updated from `Modamall` to `Bazari`
+  - frontend `npm run build` passed after those branding changes
 - Render CLI `v2.15.1` was downloaded to `%TEMP%\render-cli-2.15.1`.
 - `render login` was started once and created `C:\Users\User\.render\cli.yaml`, but authentication/workspace selection was not completed; Render env updates remain blocked until auth is finished.

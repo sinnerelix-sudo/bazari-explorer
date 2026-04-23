@@ -1,17 +1,18 @@
 import { MapPin, Phone, Mail, ChevronRight } from "lucide-react";
+import BrandMark from "./BrandMark";
 
 const footerLinks = [
   {
     title: "Kateqoriyalar",
-    links: ["Qadın geyimi", "Ayaqqabı", "Elektronika", "Ev və mətbəx", "Gözəllik"],
+    links: ["Qad\u0131n geyimi", "Ayaqqab\u0131", "Elektronika", "Ev v\u0259 m\u0259tb\u0259x", "G\u00F6z\u0259llik"],
   },
   {
-    title: "Müştəri xidməti",
-    links: ["Çatdırılma", "Geri qaytarma", "FAQ", "Ölçü cədvəli", "Əlaqə"],
+    title: "M\u00FC\u015Ft\u0259ri xidm\u0259ti",
+    links: ["\u00C7atd\u0131r\u0131lma", "Geri qaytarma", "FAQ", "\u00D6l\u00E7\u00FC c\u0259dv\u0259li", "\u018Flaq\u0259"],
   },
   {
-    title: "Şirkət",
-    links: ["Haqqımızda", "Karyera", "Bloq", "Tərəfdaşlıq", "Mağazalar"],
+    title: "\u015Eirk\u0259t",
+    links: ["Haqq\u0131m\u0131zda", "Karyera", "Bloq", "T\u0259r\u0259fda\u015Fl\u0131q", "Ma\u011Fazalar"],
   },
 ];
 
@@ -23,21 +24,18 @@ export default function Footer() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12">
-          {/* Brand column */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-xl bg-[#E05A33] flex items-center justify-center">
-                <span className="text-white font-heading font-bold text-sm">M</span>
-              </div>
-              <span className="font-heading font-bold text-lg">Modamall</span>
+              <BrandMark className="w-8 h-8 rounded-xl" />
+              <span className="font-heading font-bold text-lg">Bazari</span>
             </div>
             <p className="text-sm text-gray-400 font-body leading-relaxed mb-4">
-              Premium marketplace - keyfiyyət və stil bir yerdə.
+              {"Premium marketplace - keyfiyy\u0259t v\u0259 stil bir yerd\u0259."}
             </p>
             <div className="space-y-2.5">
               <div className="flex items-center gap-2 text-gray-400 text-sm">
                 <MapPin size={14} className="flex-shrink-0" />
-                <span className="font-body">Bakı, Azərbaycan</span>
+                <span className="font-body">{"Bak\u0131, Az\u0259rbaycan"}</span>
               </div>
               <div className="flex items-center gap-2 text-gray-400 text-sm">
                 <Phone size={14} className="flex-shrink-0" />
@@ -45,12 +43,11 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2 text-gray-400 text-sm">
                 <Mail size={14} className="flex-shrink-0" />
-                <span className="font-body">info@modamall.az</span>
+                <span className="font-body">info@bazari.site</span>
               </div>
             </div>
           </div>
 
-          {/* Link columns */}
           {footerLinks.map((section) => (
             <div key={section.title}>
               <h4 className="font-heading font-semibold text-sm mb-4 text-gray-200">
@@ -76,10 +73,9 @@ export default function Footer() {
           ))}
         </div>
 
-        {/* Bottom bar */}
         <div className="mt-10 pt-6 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-gray-500 font-body">
-            2025 Modamall. Bütün hüquqlar qorunur.
+            {"2025 Bazari. B\u00FCt\u00FCn h\u00FCquqlar qorunur."}
           </p>
           <div className="flex items-center gap-4">
             {["Visa", "MC", "GPay"].map((pm) => (

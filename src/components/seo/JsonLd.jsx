@@ -14,7 +14,7 @@ export function ProductJsonLd({ product }) {
       priceCurrency: "AZN",
       price: product.price,
       availability: product.stock > 0 ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
-      seller: { "@type": "Organization", name: "Modamall" },
+      seller: { "@type": "Organization", name: "Bazari" },
     },
     aggregateRating: product.rating > 0 ? {
       "@type": "AggregateRating",
@@ -37,9 +37,9 @@ export function OrganizationJsonLd() {
   const schema = {
     "@context": "https://schema.org",
     "@type": "Organization",
-    name: "Modamall",
+    name: "Bazari",
     url: window.location.origin,
-    logo: `${window.location.origin}/favicon.ico`,
+    logo: `${window.location.origin}/bazari-logo.jpg`,
     description: "Premium marketplace - keyfiyyət və stil bir yerdə",
     address: {
       "@type": "PostalAddress",

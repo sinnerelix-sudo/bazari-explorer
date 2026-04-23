@@ -1,27 +1,25 @@
-/* Modamall Service Worker - PWA + Push Notifications */
+/* Bazari Service Worker - PWA + Push Notifications */
 
-const CACHE_NAME = 'modamall-v1';
+const CACHE_NAME = "bazari-v1";
 const STATIC_ASSETS = [
-  '/',
-  '/icon-192x192.png',
-  '/icon-512x512.png',
-  '/manifest.json'
+  "/",
+  "/icon-192x192.png",
+  "/icon-512x512.png",
+  "/manifest.json",
 ];
 
-/* ── Install ── */
-self.addEventListener('install', (event) => {
+self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
       return cache.addAll(STATIC_ASSETS).catch(() => {
-        // Ignore cache failures for dynamic content
+        // Ignore cache failures for dynamic content.
       });
     })
   );
   self.skipWaiting();
 });
 
-/* ── Activate ── */
-self.addEventListener('activate', (event) => {
+self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
       Promise.all(
@@ -32,17 +30,14 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-/* ── Fetch - Network first, cache fallback ── */
-self.addEventListener('fetch', (event) => {
-  // Skip non-GET and API requests
-  if (event.request.method !== 'GET' || event.request.url.includes('/api/')) {
+self.addEventListener("fetch", (event) => {
+  if (event.request.method !== "GET" || event.request.url.includes("/api/")) {
     return;
   }
 
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        // Cache successful responses
         if (response.status === 200) {
           const clone = response.clone();
           caches.open(CACHE_NAME).then((cache) => {
@@ -52,45 +47,42 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(() => {
-        // Fallback to cache
         return caches.match(event.request).then((cached) => {
           if (cached) return cached;
-          // For navigation requests, return cached index
-          if (event.request.mode === 'navigate') {
-            return caches.match('/');
+          if (event.request.mode === "navigate") {
+            return caches.match("/");
           }
-          return new Response('Offline', { status: 503 });
+          return new Response("Offline", { status: 503 });
         });
       })
   );
 });
 
-/* ── Push Notification ── */
-self.addEventListener('push', (event) => {
-  let data = { title: 'Modamall', body: 'Yeni bildiriş!', icon: '/icon-192x192.png' };
+self.addEventListener("push", (event) => {
+  let data = { title: "Bazari", body: "Yeni bildiri\u015F!", icon: "/icon-192x192.png" };
 
   try {
     if (event.data) {
       const payload = event.data.json();
       data = {
-        title: payload.title || 'Modamall',
-        body: payload.body || payload.message || '',
-        icon: payload.icon || '/icon-192x192.png',
-        badge: '/icon-192x192.png',
-        tag: payload.tag || 'modamall-notification',
+        title: payload.title || "Bazari",
+        body: payload.body || payload.message || "",
+        icon: payload.icon || "/icon-192x192.png",
+        badge: "/icon-192x192.png",
+        tag: payload.tag || "bazari-notification",
         data: {
-          url: payload.url || payload.link || '/',
-          ...payload.data
+          url: payload.url || payload.link || "/",
+          ...payload.data,
         },
         actions: payload.actions || [
-          { action: 'open', title: 'Bax' },
-          { action: 'dismiss', title: 'Bağla' }
+          { action: "open", title: "Bax" },
+          { action: "dismiss", title: "Ba\u011Fla" },
         ],
         vibrate: [200, 100, 200],
-        requireInteraction: false
+        requireInteraction: false,
       };
     }
-  } catch (e) {
+  } catch (error) {
     if (event.data) {
       data.body = event.data.text();
     }
@@ -105,29 +97,26 @@ self.addEventListener('push', (event) => {
       data: data.data,
       actions: data.actions,
       vibrate: data.vibrate,
-      requireInteraction: data.requireInteraction
+      requireInteraction: data.requireInteraction,
     })
   );
 });
 
-/* ── Notification Click ── */
-self.addEventListener('notificationclick', (event) => {
+self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  const url = event.notification.data?.url || '/';
+  const url = event.notification.data?.url || "/";
 
-  if (event.action === 'dismiss') return;
+  if (event.action === "dismiss") return;
 
   event.waitUntil(
-    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
-      // Focus existing tab if open
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((clients) => {
       for (const client of clients) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
+        if (client.url.includes(self.location.origin) && "focus" in client) {
           client.navigate(url);
           return client.focus();
         }
       }
-      // Open new tab
       return self.clients.openWindow(url);
     })
   );

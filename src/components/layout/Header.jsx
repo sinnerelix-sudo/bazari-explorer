@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ShoppingBag, Menu, X, Heart, Home, LayoutGrid, Tag, User, LogIn } from "lucide-react";
 import SearchAutocomplete from "./SearchAutocomplete";
 import NotificationPanel from "./NotificationPanel";
+import BrandMark from "./BrandMark";
 import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 
@@ -40,10 +41,8 @@ export default function Header() {
                 <Menu size={22} />
               </button>
               <Link to="/" data-testid="logo-link" className="flex items-center gap-2">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#E05A33] flex items-center justify-center">
-                  <span className="text-white font-heading font-bold text-sm sm:text-base">M</span>
-                </div>
-                <span className="font-heading font-bold text-lg sm:text-xl text-[#1A1A1A] hidden sm:block">Modamall</span>
+                <BrandMark className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl" />
+                <span className="font-heading font-bold text-lg sm:text-xl text-[#1A1A1A] hidden sm:block">Bazari</span>
               </Link>
             </div>
 
@@ -95,10 +94,8 @@ export default function Header() {
             {/* Menu header */}
             <div className="border-b border-gray-100 px-5 py-4 flex items-center justify-between flex-shrink-0">
               <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl bg-[#E05A33] flex items-center justify-center">
-                  <span className="text-white font-heading font-bold text-sm">M</span>
-                </div>
-                <span className="font-heading font-bold text-lg text-[#1A1A1A]">Modamall</span>
+                <BrandMark className="w-8 h-8 rounded-xl" />
+                <span className="font-heading font-bold text-lg text-[#1A1A1A]">Bazari</span>
               </Link>
               <button data-testid="mobile-menu-close" onClick={() => setMenuOpen(false)} className="p-2 rounded-xl hover:bg-gray-50">
                 <X size={20} className="text-[#595959]" />

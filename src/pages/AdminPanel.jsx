@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { api as ax } from "@/lib/api";
 import { uploadToCloudinary } from "@/lib/cloudinaryUpload";
+import BrandMark from "@/components/layout/BrandMark";
 import {
   AlertCircle,
   BarChart3,
@@ -69,9 +70,7 @@ function Sidebar({ activeTab, setActiveTab, user, onLogout }) {
   return (
     <aside data-testid="admin-sidebar" className="w-60 bg-white border-r border-gray-100 min-h-screen hidden lg:flex flex-col p-4">
       <Link to="/" className="flex items-center gap-2 mb-6 px-2">
-        <div className="w-8 h-8 rounded-xl bg-[#E05A33] flex items-center justify-center">
-          <span className="text-white font-heading font-bold text-sm">M</span>
-        </div>
+        <BrandMark className="w-8 h-8 rounded-xl" />
         <span className="font-heading font-bold text-base text-[#1A1A1A]">Admin Panel</span>
       </Link>
       <nav className="space-y-0.5 flex-1">

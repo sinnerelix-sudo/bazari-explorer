@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Eye, EyeOff, Mail, Lock, User, Phone } from "lucide-react";
+import BrandMark from "@/components/layout/BrandMark";
 
 function formatApiError(payload, fallbackMessage) {
   const detail = payload?.detail ?? payload?.error ?? payload;
@@ -60,13 +61,11 @@ export default function LoginPage() {
 
   return (
     <div data-testid="login-page" className="min-h-screen bg-[#FDFCFB] flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        {/* Logo */}
-        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
-          <div className="w-10 h-10 rounded-xl bg-[#E05A33] flex items-center justify-center">
-            <span className="text-white font-heading font-bold text-lg">M</span>
-          </div>
-          <span className="font-heading font-bold text-2xl text-[#1A1A1A]">Modamall</span>
+        <div className="w-full max-w-md">
+          {/* Logo */}
+          <Link to="/" className="flex items-center justify-center gap-2 mb-8">
+            <BrandMark className="w-10 h-10 rounded-xl" />
+            <span className="font-heading font-bold text-2xl text-[#1A1A1A]">Bazari</span>
         </Link>
 
         {/* Card */}

@@ -29,13 +29,13 @@ export const Route = createRootRoute({
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Modamall - Premium Marketplace" },
-      { name: "description", content: "Modamall - Premium marketplace. Ən yaxşı endirimlər və kampaniyalar." },
+      { title: "Bazari - Premium Marketplace" },
+      { name: "description", content: "Bazari - Premium marketplace. \u018Fn yax\u015F\u0131 endiriml\u0259r v\u0259 kampaniyalar." },
       { name: "theme-color", content: "#E05A33" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
-      { name: "apple-mobile-web-app-title", content: "Modamall" },
-      { property: "og:title", content: "Modamall - Premium Marketplace" },
-      { property: "og:description", content: "Premium marketplace. Ən yaxşı endirimlər və kampaniyalar." },
+      { name: "apple-mobile-web-app-title", content: "Bazari" },
+      { property: "og:title", content: "Bazari - Premium Marketplace" },
+      { property: "og:description", content: "Premium marketplace. \u018Fn yax\u015F\u0131 endiriml\u0259r v\u0259 kampaniyalar." },
       { property: "og:type", content: "website" },
     ],
     links: [

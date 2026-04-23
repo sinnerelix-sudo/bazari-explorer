@@ -68,6 +68,20 @@ Keep the local cart/payment flow testable while finishing production deployment 
     - `whatsapp-phone-input`
     - `save-whatsapp-phone-btn`
     - `reset-whatsapp-phone-btn`
+- On 2026-04-24 after that, the user asked for Bazari branding in place of the legacy `Modamall` wordmark:
+  - user-provided asset copied to `public/bazari-logo.jpg`
+  - new shared mark component added: `src/components/layout/BrandMark.jsx`
+  - visible frontend brand marks updated in:
+    - `src/components/layout/Header.jsx`
+    - `src/components/layout/Footer.jsx`
+    - `src/pages/LoginPage.jsx`
+    - `src/pages/AdminPanel.jsx`
+  - metadata/SEO/PWA branding updated in:
+    - `src/components/seo/JsonLd.jsx`
+    - `src/routes/__root.tsx`
+    - `public/manifest.json`
+    - `public/sw.js`
+  - frontend `npm run build` passed after the branding swap
 
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:

@@ -74,13 +74,19 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - Render live admin payload now includes `whatsapp_source` and `whatsapp_updated_at`
   - safe live reset call to `PUT /api/admin/payment-methods/whatsapp-phone` passed with `whatsapp_source = "unset"`
   - production JS bundle now contains the WhatsApp admin input/button strings
+- On 2026-04-24 after that, Bazari branding replacement work was completed locally:
+  - `public/bazari-logo.jpg` added from the user-provided logo
+  - shared UI mark component added in `src/components/layout/BrandMark.jsx`
+  - visible `Modamall` wordmarks replaced with `Bazari`
+  - metadata/SEO/PWA brand strings updated to `Bazari`
+  - frontend `npm run build` passed
 
 ## Open deployment tasks
 1. Obtain the real WhatsApp order number if it has not been provided yet
 2. Set the live WhatsApp order number from the admin panel
 3. Verify `GET /api/payment-methods` and admin payload after that update
 4. Verify WhatsApp checkout redirect after that admin update
-5. Optionally sync preview envs on Vercel
+5. Deploy the Bazari branding update to production
 
 ## Constraints
 - preserve the dirty worktree; do not reset it
