@@ -13,6 +13,8 @@ import searchRoutes from "./routes/search.js";
 import notificationRoutes from "./routes/notifications.js";
 import pushRoutes from "./routes/push.js";
 import adminRoutes from "./routes/admin.js";
+import paymentMethodsRoutes from "./routes/paymentMethods.js";
+import { ensureBootstrapAdmin } from "./bootstrap.js";
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -43,6 +45,7 @@ app.use("/api/reviews", reviewRoutes);
 app.use("/api/search", searchRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/push", pushRoutes);
+app.use("/api/payment-methods", paymentMethodsRoutes);
 app.use("/api/admin", adminRoutes);
 
 app.use((err, _req, res, _next) => {
@@ -50,7 +53,8 @@ app.use((err, _req, res, _next) => {
   res.status(err.status || 500).json({ error: err.message || "Server error" });
 });
 
-connectDB().then(() => {
+connectDB().then(async () => {
+  await ensureBootstrapAdmin();
   app.listen(PORT, () => console.log(`🚀 Backend listening on :${PORT}`));
 }).catch((err) => {
   console.error("DB connect failed:", err);

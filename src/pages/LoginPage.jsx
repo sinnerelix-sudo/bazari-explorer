@@ -3,7 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Eye, EyeOff, Mail, Lock, User, Phone } from "lucide-react";
 
-function formatApiErrorDetail(detail) {
+function formatApiError(payload, fallbackMessage) {
+  const detail = payload?.detail ?? payload?.error ?? payload;
   if (detail == null) return "Xəta baş verdi. Yenidən cəhd edin.";
   if (typeof detail === "string") return detail;
   if (Array.isArray(detail))
@@ -45,7 +46,7 @@ export default function LoginPage() {
         }
       }
     } catch (err) {
-      setError(formatApiErrorDetail(err.response?.data?.detail) || err.message);
+      setError(formatApiError(err.response?.data, err.message));
     } finally {
       setLoading(false);
     }

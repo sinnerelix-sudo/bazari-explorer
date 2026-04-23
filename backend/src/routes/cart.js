@@ -17,7 +17,7 @@ async function buildCart(userId) {
     .map((i) => {
       const p = map.get(i.product_id.toString());
       if (!p) return null;
-      return { product: publicProduct(p), quantity: i.quantity };
+      return { product_id: i.product_id.toString(), product: publicProduct(p), quantity: i.quantity };
     })
     .filter(Boolean);
   const total = enriched.reduce((s, i) => s + i.product.price * i.quantity, 0);

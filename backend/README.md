@@ -1,40 +1,65 @@
 # Modamall Backend (Node.js + Express + MongoDB)
 
-External backend for the Modamall Lovable frontend.
+External backend for the Modamall frontend.
 
 ## Local development
 
 ```bash
 cd backend
-cp .env.example .env   # fill in MONGODB_URI, JWT_SECRET, CORS_ORIGINS
+cp .env.example .env
 npm install
 npm run dev
 ```
 
-Server runs on `http://localhost:10000`.
+Fill in at least `MONGODB_URI`, `JWT_SECRET`, and `CORS_ORIGINS` before starting.
 
-## Deploy to Render.com
+The server runs on `http://localhost:10000`.
+
+## Deploy to Render
 
 1. Push this repo to GitHub.
-2. Render Dashboard → **New → Web Service** → connect repo.
-3. Settings:
-   - **Root Directory:** `backend`
-   - **Build Command:** `npm install`
-   - **Start Command:** `npm start`
-   - **Environment:** Node
-4. Add environment variables (from `.env.example`):
-   - `MONGODB_URI` — your MongoDB Atlas connection string
-   - `DB_NAME` — `modamall` (or your choice)
-   - `JWT_SECRET` — a long random string
-   - `CORS_ORIGINS` — your Lovable URL, e.g. `https://yourapp.lovable.app`
-   - `COOKIE_SECURE=true`, `COOKIE_SAMESITE=none`
-5. Deploy. Copy the resulting URL (e.g. `https://modamall-backend.onrender.com`).
-6. In Lovable, set secret `VITE_BACKEND_URL` to that URL.
+2. In Render, create a new Web Service from this repo.
+3. Use these service settings:
+   - Root Directory: `backend`
+   - Build Command: `npm install`
+   - Start Command: `npm start`
+   - Environment: `Node`
+4. Add environment variables from [`backend/.env.production.example`](C:/Users/User/.codex/worktrees/7a2e/bazari-explorer/backend/.env.production.example):
+   - `MONGODB_URI`
+   - `DB_NAME`
+   - `JWT_SECRET`
+   - `JWT_EXPIRES_IN`
+   - `ADMIN_BOOTSTRAP_EMAIL`
+   - `ADMIN_BOOTSTRAP_PASSWORD`
+   - `ADMIN_BOOTSTRAP_NAME`
+   - `ADMIN_BOOTSTRAP_PHONE`
+   - `CORS_ORIGINS=https://bazari.site,https://www.bazari.site`
+   - `COOKIE_SECURE=true`
+   - `COOKIE_SAMESITE=none`
+   - `WHATSAPP_ORDER_PHONE`
+   - `VAPID_PUBLIC_KEY`
+   - `VAPID_PRIVATE_KEY`
+   - `VAPID_SUBJECT`
+5. After the first deploy, add the custom domain `api.bazari.site` in Render.
+6. Update DNS for `api.bazari.site` in your registrar to the Render target shown by Render.
+7. Verify `https://api.bazari.site/api/health`.
+8. In the frontend host, set `VITE_BACKEND_URL=https://api.bazari.site`.
 
 ## MongoDB Atlas
 
-- Make sure **Network Access** allows `0.0.0.0/0` (or Render's IP range).
+- Make sure Network Access allows Render to connect.
 - Create a database user with read/write permissions.
+
+## Bootstrap an admin
+
+The backend can create the first admin user from env on startup:
+
+- `ADMIN_BOOTSTRAP_EMAIL`
+- `ADMIN_BOOTSTRAP_PASSWORD`
+- `ADMIN_BOOTSTRAP_NAME`
+- `ADMIN_BOOTSTRAP_PHONE`
+
+After the admin exists, remove the bootstrap password from the production env.
 
 ## API surface
 
@@ -43,41 +68,36 @@ All endpoints are prefixed with `/api`.
 - `POST /api/auth/register` `{ name, email, password, phone? }`
 - `POST /api/auth/login` `{ email, password }`
 - `POST /api/auth/logout`
-- `GET  /api/auth/me`
+- `GET /api/auth/me`
 - `POST /api/auth/2fa/setup`
 - `POST /api/auth/2fa/verify` `{ code }`
-- `GET  /api/products?category=&q=&limit=&page=`
-- `GET  /api/products/:id`
+- `GET /api/products?category=&q=&limit=&page=`
+- `GET /api/products/:id`
 - `POST /api/products` (admin/seller)
-- `PUT  /api/products/:id` (admin/seller)
+- `PUT /api/products/:id` (admin/seller)
 - `DELETE /api/products/:id` (admin/seller)
-- `GET  /api/categories`
+- `GET /api/categories`
 - `POST /api/categories` (admin)
-- `PUT  /api/categories/:id` (admin)
+- `PUT /api/categories/:id` (admin)
 - `DELETE /api/categories/:id` (admin)
-- `GET  /api/cart`
+- `GET /api/cart`
 - `POST /api/cart/add` `{ product_id, quantity }`
-- `PUT  /api/cart/update` `{ product_id, quantity }`
+- `PUT /api/cart/update` `{ product_id, quantity }`
 - `DELETE /api/cart/remove/:productId`
 - `DELETE /api/cart/clear`
-- `GET  /api/reviews/:productId`
+- `GET /api/payment-methods`
+- `GET /api/reviews/:productId`
 - `POST /api/reviews/:productId` `{ rating, comment }`
-- `GET  /api/search/autocomplete?q=`
-- `GET  /api/notifications`
-- `GET  /api/notifications/unread-count`
+- `GET /api/search/autocomplete?q=`
+- `GET /api/notifications`
+- `GET /api/notifications/unread-count`
 - `POST /api/notifications/read/:id`
 - `POST /api/notifications/read-all`
 - `POST /api/notifications/send` (admin) `{ title, message, type }`
 - `POST /api/push/subscribe` `{ subscription }`
 - `POST /api/push/unsubscribe`
 - `POST /api/push/send` (admin) `{ title, message, url }`
-- `GET  /api/admin/users` (admin)
-- `PUT  /api/admin/users/:id/role` (admin) `{ role }`
-
-## Bootstrap an admin
-
-After first registration, manually set the user role in MongoDB:
-
-```js
-db.users.updateOne({ email: "you@example.com" }, { $set: { role: "admin" } })
-```
+- `GET /api/admin/users` (admin)
+- `PUT /api/admin/users/:id/role` (admin) `{ role }`
+- `GET /api/admin/payment-methods` (admin)
+- `PUT /api/admin/payment-methods/:id` (admin) `{ is_active }`
