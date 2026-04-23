@@ -374,7 +374,7 @@ export default function CartPage() {
 
                   {!normalizeWhatsappPhone(whatsappPhone) && (
                     <div className="rounded-2xl border border-[#FFD4C7] bg-[#FFF6F3] px-4 py-3 text-xs font-body text-[#A5533A]">
-                      {"WhatsApp sifari\u015F n\u00F6mr\u0259si h\u0259l\u0259 qurulmay\u0131b. Admin paneld\u0259n statusu idar\u0259 edin, n\u00F6mr\u0259ni env-d\u0259 qurun."}
+                      {"WhatsApp sifari\u015F n\u00F6mr\u0259si h\u0259l\u0259 qurulmay\u0131b. Admin paneld\u0259n n\u00F6mr\u0259ni qurduqdan sonra checkout aktiv olacaq."}
                     </div>
                   )}
 

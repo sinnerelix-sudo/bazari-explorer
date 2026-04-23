@@ -28,6 +28,7 @@ export async function connectDB() {
     db.collection("products").createIndex({ category_id: 1 }),
     db.collection("categories").createIndex({ slug: 1 }, { unique: true }),
     db.collection("carts").createIndex({ user_id: 1 }, { unique: true }),
+    db.collection("app_settings").createIndex({ key: 1 }, { unique: true }),
     db.collection("payment_methods").createIndex({ key: 1 }, { unique: true }),
     db.collection("reviews").createIndex({ product_id: 1 }),
     db.collection("notifications").createIndex({ user_id: 1, created_at: -1 }),

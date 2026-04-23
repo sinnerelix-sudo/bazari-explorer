@@ -1,96 +1,62 @@
 # AGENTS.md
 
-## Project purpose
-- `bazari-explorer` is the app for `bazari.site`: a marketplace frontend plus a separate Node/Mongo backend.
-- Near-term work is centered on production deployment, admin/auth reliability, Cloudinary uploads, and a working cart/payment flow.
+## Repo
+- `bazari-explorer` powers `bazari.site`.
+- Keep the split architecture: TanStack Start frontend in the repo root (`src/`), Express ESM backend in `backend/`.
+- Frontend API access is centralized in `src/lib/api.js`.
+- Cloudinary signing lives in `src/server/cloudinary.functions.ts`.
+- Payment method rules live on the backend (`backend/src/paymentMethods.js` and related routes), not in frontend-only state.
+- `src/routeTree.gen.ts` is generated; do not hand-edit it.
 
-## Architecture overview
-- Root app: TanStack Start + React + Vite in `src/`
-- Frontend server functions: `src/server/`
-- Backend API: Express ESM app in `backend/`
-- Data: MongoDB Atlas
-- Media: Cloudinary
-- Frontend API access is centralized in `src/lib/api.js`
-- Frontend deployment currently runs on Vercel custom domains; `vite.config.ts` now switches to Nitro when `VERCEL=1` so Vercel builds emit `.vercel/output` instead of the old empty Vite-style output.
+## Durable Rules
+- Preserve the current marketplace UI and flow; no redesign, broad refactor, or framework churn unless the user asks.
+- Prefer environment-driven config; never hardcode secrets, domains, provider values, or phone numbers.
+- Keep auth cookie-based unless the user explicitly requests a change.
+- Preserve uncommitted work and merge carefully; never reset or clean the tree without explicit approval.
+- Never commit `.env` or `backend/.env`; treat exposed local secrets as needing rotation before production.
+- In `src/lib/api.js`, use `VITE_BACKEND_URL` or `VITE_API_URL`, otherwise relative `/api`; never restore the old hardcoded Render fallback.
+- Keep login error handling wired to backend `response.data.error`, not only `detail`.
+- Keep payment method availability server-driven so admin and checkout stay in sync.
+- Keep the conditional Vercel build setup in `vite.config.ts`: default/local build path stays intact, `VERCEL=1` uses Nitro for Vercel output.
+- For thread-specific state, read `NEW_THREAD_HANDOFF.md` and `.lovable/plan.md`.
 
-## Important directories and files
-- `src/pages/` - customer/admin page screens
-- `src/components/` - shared UI pieces
-- `src/contexts/` - auth/cart/global client state
-- `src/lib/api.js` - axios instance and backend base URL logic
-- `src/server/cloudinary.functions.ts` - signed Cloudinary upload payloads
-- `vite.config.ts` - conditional deploy adapter switch (`Cloudflare` by default, `Nitro` on Vercel builds)
-- `backend/src/server.js` - backend startup and route wiring
-- `backend/src/bootstrap.js` - bootstrap admin creation from env
-- `backend/src/paymentMethods.js` - payment method defaults and WhatsApp config helpers
-- `backend/src/routes/` - auth, products, categories, cart, admin, notifications, push, reviews, search
-- `backend/README.md` - deployment notes for the backend
-- `.lovable/plan.md` - active plan
-- `NEW_THREAD_HANDOFF.md` - current detailed state for the next thread
-- `src/routeTree.gen.ts` - generated file; do not hand-edit
+## Verification
+- Frontend changes: run `npm run build`.
+- Backend/auth/config changes: verify local `http://127.0.0.1:10000/api/health`, login, `GET /api/auth/me`, and any touched API route.
+- Cart/payment changes: also verify `GET /api/payment-methods` and the admin payment method toggle flow.
+- Deployment changes: re-check live DNS/HTTPS before acting.
+- Current production host checks:
+  - `https://www.bazari.site` should return `200`
+  - `https://bazari.site` should redirect to `https://www.bazari.site/`
+  - `https://api.bazari.site/api/health` should return `200`
+  - `https://api.bazari.site/api/payment-methods` should return `200`
 
-## Coding conventions
-- Keep the current split frontend/backend architecture.
-- Frontend code follows the existing local pattern: mostly `.jsx`/`.js`, React hooks, shared context, axios via `src/lib/api.js`.
-- Backend code is ESM `.js` with small route modules and shared helpers in `backend/src/`.
-- Prefer environment-driven configuration over hardcoded URLs, domains, credentials, or phone numbers.
-- Preserve the current compact marketplace UI unless the user explicitly asks for design changes.
-- Prefer ASCII in handoff/docs when terminal encoding looks unreliable; keep user-facing UI text valid UTF-8.
-
-## Test, build, and lint commands
-- Root:
-  - `npm install`
-  - `npm run dev`
-  - `npm run build`
-  - `npm run lint`
-- Backend:
-  - `cd backend`
-  - `npm install`
-  - `npm run dev`
-  - `npm start`
-
-## Safety constraints
-- Never commit `.env` or `backend/.env`.
-- Treat any locally exposed credentials as compromised for production; rotate before launch.
-- Production cookies must use secure settings; local cookie settings are not production-safe.
-- Do not hardcode production endpoints, secrets, or provider-specific values into source files.
-- Do not clean or reset the existing dirty worktree unless the user explicitly asks.
-
-## Rules for editing
-- Preserve existing uncommitted work and merge carefully with it.
-- Do not manually edit generated output such as `src/routeTree.gen.ts` or build artifacts in `dist/`.
-- Keep payment method availability server-driven; do not fork payment rules only into the frontend.
-- Update `AGENTS.md`, `NEW_THREAD_HANDOFF.md`, and `.lovable/plan.md` after meaningful changes.
-
-## How to verify changes
-- Frontend-only changes: run `npm run build`.
-- Backend/auth/config changes: run the backend and verify:
-  - `http://127.0.0.1:10000/api/health`
-  - login flow
-  - `GET /api/auth/me`
-  - any touched API route
-- Cart/payment changes: also verify:
-  - `GET /api/payment-methods`
-  - admin payment method toggle flow
-  - cart add/update/clear with an authenticated session
-- Deployment changes: re-check current DNS/HTTPS state before assuming any prior cutover status is still current.
-- For Vercel frontend deploys, also verify `https://www.bazari.site` is `200` and `https://bazari.site` redirects to it.
-- For Render backend deploys, verify both `https://api.bazari.site/api/health` and `https://api.bazari.site/api/payment-methods`.
-
-## Workflow preferences
-- The user prefers concise Azerbaijani updates and practical next steps.
-- Avoid broad refactors, architecture churn, or redesign work unless explicitly requested.
-- When deployment/auth state is unclear, verify it instead of assuming old thread knowledge is still current.
-- Prefer finishing the current Vercel + Render production cutover over reopening the Cloudflare-vs-Vercel hosting debate unless the user explicitly redirects it.
-
-## Recurring mistakes to avoid
-- Do not reintroduce the stale Render fallback in `src/lib/api.js`; use `VITE_BACKEND_URL` or relative `/api`.
-- Make sure login UI surfaces backend `response.data.error`, not only `detail`.
-- Do not hardcode payment methods in frontend-only state; the backend is the source of truth.
-- Watch for encoding regressions in docs or user-facing text.
-- Do not revert the conditional Nitro setup in `vite.config.ts` unless the frontend host is intentionally moved off Vercel.
-
-## Current work / handoff
-- Start with `NEW_THREAD_HANDOFF.md` for the current state, open tasks, and resume prompt.
-- Use `.lovable/plan.md` as the active short plan.
-- As of 2026-04-23 evening (Asia/Baku), both `www.bazari.site` and `api.bazari.site` are live on the current codepath; remaining production work is centered on WhatsApp env completeness and end-to-end Cloudinary/checkout verification.
+## 2026-04-24 Live Resume Notes
+- The user explicitly wants this thread to stay live-first against `https://www.bazari.site` and `https://api.bazari.site`; do not fall back to localhost unless production work is blocked.
+- On 2026-04-24 (Asia/Baku), the production re-check passed again:
+  - `https://www.bazari.site` -> `200`
+  - `https://bazari.site` -> `308` redirect to `https://www.bazari.site/`
+  - `https://api.bazari.site/api/health` -> `200`
+  - `https://api.bazari.site/api/payment-methods` -> `200`
+  - `https://api.bazari.site/api/homepage` -> `200`
+  - `https://api.bazari.site/api/products?limit=10` still returns `total = 3`
+- Production admin verification was repeated via live login:
+  - `GET https://api.bazari.site/api/admin/payment-methods` still shows `methods_count = 3`
+  - `whatsapp_configured` is still `false`
+  - `whatsapp_phone` is still empty
+- Do not reuse placeholder phone strings from the storefront like `+994 12 345 67 89`; that is not a confirmed order line.
+- `backend/.env` currently has no `WHATSAPP_ORDER_PHONE`, so there is no local canonical value to promote automatically.
+- The current local code now supports a DB-backed WhatsApp checkout line override:
+  - backend reads `app_settings.whatsapp_order_phone` first, then falls back to env `WHATSAPP_ORDER_PHONE`
+  - admin can update it through `PUT /api/admin/payment-methods/whatsapp-phone`
+  - the admin payments tab now exposes a WhatsApp phone form with save/reset actions
+- 2026-04-24 local verification for that new flow passed on an isolated smoke DB:
+  - root `npm run build` passed
+  - `node --check` passed for `backend/src/server.js`, `backend/src/routes/admin.js`, `backend/src/routes/paymentMethods.js`, and `backend/src/paymentMethods.js`
+  - isolated backend smoke on ports `10001` / `10002` confirmed save -> public payload update -> reset
+  - invalid short phone input returns `400`
+- Production still has the old live behavior until this code is deployed:
+  - live `whatsapp_configured` is still `false`
+  - after deploy, the real order number should be entered from the admin panel instead of relying only on Render env
+- Render CLI `v2.15.1` was downloaded to `%TEMP%\render-cli-2.15.1`.
+- `render login` was started once and created `C:\Users\User\.render\cli.yaml`, but authentication/workspace selection was not completed; Render env updates remain blocked until auth is finished.

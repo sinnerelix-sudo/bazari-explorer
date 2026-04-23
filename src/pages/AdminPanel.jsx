@@ -317,6 +317,11 @@ export default function AdminPanel() {
   const [users, setUsers] = useState([]);
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [whatsappPhone, setWhatsappPhone] = useState("");
+  const [whatsappDraft, setWhatsappDraft] = useState("");
+  const [whatsappSource, setWhatsappSource] = useState("unset");
+  const [whatsappUpdatedAt, setWhatsappUpdatedAt] = useState(null);
+  const [whatsappSaving, setWhatsappSaving] = useState(false);
+  const [whatsappFeedback, setWhatsappFeedback] = useState("");
   const [editProd, setEditProd] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -368,6 +373,10 @@ export default function AdminPanel() {
         const { data } = await ax.get("/admin/payment-methods");
         setPaymentMethods(data?.methods || []);
         setWhatsappPhone(data?.whatsapp_phone || "");
+        setWhatsappDraft(data?.whatsapp_phone || "");
+        setWhatsappSource(data?.whatsapp_source || "unset");
+        setWhatsappUpdatedAt(data?.whatsapp_updated_at || null);
+        setWhatsappFeedback("");
       } else if (tab === "users") {
         const { data } = await ax.get("/admin/users");
         setUsers(data || []);
@@ -401,6 +410,31 @@ export default function AdminPanel() {
   const handleTogglePaymentMethod = async (id, isActive) => {
     const { data } = await ax.put(`/admin/payment-methods/${id}`, { is_active: !isActive });
     setPaymentMethods((current) => current.map((method) => (method.id === id ? data : method)));
+  };
+
+  const handleSaveWhatsappPhone = async (nextPhone) => {
+    setWhatsappSaving(true);
+    setWhatsappFeedback("");
+
+    try {
+      const { data } = await ax.put("/admin/payment-methods/whatsapp-phone", {
+        whatsapp_phone: nextPhone,
+      });
+
+      setWhatsappPhone(data?.whatsapp_phone || "");
+      setWhatsappDraft(data?.whatsapp_phone || "");
+      setWhatsappSource(data?.whatsapp_source || "unset");
+      setWhatsappUpdatedAt(data?.whatsapp_updated_at || null);
+      setWhatsappFeedback(
+        data?.whatsapp_phone
+          ? "WhatsApp sifari\u015F n\u00F6mr\u0259si yenil\u0259ndi."
+          : "WhatsApp sifari\u015F n\u00F6mr\u0259si s\u0131f\u0131rland\u0131."
+      );
+    } catch (err) {
+      setWhatsappFeedback(err?.response?.data?.error || "WhatsApp n\u00F6mr\u0259sini saxlamaq m\u00FCmk\u00FCn olmad\u0131.");
+    } finally {
+      setWhatsappSaving(false);
+    }
   };
 
   const handleSaveCat = async (event) => {
@@ -724,10 +758,165 @@ export default function AdminPanel() {
                 </div>
               </div>
 
+              <div className="hidden" aria-hidden="true">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="font-heading font-bold text-base text-[#1A1A1A]">WhatsApp sifariş xətti</h2>
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-body font-semibold ${
+                          whatsappPhone ? "bg-green-50 text-green-700" : "bg-[#FFF0B8] text-[#8A6400]"
+                        }`}
+                      >
+                        {whatsappPhone ? "Hazırdır" : "Qurulmayıb"}
+                      </span>
+                      <span className="px-2.5 py-1 rounded-full text-[11px] font-body font-semibold bg-[#F5F3F0] text-[#595959]">
+                        {whatsappSource === "database"
+                          ? "Admin panel"
+                          : whatsappSource === "env"
+                            ? "Env fallback"
+                            : "Boş"}
+                      </span>
+                    </div>
+                    <p className="font-body text-sm text-[#8C8C8C] mt-2">
+                      Sifariş CTA-sı buradakı nömrəyə yönlənəcək. `+`, boşluq və mötərizə yaza bilərsiniz, server rəqəmləri avtomatik təmizləyəcək.
+                    </p>
+                    {whatsappUpdatedAt && (
+                      <p className="font-body text-xs text-[#8C8C8C] mt-2">
+                        Son yenilənmə: {new Date(whatsappUpdatedAt).toLocaleString("az-AZ")}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="w-full lg:w-[360px]">
+                    <label className="block font-body text-sm text-[#595959] mb-2">WhatsApp nömrəsi</label>
+                    <input
+                      data-testid="whatsapp-phone-input-legacy"
+                      value={whatsappDraft}
+                      onChange={(event) => setWhatsappDraft(event.target.value)}
+                      placeholder="+994 50 123 45 67"
+                      className="w-full px-4 py-3 rounded-2xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] focus:bg-white outline-none font-body text-sm"
+                    />
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        data-testid="save-whatsapp-phone-btn-legacy"
+                        onClick={() => handleSaveWhatsappPhone(whatsappDraft)}
+                        disabled={whatsappSaving}
+                        className="bg-[#E05A33] hover:bg-[#D94A22] text-white px-4 py-2 rounded-full text-sm font-body font-semibold disabled:opacity-50"
+                      >
+                        {whatsappSaving ? "Saxlanır..." : "Nömrəni saxla"}
+                      </button>
+                      <button
+                        type="button"
+                        data-testid="reset-whatsapp-phone-btn-legacy"
+                        onClick={() => handleSaveWhatsappPhone("")}
+                        disabled={whatsappSaving || (!whatsappPhone && whatsappSource !== "database")}
+                        className="px-4 py-2 rounded-full border border-gray-200 text-sm font-body font-semibold text-[#595959] hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        Sıfırla
+                      </button>
+                    </div>
+                    {whatsappFeedback && (
+                      <p
+                        className={`mt-3 text-xs font-body ${
+                          whatsappFeedback.includes("mümkün olmadı") || whatsappFeedback.includes("format")
+                            ? "text-[#C33D17]"
+                            : "text-green-700"
+                        }`}
+                      >
+                        {whatsappFeedback}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-4 bg-white rounded-2xl border border-gray-50 p-4 sm:p-5">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h2 className="font-heading font-bold text-base text-[#1A1A1A]">{"WhatsApp sifari\u015F x\u0259tti"}</h2>
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-[11px] font-body font-semibold ${
+                          whatsappPhone ? "bg-green-50 text-green-700" : "bg-[#FFF0B8] text-[#8A6400]"
+                        }`}
+                      >
+                        {whatsappPhone ? "Haz\u0131rd\u0131r" : "Qurulmay\u0131b"}
+                      </span>
+                      <span className="px-2.5 py-1 rounded-full text-[11px] font-body font-semibold bg-[#F5F3F0] text-[#595959]">
+                        {whatsappSource === "database"
+                          ? "Admin panel"
+                          : whatsappSource === "env"
+                            ? "Env fallback"
+                            : "Bo\u015F"}
+                      </span>
+                    </div>
+                    <p className="font-body text-sm text-[#8C8C8C] mt-2">
+                      {"Sifari\u015F CTA-s\u0131 buradak\u0131 n\u00F6mr\u0259y\u0259 y\u00F6nl\u0259n\u0259c\u0259k. `+`, bo\u015Fluq v\u0259 m\u00F6t\u0259riz\u0259 yaza bil\u0259rsiniz, server r\u0259q\u0259ml\u0259ri avtomatik t\u0259mizl\u0259y\u0259c\u0259k."}
+                    </p>
+                    {whatsappUpdatedAt && (
+                      <p className="font-body text-xs text-[#8C8C8C] mt-2">
+                        {"Son yenil\u0259nm\u0259: "} {new Date(whatsappUpdatedAt).toLocaleString("az-AZ")}
+                      </p>
+                    )}
+                  </div>
+
+                  <div className="w-full lg:w-[360px]">
+                    <label className="block font-body text-sm text-[#595959] mb-2">{"WhatsApp n\u00F6mr\u0259si"}</label>
+                    <input
+                      data-testid="whatsapp-phone-input"
+                      value={whatsappDraft}
+                      onChange={(event) => setWhatsappDraft(event.target.value)}
+                      placeholder="+994 50 123 45 67"
+                      className="w-full px-4 py-3 rounded-2xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] focus:bg-white outline-none font-body text-sm"
+                    />
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        data-testid="save-whatsapp-phone-btn"
+                        onClick={() => handleSaveWhatsappPhone(whatsappDraft)}
+                        disabled={whatsappSaving}
+                        className="bg-[#E05A33] hover:bg-[#D94A22] text-white px-4 py-2 rounded-full text-sm font-body font-semibold disabled:opacity-50"
+                      >
+                        {whatsappSaving ? "Saxlan\u0131r..." : "N\u00F6mr\u0259ni saxla"}
+                      </button>
+                      <button
+                        type="button"
+                        data-testid="reset-whatsapp-phone-btn"
+                        onClick={() => handleSaveWhatsappPhone("")}
+                        disabled={whatsappSaving || (!whatsappPhone && whatsappSource !== "database")}
+                        className="px-4 py-2 rounded-full border border-gray-200 text-sm font-body font-semibold text-[#595959] hover:bg-gray-50 disabled:opacity-50"
+                      >
+                        {"S\u0131f\u0131rla"}
+                      </button>
+                    </div>
+                    {whatsappFeedback && (
+                      <p
+                        className={`mt-3 text-xs font-body ${
+                          whatsappFeedback.includes("m\u00FCmk\u00FCn olmad\u0131") || whatsappFeedback.includes("format")
+                            ? "text-[#C33D17]"
+                            : "text-green-700"
+                        }`}
+                      >
+                        {whatsappFeedback}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               {!whatsappPhone && (
                 <div className="mb-4 rounded-2xl border border-[#FFD4C7] bg-[#FFF6F3] px-4 py-3 text-sm font-body text-[#A5533A] flex items-start gap-2">
                   <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
-                  <span>{"WHATSAPP_ORDER_PHONE h\u0259l\u0259 qurulmay\u0131b. Aktiv metodlar g\u00F6r\u00FCn\u0259c\u0259k, amma sifari\u015F y\u00F6nl\u0259ndirm\u0259si i\u015Fl\u0259m\u0259y\u0259c\u0259k."}</span>
+                  <span>{"WhatsApp sifari\u015F n\u00F6mr\u0259si h\u0259l\u0259 qurulmay\u0131b. Aktiv metodlar g\u00F6r\u00FCn\u0259c\u0259k, amma checkout y\u00F6nl\u0259ndirm\u0259si i\u015Fl\u0259m\u0259y\u0259c\u0259k."}</span>
+                </div>
+              )}
+
+              {!whatsappPhone && (
+                <div className="hidden" aria-hidden="true">
+                  <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
+                  <span>WhatsApp sifariş nömrəsi hələ qurulmayıb. Aktiv metodlar görünəcək, amma checkout yönləndirməsi işləməyəcək.</span>
                 </div>
               )}
 

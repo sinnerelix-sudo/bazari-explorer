@@ -1,6 +1,7 @@
 import { getDB } from "./db.js";
 
 const INACTIVE_MESSAGE = "Texniki s\u0259b\u0259bl\u0259rd\u0259n \u00E7al\u0131\u015Fm\u0131r";
+const WHATSAPP_SETTING_KEY = "whatsapp_order_phone";
 
 export const DEFAULT_PAYMENT_METHODS = [
   {
@@ -32,8 +33,77 @@ export function isValidPaymentMethodKey(key) {
   return DEFAULTS_BY_KEY.has(key);
 }
 
-export function getWhatsappOrderPhone() {
-  return (process.env.WHATSAPP_ORDER_PHONE || "").trim();
+export function normalizeWhatsappOrderPhone(phone) {
+  return String(phone || "").replace(/[^\d]/g, "");
+}
+
+export function isValidWhatsappOrderPhone(phone) {
+  const normalized = normalizeWhatsappOrderPhone(phone);
+  return normalized.length >= 10 && normalized.length <= 15;
+}
+
+function getEnvWhatsappOrderPhone() {
+  return normalizeWhatsappOrderPhone(process.env.WHATSAPP_ORDER_PHONE || "");
+}
+
+export async function getWhatsappOrderPhoneConfig() {
+  const collection = getDB().collection("app_settings");
+  const setting = await collection.findOne({ key: WHATSAPP_SETTING_KEY });
+  const storedPhone = normalizeWhatsappOrderPhone(setting?.value);
+
+  if (storedPhone) {
+    return {
+      phone: storedPhone,
+      source: "database",
+      updated_at: setting?.updated_at || setting?.created_at || null,
+      updated_by: setting?.updated_by || null,
+    };
+  }
+
+  const envPhone = getEnvWhatsappOrderPhone();
+  if (envPhone) {
+    return {
+      phone: envPhone,
+      source: "env",
+      updated_at: null,
+      updated_by: null,
+    };
+  }
+
+  return {
+    phone: "",
+    source: "unset",
+    updated_at: setting?.updated_at || setting?.created_at || null,
+    updated_by: setting?.updated_by || null,
+  };
+}
+
+export async function setWhatsappOrderPhone(phone, updatedBy = null) {
+  const normalizedPhone = normalizeWhatsappOrderPhone(phone);
+  const collection = getDB().collection("app_settings");
+
+  if (!normalizedPhone) {
+    await collection.deleteOne({ key: WHATSAPP_SETTING_KEY });
+    return getWhatsappOrderPhoneConfig();
+  }
+
+  await collection.updateOne(
+    { key: WHATSAPP_SETTING_KEY },
+    {
+      $set: {
+        value: normalizedPhone,
+        updated_at: new Date(),
+        updated_by: updatedBy,
+      },
+      $setOnInsert: {
+        key: WHATSAPP_SETTING_KEY,
+        created_at: new Date(),
+      },
+    },
+    { upsert: true }
+  );
+
+  return getWhatsappOrderPhoneConfig();
 }
 
 export async function ensurePaymentMethods() {

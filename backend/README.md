@@ -36,7 +36,7 @@ The server runs on `http://localhost:10000`.
    - `CORS_ORIGINS=https://bazari.site,https://www.bazari.site`
    - `COOKIE_SECURE=true`
    - `COOKIE_SAMESITE=none`
-   - `WHATSAPP_ORDER_PHONE`
+  - `WHATSAPP_ORDER_PHONE` (optional fallback if admin panel override is empty)
    - `VAPID_PUBLIC_KEY`
    - `VAPID_PRIVATE_KEY`
    - `VAPID_SUBJECT`
@@ -100,4 +100,5 @@ All endpoints are prefixed with `/api`.
 - `GET /api/admin/users` (admin)
 - `PUT /api/admin/users/:id/role` (admin) `{ role }`
 - `GET /api/admin/payment-methods` (admin)
+- `PUT /api/admin/payment-methods/whatsapp-phone` (admin) `{ whatsapp_phone }`
 - `PUT /api/admin/payment-methods/:id` (admin) `{ is_active }`

@@ -4,8 +4,10 @@ import { authRequired, roleRequired, publicUser } from "../auth.js";
 import { toId } from "../util.js";
 import {
   ensurePaymentMethods,
-  getWhatsappOrderPhone,
+  getWhatsappOrderPhoneConfig,
+  isValidWhatsappOrderPhone,
   isValidPaymentMethodKey,
+  setWhatsappOrderPhone,
   toAdminPaymentMethod,
 } from "../paymentMethods.js";
 
@@ -27,12 +29,34 @@ r.put("/users/:id/role", authRequired, roleRequired("admin"), async (req, res) =
 
 r.get("/payment-methods", authRequired, roleRequired("admin"), async (_req, res) => {
   const methods = await ensurePaymentMethods();
-  const whatsappPhone = getWhatsappOrderPhone();
+  const whatsappConfig = await getWhatsappOrderPhoneConfig();
 
   res.json({
     methods: methods.map(toAdminPaymentMethod),
-    whatsapp_phone: whatsappPhone,
-    whatsapp_configured: Boolean(whatsappPhone),
+    whatsapp_phone: whatsappConfig.phone,
+    whatsapp_configured: Boolean(whatsappConfig.phone),
+    whatsapp_source: whatsappConfig.source,
+    whatsapp_updated_at: whatsappConfig.updated_at,
+  });
+});
+
+r.put("/payment-methods/whatsapp-phone", authRequired, roleRequired("admin"), async (req, res) => {
+  const { whatsapp_phone } = req.body || {};
+  if (typeof whatsapp_phone !== "string") {
+    return res.status(400).json({ error: "Bad whatsapp_phone value" });
+  }
+
+  if (whatsapp_phone.trim() && !isValidWhatsappOrderPhone(whatsapp_phone)) {
+    return res.status(400).json({ error: "WhatsApp n\u00F6mr\u0259sini beyn\u0259lxalq formatda daxil edin" });
+  }
+
+  const whatsappConfig = await setWhatsappOrderPhone(whatsapp_phone, req.user?._id?.toString() || null);
+
+  res.json({
+    whatsapp_phone: whatsappConfig.phone,
+    whatsapp_configured: Boolean(whatsappConfig.phone),
+    whatsapp_source: whatsappConfig.source,
+    whatsapp_updated_at: whatsappConfig.updated_at,
   });
 });
 

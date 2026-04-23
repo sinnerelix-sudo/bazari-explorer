@@ -1,16 +1,16 @@
 import { Router } from "express";
-import { ensurePaymentMethods, getWhatsappOrderPhone, toPublicPaymentMethod } from "../paymentMethods.js";
+import { ensurePaymentMethods, getWhatsappOrderPhoneConfig, toPublicPaymentMethod } from "../paymentMethods.js";
 
 const r = Router();
 
 r.get("/", async (_req, res) => {
   const methods = await ensurePaymentMethods();
-  const whatsappPhone = getWhatsappOrderPhone();
+  const whatsappConfig = await getWhatsappOrderPhoneConfig();
 
   res.json({
     methods: methods.map(toPublicPaymentMethod),
-    whatsapp_phone: whatsappPhone,
-    whatsapp_configured: Boolean(whatsappPhone),
+    whatsapp_phone: whatsappConfig.phone,
+    whatsapp_configured: Boolean(whatsappConfig.phone),
   });
 });
 
