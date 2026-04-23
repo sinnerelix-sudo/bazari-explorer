@@ -93,4 +93,4 @@
 ## Current work / handoff
 - Start with `NEW_THREAD_HANDOFF.md` for the current state, open tasks, and resume prompt.
 - Use `.lovable/plan.md` as the active short plan.
-- As of 2026-04-23 evening (Asia/Baku), `www.bazari.site` serves the app from Vercel again, but `api.bazari.site` is still running an older Render deploy that does not expose `/api/payment-methods`.
+- As of 2026-04-23 evening (Asia/Baku), both `www.bazari.site` and `api.bazari.site` are live on the current codepath; remaining production work is centered on WhatsApp env completeness and end-to-end Cloudinary/checkout verification.

@@ -58,10 +58,20 @@ Keep the local cart/payment flow testable while finishing production deployment 
   - deployment id: `dpl_4hwrtwU33mNVvVbfrq7GPuXTrWpN`
   - deployment url: `https://bazari-explorer-g2fuqfebp-metrekareup1-3268s-projects.vercel.app`
   - aliases include `https://www.bazari.site` and `https://bazari.site`
-- The remaining live backend gap is now confirmed:
+- The current dirty worktree was committed and pushed to GitHub `main`:
+  - commit: `bea0ab1` - `Ship production auth, payment methods, and Vercel frontend fix`
+- Render picked up the pushed backend after a few minutes:
   - `https://api.bazari.site/api/health` returns `200`
-  - `https://api.bazari.site/api/payment-methods` still returns `Cannot GET /api/payment-methods`
-  - Render is serving an older backend deploy than the local worktree
+  - `https://api.bazari.site/api/payment-methods` now returns `200` JSON
+- Production auth/payment checks now passed:
+  - admin login on `https://api.bazari.site/api/auth/login`
+  - `GET https://api.bazari.site/api/auth/me`
+  - `GET https://api.bazari.site/api/admin/payment-methods`
+  - payment method toggle + revert on `card`
+- Current production gap after those checks:
+  - `whatsapp_phone` is still empty in production responses
+  - `whatsapp_configured` is `false`
+  - Cloudinary upload was not yet verified end-to-end through the admin UI
 
 ## Current local mock catalog
 These records were seeded directly into the local MongoDB for checkout testing on 2026-04-23.
@@ -146,18 +156,11 @@ Other likely relevant files:
 - Provider auth and live DNS state may have changed outside this shell; re-check before acting on deployment assumptions.
 
 ## Remaining tasks
-- Deploy the backend on Render and keep `api.bazari.site` bound there.
-- Make sure Render is running the current backend code that includes:
-  - `GET /api/payment-methods`
-  - `GET/PUT /api/admin/payment-methods`
-  - bootstrap admin support
-- If Render is connected to GitHub auto-deploy, commit/push the current `main` worktree carefully.
-- If Render requires dashboard action instead, use the existing local code and env templates; do not redesign or fork the app.
 - Verify on HTTPS:
-  - admin login
-  - payment method toggle behavior
   - Cloudinary upload
   - WhatsApp checkout redirect
+- Set `WHATSAPP_ORDER_PHONE` in the live backend env if the user wants the checkout redirect to be truly usable.
+- Optionally add preview envs on Vercel if preview deployments need the same Cloudinary/server config.
 - Optional cleanup after user confirmation:
   - remove the legacy dummy product `dsvxdczv`
   - replace or script the local mock catalog seed so it is reproducible after a DB reset
@@ -167,10 +170,11 @@ Other likely relevant files:
 - `src/routeTree.gen.ts` is generated and may keep changing after builds.
 - The mock catalog exists only in local MongoDB right now; it is not seeded by a checked-in script.
 - The legacy dummy product `dsvxdczv` is still in the local product list.
-- `www.bazari.site` is fixed live, but the production API is still stale and blocks real checkout/admin verification.
+- `www.bazari.site` and the production API are now live on the current codepath.
 - Preview envs were not refreshed on Vercel during this pass; only Production and Development were updated.
 - `VERCEL=1 npm run build` completes the Nitro/Vercel output, but Windows hits `EPERM` when Nitro tries to create the final `.vercel/output -> node_modules/.nitro/last-build` symlink; the remote Vercel Linux build succeeds anyway.
 - Wrangler is still not authenticated in this shell.
+- Production backend responses currently show `whatsapp_phone: \"\"` and `whatsapp_configured: false`, so WhatsApp checkout is not fully ready yet.
 
 ## Exact next 5 actions for the next thread
 1. Run `git status --short --branch` in `C:\Users\User\.codex\worktrees\7a2e\bazari-explorer` and preserve the current dirty tree exactly as-is.
@@ -178,15 +182,9 @@ Other likely relevant files:
    - `https://www.bazari.site` should be `200`
    - `https://bazari.site` should redirect to `https://www.bazari.site/`
    - `https://api.bazari.site/api/health` should be `200`
-   - `https://api.bazari.site/api/payment-methods` is expected to still fail until backend deploy is updated
-3. Verify whether Render can be updated from this shell:
-   - prefer a normal `main` push if the service is GitHub-connected and auto-deploys
-   - otherwise use the smallest provider-side action available; do not reset the tree
-4. After the backend is updated, verify production API behavior:
-   - `GET /api/payment-methods`
-   - admin login
-   - `GET /api/auth/me`
-   - admin payment method toggle
+   - `https://api.bazari.site/api/payment-methods` should be `200` JSON
+3. Inspect the public payment method payload and confirm whether `whatsapp_configured` is still `false`.
+4. If the user wants live WhatsApp checkout, set `WHATSAPP_ORDER_PHONE` in the production backend env and re-check the public payload.
 5. Finish end-to-end production checks on HTTPS:
    - Cloudinary upload from admin
    - cart/payment flow
@@ -244,5 +242,6 @@ Read `AGENTS.md`, `NEW_THREAD_HANDOFF.md`, and `.lovable/plan.md` in `C:\Users\U
 Current live summary as of 2026-04-23:
 - frontend: fixed on Vercel, `www.bazari.site` returns `200`
 - apex: `bazari.site` redirects to `www`
-- backend: `api.bazari.site/api/health` returns `200`, but `/api/payment-methods` is still missing on Render
-- most likely next move: ship the current backend code to the Render-connected `main` deployment path, then re-verify login/payment/upload flow
+- backend: `api.bazari.site/api/health` and `/api/payment-methods` both return `200`
+- auth/admin: production login, `/api/auth/me`, and payment method toggle all passed
+- remaining gap: `whatsapp_configured` is still `false`, and Cloudinary upload has not been browser-verified yet
