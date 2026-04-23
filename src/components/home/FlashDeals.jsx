@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { Zap, ChevronRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { flashDeals as staticFlashDeals } from "@/data/mockData";
 import ProductCard from "./ProductCard";
 
 function CountdownTimer() {
@@ -52,21 +51,18 @@ function CountdownTimer() {
 }
 
 export default function FlashDeals({ apiProducts }) {
-  // Map API products to component format
-  const deals = apiProducts?.length
-    ? apiProducts.map((p) => ({
-        id: p.id,
-        name: p.name,
-        image: p.images?.[0] || "",
-        priceNew: p.price,
-        priceOld: p.original_price,
-        discount: p.discount,
-        rating: p.rating,
-        reviews: p.review_count,
-        sold: Math.floor(Math.random() * 30) + 60,
-        total: 100,
-      }))
-    : staticFlashDeals;
+  const deals = (apiProducts || []).map((p) => ({
+    id: p.id,
+    name: p.name,
+    image: p.images?.[0] || "",
+    priceNew: p.price,
+    priceOld: p.original_price,
+    discount: p.discount,
+    rating: p.rating,
+    reviews: p.review_count,
+    sold: Math.floor(Math.random() * 30) + 60,
+    total: 100,
+  }));
 
   return (
     <section data-testid="flash-deals" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-12">

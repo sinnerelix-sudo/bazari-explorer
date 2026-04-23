@@ -25,12 +25,6 @@ import ProfilePage from "@/pages/ProfilePage";
 import PushNotificationBanner from "@/components/notifications/PushNotificationBanner";
 import { OrganizationJsonLd } from "@/components/seo/JsonLd";
 
-// Fallback data from static file
-import {
-  trendingProducts as staticTrending,
-  recommendedProducts as staticRecommended,
-} from "@/data/mockData";
-
 function HomePage() {
   const [homeData, setHomeData] = useState(null);
 
@@ -40,7 +34,13 @@ function HomePage() {
         const { data } = await api.get(`/homepage`);
         setHomeData(data);
       } catch {
-        // fallback to static
+        setHomeData({
+          categories: [],
+          flash_deals: [],
+          trending: [],
+          recommended: [],
+          campaigns: [],
+        });
       }
     };
     load();
@@ -61,12 +61,9 @@ function HomePage() {
       badge: p.badge,
     })) || [];
 
-  const trending = homeData?.trending?.length
-    ? mapProducts(homeData.trending)
-    : staticTrending;
-  const recommended = homeData?.recommended?.length
-    ? mapProducts(homeData.recommended)
-    : staticRecommended;
+  const trending = mapProducts(homeData?.trending);
+  const recommended = mapProducts(homeData?.recommended);
+  const flashDeals = homeData?.flash_deals || [];
 
   return (
     <div data-testid="homepage" className="min-h-screen bg-[#FDFCFB]">
@@ -79,15 +76,17 @@ function HomePage() {
         <HeroBanner />
         <CampaignBanner apiCampaigns={homeData?.campaigns} />
 
-        <FlashDeals apiProducts={homeData?.flash_deals} />
+        {flashDeals.length > 0 && <FlashDeals apiProducts={flashDeals} />}
 
-        <ProductGrid
+        {trending.length > 0 && (
+          <ProductGrid
           title="Trend Məhsullar"
           icon={<TrendingUp size={16} className="text-[#E05A33]" />}
           products={trending}
           testId="trending-products"
           linkable
-        />
+          />
+        )}
 
         {/* Mid-page Feature Banner */}
         <section data-testid="feature-banner" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-12">
@@ -114,13 +113,15 @@ function HomePage() {
           </div>
         </section>
 
-        <ProductGrid
+        {recommended.length > 0 && (
+          <ProductGrid
           title="Sənin üçün"
           icon={<Sparkles size={16} className="text-[#E05A33]" />}
           products={recommended}
           testId="recommended-products"
           linkable
-        />
+          />
+        )}
 
         <BrandZone />
       </main>

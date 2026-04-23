@@ -15,7 +15,7 @@ r.get("/", async (req, res) => {
   if (q) filter.$text = { $search: q };
   const lim = Math.min(parseInt(limit) || 20, 1000);
   const skip = (Math.max(parseInt(page) || 1, 1) - 1) * lim;
-  const cursor = getDB().collection("products").find(filter).sort({ created_at: -1 }).skip(skip).limit(lim);
+  const cursor = getDB().collection("products").find(filter).sort({ _id: -1 }).skip(skip).limit(lim);
   const [items, total] = await Promise.all([cursor.toArray(), getDB().collection("products").countDocuments(filter)]);
   res.json({ products: items.map(publicProduct), total, page: Number(page), limit: lim });
 });
