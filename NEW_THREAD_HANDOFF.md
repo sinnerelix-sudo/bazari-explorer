@@ -52,6 +52,22 @@ Keep the local cart/payment flow testable while finishing production deployment 
     - public `GET /api/payment-methods` immediately reflected the saved number
     - reset returned `whatsapp_configured = false` again
     - invalid short input returned `400`
+- On 2026-04-24 after user approval, the feature was pushed and deployed live:
+  - commit pushed to `main`: `8c2d80b` - `Make WhatsApp checkout phone editable from admin`
+  - manual Vercel production deploy succeeded:
+    - deployment id: `dpl_2JAUHfGtAUE3c2z3zu7CQW4iYoNu`
+    - deployment url: `https://bazari-explorer-bl5ge7unu-metrekareup1-3268s-projects.vercel.app`
+    - alias confirmed again on `https://www.bazari.site`
+  - Render backend updated as well; live `GET /api/admin/payment-methods` now returns:
+    - `whatsapp_source`
+    - `whatsapp_updated_at`
+  - safe production route smoke also passed:
+    - login to live admin still works
+    - `PUT https://api.bazari.site/api/admin/payment-methods/whatsapp-phone` with empty string returns `whatsapp_phone = ""`, `whatsapp_configured = false`, `whatsapp_source = "unset"`
+  - live frontend verification was done by fetching the production JS bundle and confirming it now contains:
+    - `whatsapp-phone-input`
+    - `save-whatsapp-phone-btn`
+    - `reset-whatsapp-phone-btn`
 
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:
@@ -244,9 +260,8 @@ Other likely relevant files:
 - Provider auth and live DNS state may have changed outside this shell; re-check before acting on deployment assumptions.
 
 ## Remaining tasks
-- Deploy the new admin-editable WhatsApp code to production.
 - Obtain the real WhatsApp order number in international digits format if it has not been provided out-of-band yet.
-- After deploy, set the live WhatsApp number from the admin panel.
+- Set the live WhatsApp number from the admin panel.
 - Re-check `GET https://api.bazari.site/api/payment-methods` and `GET https://api.bazari.site/api/admin/payment-methods` after that change to confirm:
   - `whatsapp_phone` is populated
   - `whatsapp_configured` is `true`
@@ -269,7 +284,7 @@ Other likely relevant files:
 - Production backend responses still show `whatsapp_phone: \"\"` and `whatsapp_configured: false`, so WhatsApp checkout is not fully ready yet.
 - Render CLI is now present only in `%TEMP%\render-cli-2.15.1`; it is not installed globally and still needs completed login/workspace setup before it can update services.
 - No real WhatsApp checkout number has been confirmed in repo-visible config; placeholder storefront phone strings must not be promoted to production.
-- The local feature is verified, but production still needs a deploy before the admin panel can manage the checkout phone live.
+- The feature is now deployed live, but no real WhatsApp order number has been saved yet.
 - Storefront/homepage product mismatch is no longer an open production issue; the live homepage now has a working data route and fake product fallback is disabled.
 
 ## Exact next 5 actions for the next thread

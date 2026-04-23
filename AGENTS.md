@@ -58,5 +58,17 @@
 - Production still has the old live behavior until this code is deployed:
   - live `whatsapp_configured` is still `false`
   - after deploy, the real order number should be entered from the admin panel instead of relying only on Render env
+- On 2026-04-24 later in the same thread, that WhatsApp admin-editable feature was pushed live:
+  - commit pushed to `main`: `8c2d80b` - `Make WhatsApp checkout phone editable from admin`
+  - Vercel production deploy completed manually:
+    - deployment id: `dpl_2JAUHfGtAUE3c2z3zu7CQW4iYoNu`
+    - deployment url: `https://bazari-explorer-bl5ge7unu-metrekareup1-3268s-projects.vercel.app`
+    - alias confirmed again on `https://www.bazari.site`
+  - Render backend picked up the same push quickly; live admin payload now includes:
+    - `whatsapp_source`
+    - `whatsapp_updated_at`
+  - safe production smoke passed without setting a fake number:
+    - `PUT https://api.bazari.site/api/admin/payment-methods/whatsapp-phone` with empty string returned `whatsapp_source = "unset"`
+    - live frontend bundle on `www.bazari.site` contains the new admin WhatsApp input/button strings
 - Render CLI `v2.15.1` was downloaded to `%TEMP%\render-cli-2.15.1`.
 - `render login` was started once and created `C:\Users\User\.render\cli.yaml`, but authentication/workspace selection was not completed; Render env updates remain blocked until auth is finished.

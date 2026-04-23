@@ -68,11 +68,17 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - the admin payments tab now includes WhatsApp save/reset controls
   - local isolated smoke verification passed for save -> public payload update -> reset
   - invalid short input returns `400`
+- On 2026-04-24 after push approval, that feature was deployed live:
+  - commit `8c2d80b` pushed to `main`
+  - Vercel production deploy `dpl_2JAUHfGtAUE3c2z3zu7CQW4iYoNu` completed and was aliased to `www.bazari.site`
+  - Render live admin payload now includes `whatsapp_source` and `whatsapp_updated_at`
+  - safe live reset call to `PUT /api/admin/payment-methods/whatsapp-phone` passed with `whatsapp_source = "unset"`
+  - production JS bundle now contains the WhatsApp admin input/button strings
 
 ## Open deployment tasks
-1. Deploy the new admin-editable WhatsApp checkout code to production
-2. Obtain the real WhatsApp order number if it has not been provided yet
-3. Set the live WhatsApp order number from the admin panel after deploy
+1. Obtain the real WhatsApp order number if it has not been provided yet
+2. Set the live WhatsApp order number from the admin panel
+3. Verify `GET /api/payment-methods` and admin payload after that update
 4. Verify WhatsApp checkout redirect after that admin update
 5. Optionally sync preview envs on Vercel
 
@@ -87,7 +93,7 @@ Finish the `bazari.site` production cutover without redesigning the app:
 - production backend still reports `whatsapp_configured: false`
 - `src/routeTree.gen.ts` is generated and may keep changing
 - Windows local `VERCEL=1 npm run build` ends with a Nitro symlink `EPERM`, but the remote Vercel build succeeds
-- Until the new code is deployed and a live WhatsApp number is saved, the cart CTA cannot build the live `wa.me` redirect and stays blocked by design
+- Until a live WhatsApp number is saved, the cart CTA cannot build the live `wa.me` redirect and stays blocked by design
 - placeholder storefront phone text exists in the UI and must not be treated as the real WhatsApp order line
 - Render CLI `v2.15.1` is available only in `%TEMP%\render-cli-2.15.1`; login/workspace setup is still incomplete
 
