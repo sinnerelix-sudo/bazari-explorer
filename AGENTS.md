@@ -101,3 +101,7 @@
   - After the first live deploy, hydration error `#418` still appeared; `src/routes/index.tsx` and `src/routes/$.tsx` were updated so the client also renders `null` until mount before lazy-loading the browser-only app.
   - `npm.cmd run build` passed after the fix.
   - `npm.cmd run lint` was attempted but timed out after roughly 3 minutes in this Windows shell.
+  - Commits pushed to `main`: `29372ca` (`Fix mobile product cart interactions`) and `4c0d721` (`Avoid hydration mismatch for mobile cart flow`).
+  - Final Vercel production deploy: `dpl_FtEekd3NNquhHv19zpKH5wBuhgFD`, aliased to `https://www.bazari.site`.
+  - Post-deploy mobile CDP verification on `https://www.bazari.site/product/69ea342414e252d11f447f24` passed: deployed asset detected, `Something went wrong` absent, hydration exception count `0`, `POST /api/cart/add` returned `200`.
+  - The admin test cart used during verification was cleared afterward through live `DELETE /api/cart/clear`, returning `count = 0`.

@@ -105,6 +105,19 @@ Keep the local cart/payment flow testable while finishing production deployment 
   - `ProductCard` card-level cart button now calls the shared `addToCart` flow instead of only stopping propagation.
   - After the first production deploy for this fix, mobile CDP still showed hydration `#418`; `src/routes/index.tsx` and `src/routes/$.tsx` were updated so the browser-only app waits until client mount before rendering, matching server `null` output during hydration.
   - `npm.cmd run build` passed. `npm.cmd run lint` was attempted but timed out after roughly 3 minutes in this shell.
+  - Commits pushed to `main`:
+    - `29372ca` - `Fix mobile product cart interactions`
+    - `4c0d721` - `Avoid hydration mismatch for mobile cart flow`
+  - Final Vercel production deploy succeeded:
+    - deployment id: `dpl_FtEekd3NNquhHv19zpKH5wBuhgFD`
+    - deployment url: `https://bazari-explorer-847qfmogg-metrekareup1-3268s-projects.vercel.app`
+    - alias confirmed on `https://www.bazari.site`
+  - Post-deploy live mobile verification passed on `https://www.bazari.site/product/69ea342414e252d11f447f24`:
+    - new deployed asset was detected
+    - page did not show `Something went wrong`
+    - hydration exception count was `0`
+    - logged-in `POST https://api.bazari.site/api/cart/add` returned `200`
+    - the admin test cart was cleared afterward with live `DELETE /api/cart/clear`, returning `count = 0`
 
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:

@@ -96,12 +96,16 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - `ProductCard` card cart button now uses shared `addToCart`
   - route mount gating was added in `src/routes/index.tsx` and `src/routes/$.tsx` so the browser-only app does not hydrate different markup than the server rendered
   - `npm.cmd run build` passed; `npm.cmd run lint` timed out after roughly 3 minutes
+- On 2026-04-25, the phone add-to-cart fix was pushed and deployed:
+  - commits `29372ca` and `4c0d721` pushed to `main`
+  - Vercel production deploy `dpl_FtEekd3NNquhHv19zpKH5wBuhgFD` completed and was aliased to `www.bazari.site`
+  - post-deploy mobile verification passed: no `Something went wrong`, hydration exceptions `0`, cart add API `200`
+  - the admin test cart was cleared afterward and returned `count = 0`
 
 ## Open deployment tasks
-1. Deploy the phone add-to-cart hydration fix and re-check mobile add-to-cart on `https://www.bazari.site`
-2. Run a safe live cart checkout redirect smoke when checkout work resumes and confirm it targets `https://wa.me/994557252025?text=...` without placing a real order
-3. Optionally update the PWA icon PNG files if the browser/install icon must also match the new Bazari mark
-4. Complete Render CLI auth/workspace setup only if future Render deploy/env work needs it
+1. Run a safe live cart checkout redirect smoke when checkout work resumes and confirm it targets `https://wa.me/994557252025?text=...` without placing a real order
+2. Optionally update the PWA icon PNG files if the browser/install icon must also match the new Bazari mark
+3. Complete Render CLI auth/workspace setup only if future Render deploy/env work needs it
 
 ## Constraints
 - preserve the dirty worktree; do not reset it
