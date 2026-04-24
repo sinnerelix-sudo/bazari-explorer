@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Zap, ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
 import ProductCard from "./ProductCard";
 
 function CountdownTimer() {
@@ -87,9 +86,9 @@ export default function FlashDeals({ apiProducts }) {
       </div>
       <div className="flex overflow-x-auto gap-3 sm:gap-4 pb-2 scrollbar-hide sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:overflow-visible">
         {deals.map((product) => (
-          <Link key={product.id} to={`/product/${product.id}`} className="flex-shrink-0 w-[170px] sm:w-auto block">
-            <ProductCard product={product} showProgress />
-          </Link>
+          <div key={product.id} className="flex-shrink-0 w-[170px] sm:w-auto">
+            <ProductCard product={product} showProgress linkTo={`/product/${product.id}`} />
+          </div>
         ))}
       </div>
     </section>

@@ -1,5 +1,4 @@
 import { ChevronRight } from "lucide-react";
-import { Link } from "react-router-dom";
 import ProductCard from "./ProductCard";
 
 export default function ProductGrid({ title, icon, products, testId, linkable = false }) {
@@ -26,9 +25,7 @@ export default function ProductGrid({ title, icon, products, testId, linkable = 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
         {products.map((product) =>
           linkable ? (
-            <Link key={product.id} to={`/product/${product.id}`} className="block">
-              <ProductCard product={product} />
-            </Link>
+            <ProductCard key={product.id} product={product} linkTo={`/product/${product.id}`} />
           ) : (
             <ProductCard key={product.id} product={product} />
           )

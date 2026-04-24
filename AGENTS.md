@@ -31,21 +31,28 @@
   - `https://api.bazari.site/api/health` should return `200`
   - `https://api.bazari.site/api/payment-methods` should return `200`
 
-## 2026-04-24 Live Resume Notes
+## 2026-04-25 Live Resume Notes
 - The user explicitly wants this thread to stay live-first against `https://www.bazari.site` and `https://api.bazari.site`; do not fall back to localhost unless production work is blocked.
-- On 2026-04-24 (Asia/Baku), the production re-check passed again:
+- On 2026-04-25 (Asia/Baku), the latest production re-check passed:
   - `https://www.bazari.site` -> `200`
   - `https://bazari.site` -> `308` redirect to `https://www.bazari.site/`
   - `https://api.bazari.site/api/health` -> `200`
   - `https://api.bazari.site/api/payment-methods` -> `200`
   - `https://api.bazari.site/api/homepage` -> `200`
-  - `https://api.bazari.site/api/products?limit=10` still returns `total = 3`
+  - `https://api.bazari.site/api/products?limit=10` -> `total = 3`
+  - `https://www.bazari.site/bazari-logo.jpg` -> `200`
+  - live `manifest.json` returns `short_name = "Bazari"`
+- Public payment methods now show the live WhatsApp checkout line:
+  - `whatsapp_phone = "994557252025"`
+  - `whatsapp_configured = true`
 - Production admin verification was repeated via live login:
-  - `GET https://api.bazari.site/api/admin/payment-methods` still shows `methods_count = 3`
-  - `whatsapp_configured` is still `false`
-  - `whatsapp_phone` is still empty
+  - `GET https://api.bazari.site/api/admin/payment-methods` shows `methods_count = 3`
+  - `whatsapp_phone = "994557252025"`
+  - `whatsapp_configured = true`
+  - `whatsapp_source = "database"`
+  - `whatsapp_updated_at = "2026-04-23T23:05:22.324Z"`
 - Do not reuse placeholder phone strings from the storefront like `+994 12 345 67 89`; that is not a confirmed order line.
-- `backend/.env` currently has no `WHATSAPP_ORDER_PHONE`, so there is no local canonical value to promote automatically.
+- The current live canonical WhatsApp checkout number is the DB-backed admin setting, not a hardcoded frontend value.
 - The current local code now supports a DB-backed WhatsApp checkout line override:
   - backend reads `app_settings.whatsapp_order_phone` first, then falls back to env `WHATSAPP_ORDER_PHONE`
   - admin can update it through `PUT /api/admin/payment-methods/whatsapp-phone`
@@ -55,9 +62,7 @@
   - `node --check` passed for `backend/src/server.js`, `backend/src/routes/admin.js`, `backend/src/routes/paymentMethods.js`, and `backend/src/paymentMethods.js`
   - isolated backend smoke on ports `10001` / `10002` confirmed save -> public payload update -> reset
   - invalid short phone input returns `400`
-- Production still has the old live behavior until this code is deployed:
-  - live `whatsapp_configured` is still `false`
-  - after deploy, the real order number should be entered from the admin panel instead of relying only on Render env
+- The old production WhatsApp gap is now closed on live: public and admin payloads both show `whatsapp_configured = true` from the database setting.
 - On 2026-04-24 later in the same thread, that WhatsApp admin-editable feature was pushed live:
   - commit pushed to `main`: `8c2d80b` - `Make WhatsApp checkout phone editable from admin`
   - Vercel production deploy completed manually:
@@ -87,4 +92,11 @@
     - `https://www.bazari.site/bazari-logo.jpg` returns `200`
     - live `manifest.json` now reports `short_name = "Bazari"`
 - Render CLI `v2.15.1` was downloaded to `%TEMP%\render-cli-2.15.1`.
-- `render login` was started once and created `C:\Users\User\.render\cli.yaml`, but authentication/workspace selection was not completed; Render env updates remain blocked until auth is finished.
+- `render login` was started once and created `C:\Users\User\.render\cli.yaml`, but authentication/workspace selection was not completed; Render CLI env updates remain blocked until auth is finished. The current WhatsApp checkout number no longer depends on a Render env update because it is stored through the admin/database setting.
+- On 2026-04-25, the user reported that desktop add-to-cart works but phone add-to-cart shows the TanStack error boundary text `Something went wrong`.
+  - Live mobile CDP smoke on `https://www.bazari.site/product/69ea342414e252d11f447f24` confirmed backend cart add itself returns `200` when logged in.
+  - The same mobile run exposed React hydration error `#418` on page load.
+  - Root frontend fix: remove invalid nested interactive markup where `ProductGrid`, `FlashDeals`, `CategoryPage`, and similar products wrapped `ProductCard` in a `<Link>` while `ProductCard` contained `<button>` controls.
+  - `ProductCard` now owns its product links for image/text areas, keeps favorite/cart buttons outside anchors, and the card cart button calls the shared `addToCart` flow directly.
+  - `npm.cmd run build` passed after the fix.
+  - `npm.cmd run lint` was attempted but timed out after roughly 3 minutes in this Windows shell.

@@ -14,29 +14,32 @@ Keep the local cart/payment flow testable while finishing production deployment 
   - prefer checking backend behavior on `https://api.bazari.site`
   - use local dev only if production work is blocked or the user specifically asks for localhost again
 
-## 2026-04-24 live resume snapshot
-- Production was re-checked again from this thread and still matches the expected live state:
+## 2026-04-25 live resume snapshot
+- Production was re-checked again from this thread and matches the latest expected live state:
   - `https://www.bazari.site` -> `200`
   - `https://bazari.site` -> `308` redirect to `https://www.bazari.site/`
   - `https://api.bazari.site/api/health` -> `200`
   - `https://api.bazari.site/api/payment-methods` -> `200`
   - `https://api.bazari.site/api/homepage` -> `200`
   - `https://api.bazari.site/api/products?limit=10` -> `total = 3`
+  - `https://www.bazari.site/bazari-logo.jpg` -> `200`
+  - live `manifest.json` -> `short_name = "Bazari"`
 - The live products feed still does not include the deleted dummy/test product; current production count remains `3`.
 - Production admin auth was re-used to check the backend admin payment payload:
   - `GET https://api.bazari.site/api/admin/payment-methods` succeeded
   - `methods_count = 3`
-  - `whatsapp_configured = false`
-  - `whatsapp_phone` is empty
-- Repo and local env inspection found no canonical WhatsApp order line to promote automatically:
-  - `backend/.env` has no `WHATSAPP_ORDER_PHONE`
-  - the visible `+994 12 345 67 89` strings in the storefront/JSON-LD are placeholder contact text and should not be used as the real checkout line
+  - `whatsapp_phone = "994557252025"`
+  - `whatsapp_configured = true`
+  - `whatsapp_source = "database"`
+  - `whatsapp_updated_at = "2026-04-23T23:05:22.324Z"`
+- Public `GET https://api.bazari.site/api/payment-methods` also returns `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`.
+- The visible `+994 12 345 67 89` strings in storefront/JSON-LD are placeholder contact text and should not be treated as the checkout line.
 - Render automation progress on this machine:
   - official Render docs were checked; env updates are supported through the Render dashboard, API, or Render CLI
   - Render CLI `v2.15.1` was downloaded to `%TEMP%\render-cli-2.15.1`
   - `render login` created `C:\Users\User\.render\cli.yaml` with a refresh-token placeholder, but auth was not finished and no workspace is set yet
   - unauthenticated `render workspaces` still says `run render login to authenticate`
-  - until Render auth is completed and the real WhatsApp number is known, production env update is still blocked
+  - Render CLI env updates remain blocked until auth is completed, but the current WhatsApp checkout number is live through the admin/database setting and does not require a Render env update
 - On 2026-04-24 later in the same thread, the WhatsApp checkout number became admin-editable in code:
   - backend now reads `app_settings.whatsapp_order_phone` before env fallback
   - admin route added: `PUT /api/admin/payment-methods/whatsapp-phone`
@@ -93,6 +96,14 @@ Keep the local cart/payment flow testable while finishing production deployment 
     - login route HTML contains `Bazari`
     - `https://www.bazari.site/bazari-logo.jpg` returns `200`
     - live `manifest.json` now reports `short_name = "Bazari"`
+- On 2026-04-25, the user reported a phone-only add-to-cart failure where the screen shows `Something went wrong` even though desktop add-to-cart works:
+  - Live mobile CDP smoke on `https://www.bazari.site/product/69ea342414e252d11f447f24` showed logged-in `POST https://api.bazari.site/api/cart/add` returns `200`; the test cart was cleared afterward.
+  - The mobile page load also emitted React hydration error `#418`.
+  - Likely root cause found in frontend markup: product lists wrapped the whole `ProductCard` in a React Router `<Link>` while `ProductCard` itself rendered favorite/cart `<button>` controls, creating invalid nested interactive DOM that is fragile on mobile hydration/touch.
+  - Local fix keeps UI shape but removes nested anchors/buttons: `ProductCard` now links only image/text areas internally and keeps favorite/cart buttons as sibling controls.
+  - Updated wrappers in `src/components/home/ProductGrid.jsx`, `src/components/home/FlashDeals.jsx`, `src/pages/CategoryPage.jsx`, and `src/pages/ProductDetail.jsx`.
+  - `ProductCard` card-level cart button now calls the shared `addToCart` flow instead of only stopping propagation.
+  - `npm.cmd run build` passed. `npm.cmd run lint` was attempted but timed out after roughly 3 minutes in this shell.
 
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:
@@ -195,10 +206,10 @@ Keep the local cart/payment flow testable while finishing production deployment 
   - frontend server function `https://www.bazari.site/_serverFn/712c2064fef4d1f379338c6033503ed3ba828c7a1ff75e70dfc68b1eaf98805b` returned a valid signed upload payload
   - a real PNG smoke upload to Cloudinary succeeded on the production cloud
   - production admin auth still works, and the uploaded image URL was used to create a temporary product that was immediately deleted again
-- Current production gap after those checks:
-  - `whatsapp_phone` is still empty in production responses
-  - `whatsapp_configured` is `false`
-  - because checkout reads `WHATSAPP_ORDER_PHONE` from backend env only, WhatsApp redirect is still blocked until that env is set and the backend is restarted/redeployed
+- Latest production WhatsApp state after the 2026-04-25 live re-check:
+  - public `GET /api/payment-methods` returns `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`
+  - admin `GET /api/admin/payment-methods` returns the same phone, `whatsapp_source = "database"`, and a populated `whatsapp_updated_at`
+  - the old env-only WhatsApp gap is closed on live; do not reintroduce a hardcoded phone or frontend-only fallback
 
 ## Current local mock catalog
 These records were seeded directly into the local MongoDB for checkout testing on 2026-04-23.
@@ -285,13 +296,8 @@ Other likely relevant files:
 - Provider auth and live DNS state may have changed outside this shell; re-check before acting on deployment assumptions.
 
 ## Remaining tasks
-- Obtain the real WhatsApp order number in international digits format if it has not been provided out-of-band yet.
-- Set the live WhatsApp number from the admin panel.
-- Re-check `GET https://api.bazari.site/api/payment-methods` and `GET https://api.bazari.site/api/admin/payment-methods` after that change to confirm:
-  - `whatsapp_phone` is populated
-  - `whatsapp_configured` is `true`
-- Re-run the live cart checkout smoke after the admin update and confirm the cart CTA redirects to `https://wa.me/<digits>?text=...`.
-- Complete Render authentication/workspace selection only if it is still needed for deployment; env-only editing is no longer the only path.
+- Re-run a live cart checkout redirect smoke when the next checkout-related task starts and confirm the cart CTA builds `https://wa.me/994557252025?text=...` without placing a real order.
+- Complete Render authentication/workspace selection only if future deployment/env work needs Render CLI access.
 - Optionally add preview envs on Vercel if preview deployments need the same Cloudinary/server config.
 - Optional cleanup after user confirmation:
   - remove the legacy dummy product `dsvxdczv`
@@ -306,10 +312,9 @@ Other likely relevant files:
 - Preview envs were not refreshed on Vercel during this pass; only Production and Development were updated.
 - `VERCEL=1 npm run build` completes the Nitro/Vercel output, but Windows hits `EPERM` when Nitro tries to create the final `.vercel/output -> node_modules/.nitro/last-build` symlink; the remote Vercel Linux build succeeds anyway.
 - Wrangler is still not authenticated in this shell.
-- Production backend responses still show `whatsapp_phone: \"\"` and `whatsapp_configured: false`, so WhatsApp checkout is not fully ready yet.
+- Production backend responses now show `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`; preserve this DB-backed behavior.
 - Render CLI is now present only in `%TEMP%\render-cli-2.15.1`; it is not installed globally and still needs completed login/workspace setup before it can update services.
-- No real WhatsApp checkout number has been confirmed in repo-visible config; placeholder storefront phone strings must not be promoted to production.
-- The feature is now deployed live, but no real WhatsApp order number has been saved yet.
+- Placeholder storefront phone strings must not be promoted into code; the live checkout number is admin/database-driven.
 - Storefront/homepage product mismatch is no longer an open production issue; the live homepage now has a working data route and fake product fallback is disabled.
 
 ## Exact next 5 actions for the next thread
@@ -319,9 +324,9 @@ Other likely relevant files:
    - `https://bazari.site` should redirect to `https://www.bazari.site/`
    - `https://api.bazari.site/api/health` should be `200`
    - `https://api.bazari.site/api/payment-methods` should be `200` JSON
-3. Confirm again that both public and admin payment method payloads still show `whatsapp_configured: false` unless an env update has already happened.
-4. Obtain the real WhatsApp order phone and complete Render login/workspace setup if they are still missing.
-5. Set `WHATSAPP_ORDER_PHONE`, redeploy/restart Render, and then re-run the live checkout redirect smoke.
+3. Confirm public and admin payment method payloads still show `whatsapp_phone = "994557252025"`, `whatsapp_configured = true`, and admin `whatsapp_source = "database"`.
+4. For checkout work, run a safe live redirect smoke and confirm the cart CTA targets `https://wa.me/994557252025?text=...`.
+5. Complete Render login/workspace setup only if future Render deployment or env work requires CLI access.
 
 ## Commands to run for verification
 Root app:
@@ -372,11 +377,11 @@ Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:10000/api/cart/add' -Conte
 ## Resume prompt
 Read `AGENTS.md`, `NEW_THREAD_HANDOFF.md`, and `.lovable/plan.md` in `C:\Users\User\.codex\worktrees\7a2e\bazari-explorer`, then continue the `bazari.site` production deployment. Start with `git status`, preserve the existing uncommitted work, re-check the current DNS/deploy state before acting, and continue without redesigning the app or hardcoding secrets.
 
-Current live summary as of 2026-04-23:
+Current live summary as of 2026-04-25:
 - frontend: fixed on Vercel, `www.bazari.site` returns `200`
 - apex: `bazari.site` redirects to `www`
 - backend: `api.bazari.site/api/health` and `/api/payment-methods` both return `200`
 - auth/admin: production login, `/api/auth/me`, and payment method toggle all passed
 - Cloudinary: production upload smoke now passed through the live frontend server function and a temporary admin product create/delete cycle
 - storefront homepage: production now uses the live admin-managed product feed instead of static showcase product cards
-- remaining gap: `whatsapp_configured` is still `false`, so WhatsApp checkout cannot redirect until `WHATSAPP_ORDER_PHONE` is set in Render production env
+- WhatsApp checkout: public and admin payloads now show `whatsapp_phone = "994557252025"`, `whatsapp_configured = true`, and admin `whatsapp_source = "database"`

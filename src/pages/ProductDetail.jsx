@@ -379,9 +379,7 @@ export default function ProductDetail() {
             </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {similar.map((p) => (
-                <Link key={p.id} to={`/product/${p.id}`} className="block">
-                  <ProductCard product={p} />
-                </Link>
+                <ProductCard key={p.id} product={p} linkTo={`/product/${p.id}`} />
               ))}
             </div>
           </section>

@@ -18,7 +18,10 @@ Finish the `bazari.site` production cutover without redesigning the app:
 - `https://api.bazari.site/api/payment-methods` returns `200` JSON
 - `https://api.bazari.site/api/homepage` returns `200`
 - `https://api.bazari.site/api/products?limit=10` currently returns `total = 3`
-- production admin payment payload was re-checked on 2026-04-24 and still shows `whatsapp_configured: false`
+- `https://www.bazari.site/bazari-logo.jpg` returns `200`
+- live `manifest.json` reports `short_name = "Bazari"`
+- public payment payload was re-checked on 2026-04-25 and shows `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`
+- production admin payment payload was re-checked on 2026-04-25 and shows `whatsapp_phone = "994557252025"`, `whatsapp_configured = true`, `whatsapp_source = "database"`, and populated `whatsapp_updated_at`
 
 ## Already completed
 - The live storefront mismatch is now fixed on production:
@@ -86,13 +89,18 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - live smoke confirmed `Bazari` in homepage/login HTML
   - `https://www.bazari.site/bazari-logo.jpg` returns `200`
   - live `manifest.json` now reports `short_name = "Bazari"`
+- On 2026-04-25, phone-only add-to-cart error investigation started:
+  - live mobile CDP smoke confirmed the logged-in cart API POST returns `200`
+  - the same run exposed React hydration error `#418`
+  - product card wrappers were fixed so buttons are no longer nested inside product links
+  - `ProductCard` card cart button now uses shared `addToCart`
+  - `npm.cmd run build` passed; `npm.cmd run lint` timed out after roughly 3 minutes
 
 ## Open deployment tasks
-1. Obtain the real WhatsApp order number if it has not been provided yet
-2. Set the live WhatsApp order number from the admin panel
-3. Verify `GET /api/payment-methods` and admin payload after that update
-4. Verify WhatsApp checkout redirect after that admin update
-5. Optionally update the PWA icon PNG files if the browser/install icon must also match the new Bazari mark
+1. Deploy the phone add-to-cart hydration fix and re-check mobile add-to-cart on `https://www.bazari.site`
+2. Run a safe live cart checkout redirect smoke when checkout work resumes and confirm it targets `https://wa.me/994557252025?text=...` without placing a real order
+3. Optionally update the PWA icon PNG files if the browser/install icon must also match the new Bazari mark
+4. Complete Render CLI auth/workspace setup only if future Render deploy/env work needs it
 
 ## Constraints
 - preserve the dirty worktree; do not reset it
@@ -102,10 +110,9 @@ Finish the `bazari.site` production cutover without redesigning the app:
 - keep the WhatsApp checkout phone configurable from backend/admin state, not frontend constants
 
 ## Risks
-- production backend still reports `whatsapp_configured: false`
+- preserve the live DB-backed WhatsApp state; production now reports `whatsapp_configured = true`
 - `src/routeTree.gen.ts` is generated and may keep changing
 - Windows local `VERCEL=1 npm run build` ends with a Nitro symlink `EPERM`, but the remote Vercel build succeeds
-- Until a live WhatsApp number is saved, the cart CTA cannot build the live `wa.me` redirect and stays blocked by design
 - placeholder storefront phone text exists in the UI and must not be treated as the real WhatsApp order line
 - Render CLI `v2.15.1` is available only in `%TEMP%\render-cli-2.15.1`; login/workspace setup is still incomplete
 

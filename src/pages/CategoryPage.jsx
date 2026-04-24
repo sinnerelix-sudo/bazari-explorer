@@ -95,9 +95,7 @@ export default function CategoryPage() {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
             {sorted.map((p) => (
-              <Link key={p.id} to={`/product/${p.id}`}>
-                <ProductCard product={mapProduct(p)} />
-              </Link>
+              <ProductCard key={p.id} product={mapProduct(p)} linkTo={`/product/${p.id}`} />
             ))}
           </div>
         )}
