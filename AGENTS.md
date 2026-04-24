@@ -98,5 +98,6 @@
   - The same mobile run exposed React hydration error `#418` on page load.
   - Root frontend fix: remove invalid nested interactive markup where `ProductGrid`, `FlashDeals`, `CategoryPage`, and similar products wrapped `ProductCard` in a `<Link>` while `ProductCard` contained `<button>` controls.
   - `ProductCard` now owns its product links for image/text areas, keeps favorite/cart buttons outside anchors, and the card cart button calls the shared `addToCart` flow directly.
+  - After the first live deploy, hydration error `#418` still appeared; `src/routes/index.tsx` and `src/routes/$.tsx` were updated so the client also renders `null` until mount before lazy-loading the browser-only app.
   - `npm.cmd run build` passed after the fix.
   - `npm.cmd run lint` was attempted but timed out after roughly 3 minutes in this Windows shell.

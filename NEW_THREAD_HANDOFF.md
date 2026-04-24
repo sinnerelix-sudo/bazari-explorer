@@ -103,6 +103,7 @@ Keep the local cart/payment flow testable while finishing production deployment 
   - Local fix keeps UI shape but removes nested anchors/buttons: `ProductCard` now links only image/text areas internally and keeps favorite/cart buttons as sibling controls.
   - Updated wrappers in `src/components/home/ProductGrid.jsx`, `src/components/home/FlashDeals.jsx`, `src/pages/CategoryPage.jsx`, and `src/pages/ProductDetail.jsx`.
   - `ProductCard` card-level cart button now calls the shared `addToCart` flow instead of only stopping propagation.
+  - After the first production deploy for this fix, mobile CDP still showed hydration `#418`; `src/routes/index.tsx` and `src/routes/$.tsx` were updated so the browser-only app waits until client mount before rendering, matching server `null` output during hydration.
   - `npm.cmd run build` passed. `npm.cmd run lint` was attempted but timed out after roughly 3 minutes in this shell.
 
 ## What has already been done

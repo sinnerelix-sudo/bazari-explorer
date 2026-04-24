@@ -94,6 +94,7 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - the same run exposed React hydration error `#418`
   - product card wrappers were fixed so buttons are no longer nested inside product links
   - `ProductCard` card cart button now uses shared `addToCart`
+  - route mount gating was added in `src/routes/index.tsx` and `src/routes/$.tsx` so the browser-only app does not hydrate different markup than the server rendered
   - `npm.cmd run build` passed; `npm.cmd run lint` timed out after roughly 3 minutes
 
 ## Open deployment tasks

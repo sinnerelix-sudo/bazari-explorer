@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 
 // CRA app loaded only on the client (uses BrowserRouter, react-router-dom v7,
 // browser-only APIs like ServiceWorker, window, etc.)
@@ -11,9 +11,16 @@ export const Route = createFileRoute("/")({
 });
 
 function IndexRoute() {
-  if (typeof window === "undefined") {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
     return null;
   }
+
   return (
     <Suspense fallback={null}>
       <App />
