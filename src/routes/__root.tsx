@@ -31,6 +31,7 @@ export const Route = createRootRoute({
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "Bazari - Premium Marketplace" },
       { name: "description", content: "Bazari - Premium marketplace. \u018Fn yax\u015F\u0131 endiriml\u0259r v\u0259 kampaniyalar." },
+      { name: "google", content: "notranslate" },
       { name: "theme-color", content: "#E05A33" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-title", content: "Bazari" },
@@ -51,11 +52,11 @@ export const Route = createRootRoute({
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="az" translate="no" className="notranslate">
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body className="notranslate">
         {children}
         <Scripts />
       </body>

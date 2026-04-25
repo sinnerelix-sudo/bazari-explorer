@@ -101,6 +101,10 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - Vercel production deploy `dpl_FtEekd3NNquhHv19zpKH5wBuhgFD` completed and was aliased to `www.bazari.site`
   - post-deploy mobile verification passed: no `Something went wrong`, hydration exceptions `0`, cart add API `200`
   - the admin test cart was cleared afterward and returned `count = 0`
+- On 2026-04-25, the user shared an Android Chrome screenshot where the same error still appeared after add-to-cart:
+  - Chrome Translate UI was visible and root HTML still used `lang="en"`
+  - `src/routes/__root.tsx` was updated to `lang="az"`, `translate="no"`, `notranslate`, and `meta name="google" content="notranslate"`
+  - `npm.cmd run build` passed
 
 ## Open deployment tasks
 1. Run a safe live cart checkout redirect smoke when checkout work resumes and confirm it targets `https://wa.me/994557252025?text=...` without placing a real order

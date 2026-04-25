@@ -118,6 +118,14 @@ Keep the local cart/payment flow testable while finishing production deployment 
     - hydration exception count was `0`
     - logged-in `POST https://api.bazari.site/api/cart/add` returned `200`
     - the admin test cart was cleared afterward with live `DELETE /api/cart/clear`, returning `count = 0`
+- Later on 2026-04-25, the user shared a real Android Chrome screenshot still showing `Something went wrong` after tapping `Səbətə əlavə et`:
+  - The screenshot showed Chrome Translate UI, and root HTML still declared `lang="en"`, which can make Chrome translate/mutate React-managed text nodes on the phone.
+  - `src/routes/__root.tsx` was updated to mark the app as Azerbaijani and opt out of translation:
+    - `<html lang="az" translate="no" className="notranslate">`
+    - `<body className="notranslate">`
+    - `<meta name="google" content="notranslate">`
+  - This targets the remaining phone-only failure mode where the cart API succeeds but a React state update after click hits TanStack's error boundary because browser translation touched the DOM.
+  - `npm.cmd run build` passed after this change.
 
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:
