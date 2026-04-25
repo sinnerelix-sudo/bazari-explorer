@@ -110,3 +110,8 @@
   - Added translate hardening in `src/routes/__root.tsx`: `lang="az"`, `translate="no"`, `className="notranslate"` on `<html>`, `className="notranslate"` on `<body>`, and `<meta name="google" content="notranslate">`.
   - Rationale: Chrome translation can mutate React-managed DOM on phone; the cart state update after tapping the button can then throw into the TanStack error boundary even when the API returns `200`.
   - `npm.cmd run build` passed after the translate hardening.
+  - Commit pushed to `main`: `6174d3f` - `Disable browser translation for app shell`.
+  - Vercel production deploy completed: `dpl_7XRmqCccNEj5QZk8g3y9WinkioLg`, deployment URL `https://bazari-explorer-2brig76c4-metrekareup1-3268s-projects.vercel.app`, aliased to `https://www.bazari.site`.
+  - Live HTML check confirmed `lang="az"`, `translate="no"`, `notranslate`, and `meta name="google" content="notranslate"`.
+  - Post-deploy Android-like mobile CDP verification passed: product page showed no error, exception count `0`, `POST /api/cart/add` returned `200`.
+  - The admin test cart was cleared afterward and live `DELETE /api/cart/clear` returned `count = 0`.

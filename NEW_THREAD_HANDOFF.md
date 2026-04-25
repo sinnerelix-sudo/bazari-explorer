@@ -126,6 +126,17 @@ Keep the local cart/payment flow testable while finishing production deployment 
     - `<meta name="google" content="notranslate">`
   - This targets the remaining phone-only failure mode where the cart API succeeds but a React state update after click hits TanStack's error boundary because browser translation touched the DOM.
   - `npm.cmd run build` passed after this change.
+  - Commit pushed to `main`: `6174d3f` - `Disable browser translation for app shell`.
+  - Vercel production deploy succeeded:
+    - deployment id: `dpl_7XRmqCccNEj5QZk8g3y9WinkioLg`
+    - deployment url: `https://bazari-explorer-2brig76c4-metrekareup1-3268s-projects.vercel.app`
+    - alias confirmed on `https://www.bazari.site`
+  - Live HTML check confirmed `lang="az"`, `translate="no"`, `notranslate`, and `meta name="google" content="notranslate"`.
+  - Post-deploy Android-like mobile CDP verification passed:
+    - product page did not show `Something went wrong`
+    - runtime exception count was `0`
+    - logged-in `POST https://api.bazari.site/api/cart/add` returned `200`
+    - the admin test cart was cleared afterward and live `DELETE /api/cart/clear` returned `count = 0`
 
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:

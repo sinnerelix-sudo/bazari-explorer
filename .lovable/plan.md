@@ -105,6 +105,12 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - Chrome Translate UI was visible and root HTML still used `lang="en"`
   - `src/routes/__root.tsx` was updated to `lang="az"`, `translate="no"`, `notranslate`, and `meta name="google" content="notranslate"`
   - `npm.cmd run build` passed
+- On 2026-04-25, the translate hardening was pushed and deployed:
+  - commit `6174d3f` pushed to `main`
+  - Vercel production deploy `dpl_7XRmqCccNEj5QZk8g3y9WinkioLg` completed and was aliased to `www.bazari.site`
+  - live HTML confirmed `lang="az"` and `notranslate`
+  - post-deploy Android-like mobile verification passed: no `Something went wrong`, exception count `0`, cart add API `200`
+  - the admin test cart was cleared afterward and returned `count = 0`
 
 ## Open deployment tasks
 1. Run a safe live cart checkout redirect smoke when checkout work resumes and confirm it targets `https://wa.me/994557252025?text=...` without placing a real order
