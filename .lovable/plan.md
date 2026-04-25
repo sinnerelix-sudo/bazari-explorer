@@ -111,6 +111,13 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - live HTML confirmed `lang="az"` and `notranslate`
   - post-deploy Android-like mobile verification passed: no `Something went wrong`, exception count `0`, cart add API `200`
   - the admin test cart was cleared afterward and returned `count = 0`
+- On 2026-04-25, Azerbaijani text/font cleanup was completed locally:
+  - visible `\u0259`-style text escapes were converted to real UTF-8 Azerbaijani letters across the frontend/admin/public text and relevant backend payment/admin messages
+  - global marketplace typography was changed to one consistent `Noto Sans` stack for body and heading text so Azerbaijani glyphs do not fall back to a different-looking font
+  - local scan found no remaining Azerbaijani `\uXXXX` escape or common mojibake pattern under `src`, `public`, or `backend/src`
+  - `npm.cmd run build` passed
+  - backend syntax checks passed for `backend/src/paymentMethods.js` and `backend/src/routes/admin.js`
+  - `npm.cmd run lint` was attempted but timed out after roughly 3 minutes in this Windows shell
 
 ## Open deployment tasks
 1. Run a safe live cart checkout redirect smoke when checkout work resumes and confirm it targets `https://wa.me/994557252025?text=...` without placing a real order

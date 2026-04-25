@@ -47,7 +47,7 @@ r.put("/payment-methods/whatsapp-phone", authRequired, roleRequired("admin"), as
   }
 
   if (whatsapp_phone.trim() && !isValidWhatsappOrderPhone(whatsapp_phone)) {
-    return res.status(400).json({ error: "WhatsApp n\u00F6mr\u0259sini beyn\u0259lxalq formatda daxil edin" });
+    return res.status(400).json({ error: "WhatsApp nömrəsini beynəlxalq formatda daxil edin" });
   }
 
   const whatsappConfig = await setWhatsappOrderPhone(whatsapp_phone, req.user?._id?.toString() || null);

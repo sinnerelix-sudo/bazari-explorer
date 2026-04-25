@@ -29,15 +29,15 @@ import {
 function getAdminTabs(user) {
   return [
     { id: "dashboard", label: "Dashboard", icon: BarChart3 },
-    { id: "products", label: "M\u0259hsullar", icon: Package },
+    { id: "products", label: "Məhsullar", icon: Package },
     { id: "categories", label: "Kateqoriyalar", icon: LayoutGrid },
     { id: "campaigns", label: "Kampaniyalar", icon: Tag },
     ...(user?.role === "admin"
       ? [
-          { id: "payments", label: "\u00D6d\u0259ni\u015Fl\u0259r", icon: CreditCard },
-          { id: "users", label: "\u0130stifad\u0259\u00E7il\u0259r", icon: Users },
-          { id: "notifications", label: "Bildiri\u015Fl\u0259r", icon: Bell },
-          { id: "security", label: "T\u0259hl\u00FCk\u0259sizlik", icon: Shield },
+          { id: "payments", label: "Ödənişlər", icon: CreditCard },
+          { id: "users", label: "İstifadəçilər", icon: Users },
+          { id: "notifications", label: "Bildirişlər", icon: Bell },
+          { id: "security", label: "Təhlükəsizlik", icon: Shield },
         ]
       : []),
   ];
@@ -48,15 +48,15 @@ function getMobileTabLabel(tabId) {
     case "dashboard":
       return "Panel";
     case "products":
-      return "M\u0259hsul";
+      return "Məhsul";
     case "categories":
       return "Kateqor.";
     case "payments":
-      return "\u00D6d\u0259ni\u015F";
+      return "Ödəniş";
     case "users":
-      return "\u0130stifad\u0259\u00E7i";
+      return "İstifadəçi";
     case "notifications":
-      return "Bildiri\u015F";
+      return "Bildiriş";
     case "security":
       return "2FA";
     default:
@@ -93,7 +93,7 @@ function Sidebar({ activeTab, setActiveTab, user, onLogout }) {
         })}
       </nav>
       <button onClick={onLogout} className="flex items-center gap-2 text-sm text-[#8C8C8C] hover:text-[#E05A33] font-body px-3 py-2">
-        <LogOut size={16} /> {"\u00C7\u0131x\u0131\u015F"}
+        <LogOut size={16} /> {"Çıxış"}
       </button>
     </aside>
   );
@@ -131,7 +131,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
       setField("images", [...form.images, url]);
     } catch (err) {
       console.error(err);
-      window.alert("Y\u00FCkl\u0259m\u0259 x\u0259tas\u0131: " + (err?.message || "nam\u0259lum"));
+      window.alert("Yükləmə xətası: " + (err?.message || "naməlum"));
     } finally {
       setUploading(false);
     }
@@ -162,7 +162,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
       </div>
 
       <div>
-        <label className="block font-body text-sm text-[#595959] mb-1">T\u0259svir</label>
+        <label className="block font-body text-sm text-[#595959] mb-1">Təsvir</label>
         <textarea
           data-testid="product-desc-input"
           value={form.description}
@@ -174,7 +174,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div>
-          <label className="block font-body text-sm text-[#595959] mb-1">Qiym\u0259t *</label>
+          <label className="block font-body text-sm text-[#595959] mb-1">Qiymət *</label>
           <input
             data-testid="product-price-input"
             type="number"
@@ -186,7 +186,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
           />
         </div>
         <div>
-          <label className="block font-body text-sm text-[#595959] mb-1">K\u00F6hn\u0259 qiym\u0259t</label>
+          <label className="block font-body text-sm text-[#595959] mb-1">Köhnə qiymət</label>
           <input
             type="number"
             step="0.01"
@@ -223,7 +223,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
             onChange={(event) => setField("category_id", event.target.value)}
             className="w-full px-4 py-2.5 rounded-xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] outline-none font-body text-sm"
           >
-            <option value="">{"Se\u00E7in"}</option>
+            <option value="">{"Seçin"}</option>
             {categories?.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
@@ -243,7 +243,7 @@ function ProductForm({ product, categories, onSave, onCancel }) {
       </div>
 
       <div>
-        <label className="block font-body text-sm text-[#595959] mb-2">{"\u015E\u0259kill\u0259r"}</label>
+        <label className="block font-body text-sm text-[#595959] mb-2">{"Şəkillər"}</label>
         <div className="flex flex-wrap gap-2 mb-3">
           {form.images?.map((image, index) => (
             <div key={index} className="relative w-20 h-20 rounded-xl overflow-hidden border border-gray-200">
@@ -260,14 +260,14 @@ function ProductForm({ product, categories, onSave, onCancel }) {
         </div>
         <div className="flex gap-2 flex-wrap">
           <label className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#F5F3F0] hover:bg-[#EBEBEB] cursor-pointer font-body text-sm text-[#595959]">
-            <Upload size={14} /> {uploading ? "Y\u00FCkl\u0259nir..." : "Fayldan"}
+            <Upload size={14} /> {uploading ? "Yüklənir..." : "Fayldan"}
             <input type="file" accept="image/*" onChange={handleUpload} className="hidden" disabled={uploading} />
           </label>
           <div className="flex gap-1.5 flex-1 min-w-[200px]">
             <input
               value={imageUrl}
               onChange={(event) => setImageUrl(event.target.value)}
-              placeholder="URL \u0259lav\u0259 et"
+              placeholder="URL əlavə et"
               className="flex-1 px-3 py-2 rounded-xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] outline-none font-body text-sm"
             />
             <button
@@ -292,14 +292,14 @@ function ProductForm({ product, categories, onSave, onCancel }) {
           disabled={saving}
           className="bg-[#E05A33] hover:bg-[#D94A22] text-white px-6 py-2.5 rounded-full font-body font-semibold text-sm disabled:opacity-50"
         >
-          {saving ? "Saxlan\u0131r..." : "Saxla"}
+          {saving ? "Saxlanır..." : "Saxla"}
         </button>
         <button
           type="button"
           onClick={onCancel}
           className="px-6 py-2.5 rounded-full border border-gray-200 font-body text-sm text-[#595959] hover:bg-gray-50"
         >
-          {"L\u0259\u011Fv et"}
+          {"Ləğv et"}
         </button>
       </div>
     </form>
@@ -396,7 +396,7 @@ export default function AdminPanel() {
   };
 
   const handleDeleteProd = async (id) => {
-    if (!window.confirm("Silm\u0259k?")) return;
+    if (!window.confirm("Silmək?")) return;
     await ax.delete(`/products/${id}`);
     load();
   };
@@ -426,11 +426,11 @@ export default function AdminPanel() {
       setWhatsappUpdatedAt(data?.whatsapp_updated_at || null);
       setWhatsappFeedback(
         data?.whatsapp_phone
-          ? "WhatsApp sifari\u015F n\u00F6mr\u0259si yenil\u0259ndi."
-          : "WhatsApp sifari\u015F n\u00F6mr\u0259si s\u0131f\u0131rland\u0131."
+          ? "WhatsApp sifariş nömrəsi yeniləndi."
+          : "WhatsApp sifariş nömrəsi sıfırlandı."
       );
     } catch (err) {
-      setWhatsappFeedback(err?.response?.data?.error || "WhatsApp n\u00F6mr\u0259sini saxlamaq m\u00FCmk\u00FCn olmad\u0131.");
+      setWhatsappFeedback(err?.response?.data?.error || "WhatsApp nömrəsini saxlamaq mümkün olmadı.");
     } finally {
       setWhatsappSaving(false);
     }
@@ -457,7 +457,7 @@ export default function AdminPanel() {
       setQrData(null);
       setTotpCode("");
     } catch {
-      setTwoFaMsg("Kod yanl\u0131\u015Fd\u0131r");
+      setTwoFaMsg("Kod yanlışdır");
     }
   };
 
@@ -466,12 +466,12 @@ export default function AdminPanel() {
       await ax.post("/push/send", { title: notifTitle, message: notifMsg, url: "/" });
       setNotifTitle("");
       setNotifMsg("");
-      window.alert("Push + in-app bildiri\u015F g\u00F6nd\u0259rildi!");
+      window.alert("Push + in-app bildiriş göndərildi!");
     } catch {
       await ax.post("/notifications/send", { title: notifTitle, message: notifMsg, type: "deal" });
       setNotifTitle("");
       setNotifMsg("");
-      window.alert("In-app bildiri\u015F g\u00F6nd\u0259rildi!");
+      window.alert("In-app bildiriş göndərildi!");
     }
   };
 
@@ -492,7 +492,7 @@ export default function AdminPanel() {
     return (
       <div className="min-h-screen bg-[#FDFCFB] flex items-center justify-center">
         <div className="text-center">
-          <p className="font-body text-[#595959] mb-4">Daxil olmaq laz\u0131md\u0131r</p>
+          <p className="font-body text-[#595959] mb-4">Daxil olmaq lazımdır</p>
           <Link to="/login" className="bg-[#E05A33] text-white px-6 py-2.5 rounded-full font-body font-semibold text-sm">
             Daxil ol
           </Link>
@@ -536,8 +536,8 @@ export default function AdminPanel() {
               <h1 className="font-heading font-bold text-xl mb-6">Dashboard</h1>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
                 {[
-                  { label: "M\u0259hsullar", val: stats.products || 0, color: "text-[#E05A33]" },
-                  { label: "\u0130stifad\u0259\u00E7il\u0259r", val: stats.users || 0, color: "text-blue-600" },
+                  { label: "Məhsullar", val: stats.products || 0, color: "text-[#E05A33]" },
+                  { label: "İstifadəçilər", val: stats.users || 0, color: "text-blue-600" },
                   { label: "Kateqoriyalar", val: stats.categories || 0, color: "text-green-600" },
                 ].map((stat) => (
                   <div key={stat.label} className="bg-white rounded-2xl border border-gray-50 p-5">
@@ -547,7 +547,7 @@ export default function AdminPanel() {
                 ))}
               </div>
               <div className="bg-white rounded-2xl border border-gray-50 p-5">
-                <h3 className="font-heading font-semibold text-base mb-3">{"S\u00FCr\u0259tli h\u0259r\u0259k\u0259tl\u0259r"}</h3>
+                <h3 className="font-heading font-semibold text-base mb-3">{"Sürətli hərəkətlər"}</h3>
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => {
@@ -557,7 +557,7 @@ export default function AdminPanel() {
                     }}
                     className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#E05A33] text-white font-body text-sm font-medium"
                   >
-                    <Plus size={14} /> {"Yeni m\u0259hsul"}
+                    <Plus size={14} /> {"Yeni məhsul"}
                   </button>
                   {user.role === "admin" && (
                     <>
@@ -565,13 +565,13 @@ export default function AdminPanel() {
                         onClick={() => setTab("payments")}
                         className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#F5F3F0] text-[#595959] font-body text-sm"
                       >
-                        <CreditCard size={14} /> {"\u00D6d\u0259ni\u015Fl\u0259r"}
+                        <CreditCard size={14} /> {"Ödənişlər"}
                       </button>
                       <button
                         onClick={() => setTab("notifications")}
                         className="flex items-center gap-2 px-4 py-2 rounded-full bg-[#F5F3F0] text-[#595959] font-body text-sm"
                       >
-                        <Bell size={14} /> {"Bildiri\u015F g\u00F6nd\u0259r"}
+                        <Bell size={14} /> {"Bildiriş göndər"}
                       </button>
                     </>
                   )}
@@ -583,7 +583,7 @@ export default function AdminPanel() {
           {tab === "products" && (
             <>
               <div className="flex items-center justify-between mb-5">
-                <h1 className="font-heading font-bold text-xl">{"M\u0259hsullar"} ({products.length})</h1>
+                <h1 className="font-heading font-bold text-xl">{"Məhsullar"} ({products.length})</h1>
                 <button
                   data-testid="add-product-btn"
                   onClick={() => {
@@ -629,7 +629,7 @@ export default function AdminPanel() {
                         <h3 className="font-body font-semibold text-sm text-[#1A1A1A] truncate">{product.name}</h3>
                         <div className="flex items-center gap-2 mt-0.5">
                           <span className="font-heading font-bold text-sm text-[#E05A33]">
-                            {product.price} {"\u20BC"}
+                            {product.price} {"₼"}
                           </span>
                           {product.discount > 0 && (
                             <span className="text-[10px] font-bold text-white bg-[#E05A33] px-1.5 py-0.5 rounded">
@@ -696,7 +696,7 @@ export default function AdminPanel() {
                       className="px-3 py-2 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none"
                     />
                     <input
-                      placeholder={"\u015E\u0259kil URL"}
+                      placeholder={"Şəkil URL"}
                       value={catForm.image}
                       onChange={(event) => setCatForm({ ...catForm, image: event.target.value })}
                       className="px-3 py-2 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none"
@@ -711,7 +711,7 @@ export default function AdminPanel() {
                       onClick={() => setCatForm(null)}
                       className="px-5 py-2 rounded-full border border-gray-200 font-body text-sm"
                     >
-                      {"L\u0259\u011Fv"}
+                      {"Ləğv"}
                     </button>
                   </div>
                 </form>
@@ -735,7 +735,7 @@ export default function AdminPanel() {
                           onClick={() => setCatForm(category)}
                           className="mt-2 text-[10px] text-[#E05A33] font-body font-medium hover:underline"
                         >
-                          {"Redakt\u0259"}
+                          {"Redaktə"}
                         </button>
                       )}
                     </div>
@@ -749,8 +749,8 @@ export default function AdminPanel() {
             <>
               <div className="flex items-center justify-between mb-5">
                 <div>
-                  <h1 className="font-heading font-bold text-xl">{"\u00D6d\u0259ni\u015F metodlar\u0131"}</h1>
-                  <p className="font-body text-sm text-[#8C8C8C] mt-1">{"Checkout sifari\u015Fl\u0259ri WhatsApp-a y\u00F6nl\u0259ndiril\u0259c\u0259k."}</p>
+                  <h1 className="font-heading font-bold text-xl">{"Ödəniş metodları"}</h1>
+                  <p className="font-body text-sm text-[#8C8C8C] mt-1">{"Checkout sifarişləri WhatsApp-a yönləndiriləcək."}</p>
                 </div>
                 <div className="px-3 py-2 rounded-full bg-[#F5F3F0] text-xs font-body text-[#595959]">
                   {paymentMethods.filter((method) => method.is_active).length} aktiv
@@ -835,34 +835,34 @@ export default function AdminPanel() {
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h2 className="font-heading font-bold text-base text-[#1A1A1A]">{"WhatsApp sifari\u015F x\u0259tti"}</h2>
+                      <h2 className="font-heading font-bold text-base text-[#1A1A1A]">{"WhatsApp sifariş xətti"}</h2>
                       <span
                         className={`px-2.5 py-1 rounded-full text-[11px] font-body font-semibold ${
                           whatsappPhone ? "bg-green-50 text-green-700" : "bg-[#FFF0B8] text-[#8A6400]"
                         }`}
                       >
-                        {whatsappPhone ? "Haz\u0131rd\u0131r" : "Qurulmay\u0131b"}
+                        {whatsappPhone ? "Hazırdır" : "Qurulmayıb"}
                       </span>
                       <span className="px-2.5 py-1 rounded-full text-[11px] font-body font-semibold bg-[#F5F3F0] text-[#595959]">
                         {whatsappSource === "database"
                           ? "Admin panel"
                           : whatsappSource === "env"
                             ? "Env fallback"
-                            : "Bo\u015F"}
+                            : "Boş"}
                       </span>
                     </div>
                     <p className="font-body text-sm text-[#8C8C8C] mt-2">
-                      {"Sifari\u015F CTA-s\u0131 buradak\u0131 n\u00F6mr\u0259y\u0259 y\u00F6nl\u0259n\u0259c\u0259k. `+`, bo\u015Fluq v\u0259 m\u00F6t\u0259riz\u0259 yaza bil\u0259rsiniz, server r\u0259q\u0259ml\u0259ri avtomatik t\u0259mizl\u0259y\u0259c\u0259k."}
+                      {"Sifariş CTA-sı buradakı nömrəyə yönlənəcək. `+`, boşluq və mötərizə yaza bilərsiniz, server rəqəmləri avtomatik təmizləyəcək."}
                     </p>
                     {whatsappUpdatedAt && (
                       <p className="font-body text-xs text-[#8C8C8C] mt-2">
-                        {"Son yenil\u0259nm\u0259: "} {new Date(whatsappUpdatedAt).toLocaleString("az-AZ")}
+                        {"Son yenilənmə: "} {new Date(whatsappUpdatedAt).toLocaleString("az-AZ")}
                       </p>
                     )}
                   </div>
 
                   <div className="w-full lg:w-[360px]">
-                    <label className="block font-body text-sm text-[#595959] mb-2">{"WhatsApp n\u00F6mr\u0259si"}</label>
+                    <label className="block font-body text-sm text-[#595959] mb-2">{"WhatsApp nömrəsi"}</label>
                     <input
                       data-testid="whatsapp-phone-input"
                       value={whatsappDraft}
@@ -878,7 +878,7 @@ export default function AdminPanel() {
                         disabled={whatsappSaving}
                         className="bg-[#E05A33] hover:bg-[#D94A22] text-white px-4 py-2 rounded-full text-sm font-body font-semibold disabled:opacity-50"
                       >
-                        {whatsappSaving ? "Saxlan\u0131r..." : "N\u00F6mr\u0259ni saxla"}
+                        {whatsappSaving ? "Saxlanır..." : "Nömrəni saxla"}
                       </button>
                       <button
                         type="button"
@@ -887,13 +887,13 @@ export default function AdminPanel() {
                         disabled={whatsappSaving || (!whatsappPhone && whatsappSource !== "database")}
                         className="px-4 py-2 rounded-full border border-gray-200 text-sm font-body font-semibold text-[#595959] hover:bg-gray-50 disabled:opacity-50"
                       >
-                        {"S\u0131f\u0131rla"}
+                        {"Sıfırla"}
                       </button>
                     </div>
                     {whatsappFeedback && (
                       <p
                         className={`mt-3 text-xs font-body ${
-                          whatsappFeedback.includes("m\u00FCmk\u00FCn olmad\u0131") || whatsappFeedback.includes("format")
+                          whatsappFeedback.includes("mümkün olmadı") || whatsappFeedback.includes("format")
                             ? "text-[#C33D17]"
                             : "text-green-700"
                         }`}
@@ -908,7 +908,7 @@ export default function AdminPanel() {
               {!whatsappPhone && (
                 <div className="mb-4 rounded-2xl border border-[#FFD4C7] bg-[#FFF6F3] px-4 py-3 text-sm font-body text-[#A5533A] flex items-start gap-2">
                   <AlertCircle size={16} className="mt-0.5 flex-shrink-0" />
-                  <span>{"WhatsApp sifari\u015F n\u00F6mr\u0259si h\u0259l\u0259 qurulmay\u0131b. Aktiv metodlar g\u00F6r\u00FCn\u0259c\u0259k, amma checkout y\u00F6nl\u0259ndirm\u0259si i\u015Fl\u0259m\u0259y\u0259c\u0259k."}</span>
+                  <span>{"WhatsApp sifariş nömrəsi hələ qurulmayıb. Aktiv metodlar görünəcək, amma checkout yönləndirməsi işləməyəcək."}</span>
                 </div>
               )}
 
@@ -949,7 +949,7 @@ export default function AdminPanel() {
                         {!method.is_active && (
                           <div className="mt-3 inline-flex items-center gap-1.5 rounded-full bg-[#FFF0B8] px-3 py-1 text-[11px] font-body font-semibold text-[#8A6400]">
                             <AlertCircle size={12} />
-                            {method.unavailable_message || "Texniki s\u0259b\u0259bl\u0259rd\u0259n \u00E7al\u0131\u015Fm\u0131r"}
+                            {method.unavailable_message || "Texniki səbəblərdən çalışmır"}
                           </div>
                         )}
                       </div>
@@ -973,7 +973,7 @@ export default function AdminPanel() {
 
           {tab === "users" && user.role === "admin" && (
             <>
-              <h1 className="font-heading font-bold text-xl mb-5">{"\u0130stifad\u0259\u00E7il\u0259r"} ({users.length})</h1>
+              <h1 className="font-heading font-bold text-xl mb-5">{"İstifadəçilər"} ({users.length})</h1>
               {loading ? (
                 <div className="flex justify-center py-12">
                   <div className="w-8 h-8 border-2 border-[#E05A33] border-t-transparent rounded-full animate-spin" />
@@ -994,8 +994,8 @@ export default function AdminPanel() {
                         onChange={(event) => handleRoleChange(account.user_id, event.target.value)}
                         className="px-2 py-1 rounded-lg bg-[#F5F3F0] font-body text-xs outline-none"
                       >
-                        <option value="user">{"M\u00FC\u015Ft\u0259ri"}</option>
-                        <option value="seller">{"Sat\u0131c\u0131"}</option>
+                        <option value="user">{"Müştəri"}</option>
+                        <option value="seller">{"Satıcı"}</option>
                         <option value="admin">Admin</option>
                       </select>
                     </div>
@@ -1007,11 +1007,11 @@ export default function AdminPanel() {
 
           {tab === "notifications" && user.role === "admin" && (
             <>
-              <h1 className="font-heading font-bold text-xl mb-5">{"Bildiri\u015F g\u00F6nd\u0259r"}</h1>
+              <h1 className="font-heading font-bold text-xl mb-5">{"Bildiriş göndər"}</h1>
               <div className="bg-white rounded-2xl border border-gray-50 p-5 max-w-lg space-y-3">
                 <input
                   data-testid="notif-title"
-                  placeholder={"Ba\u015Fl\u0131q"}
+                  placeholder={"Başlıq"}
                   value={notifTitle}
                   onChange={(event) => setNotifTitle(event.target.value)}
                   className="w-full px-4 py-2.5 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none focus:ring-1 focus:ring-[#E05A33]"
@@ -1030,7 +1030,7 @@ export default function AdminPanel() {
                   disabled={!notifTitle}
                   className="bg-[#E05A33] text-white px-6 py-2.5 rounded-full font-body font-semibold text-sm flex items-center gap-2 disabled:opacity-50"
                 >
-                  <Send size={14} /> {"Ham\u0131ya g\u00F6nd\u0259r"}
+                  <Send size={14} /> {"Hamıya göndər"}
                 </button>
               </div>
             </>
@@ -1038,12 +1038,12 @@ export default function AdminPanel() {
 
           {tab === "security" && user.role === "admin" && (
             <>
-              <h1 className="font-heading font-bold text-xl mb-5">2FA {"T\u0259hl\u00FCk\u0259sizlik"}</h1>
+              <h1 className="font-heading font-bold text-xl mb-5">2FA {"Təhlükəsizlik"}</h1>
               <div className="bg-white rounded-2xl border border-gray-50 p-5 max-w-lg">
                 {!qrData ? (
                   <div>
                     <p className="font-body text-sm text-[#595959] mb-4">
-                      Google Authenticator il\u0259 2 add\u0131ml\u0131 do\u011Frulama aktivl\u0259\u015Fdirin.
+                      Google Authenticator ilə 2 addımlı doğrulama aktivləşdirin.
                     </p>
                     <button
                       data-testid="setup-2fa-btn"
@@ -1051,21 +1051,21 @@ export default function AdminPanel() {
                       className="bg-[#E05A33] text-white px-6 py-2.5 rounded-full font-body font-semibold text-sm"
                     >
                       <Shield size={14} className="inline mr-2" />
-                      2FA {"Aktivl\u0259\u015Fdir"}
+                      2FA {"Aktivləşdir"}
                     </button>
                     {twoFaMsg && <p className="mt-3 font-body text-sm text-green-600">{twoFaMsg}</p>}
                   </div>
                 ) : (
                   <div className="text-center space-y-4">
-                    <p className="font-body text-sm text-[#595959]">Google Authenticator il\u0259 QR kodu skan edin:</p>
+                    <p className="font-body text-sm text-[#595959]">Google Authenticator ilə QR kodu skan edin:</p>
                     <img src={qrData.qr_code || qrData.qr} alt="QR" className="w-48 h-48 mx-auto rounded-xl" />
-                    <p className="font-body text-[10px] text-[#8C8C8C] break-all">{"Gizli a\u00E7ar"}: {qrData.secret}</p>
+                    <p className="font-body text-[10px] text-[#8C8C8C] break-all">{"Gizli açar"}: {qrData.secret}</p>
                     <div className="flex gap-2 justify-center">
                       <input
                         data-testid="totp-code-input"
                         value={totpCode}
                         onChange={(event) => setTotpCode(event.target.value)}
-                        placeholder="6 r\u0259q\u0259mli kod"
+                        placeholder="6 rəqəmli kod"
                         maxLength={6}
                         className="w-32 px-4 py-2.5 rounded-xl bg-[#F5F3F0] text-center font-body text-lg tracking-widest outline-none"
                       />
@@ -1074,7 +1074,7 @@ export default function AdminPanel() {
                         onClick={verify2FA}
                         className="bg-[#E05A33] text-white px-5 py-2.5 rounded-full font-body font-semibold text-sm"
                       >
-                        {"T\u0259sdiql\u0259"}
+                        {"Təsdiqlə"}
                       </button>
                     </div>
                     {twoFaMsg && (
@@ -1091,7 +1091,7 @@ export default function AdminPanel() {
           {tab === "campaigns" && (
             <div className="text-center py-16">
               <Tag size={40} className="mx-auto text-[#8C8C8C] mb-3" />
-              <p className="font-body text-[#8C8C8C]">Kampaniya idar\u0259etm\u0259si tezlikl\u0259</p>
+              <p className="font-body text-[#8C8C8C]">Kampaniya idarəetməsi tezliklə</p>
             </div>
           )}
         </div>

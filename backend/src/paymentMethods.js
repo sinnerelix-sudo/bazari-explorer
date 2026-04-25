@@ -1,27 +1,27 @@
 import { getDB } from "./db.js";
 
-const INACTIVE_MESSAGE = "Texniki s\u0259b\u0259bl\u0259rd\u0259n \u00E7al\u0131\u015Fm\u0131r";
+const INACTIVE_MESSAGE = "Texniki səbəblərdən çalışmır";
 const WHATSAPP_SETTING_KEY = "whatsapp_order_phone";
 
 export const DEFAULT_PAYMENT_METHODS = [
   {
     key: "card_to_card",
-    name: "Kartdan karta \u00F6d\u0259ni\u015F",
-    description: "K\u00F6\u00E7\u00FCrm\u0259 il\u0259 \u00F6d\u0259ni\u015Fi tamamlay\u0131n.",
+    name: "Kartdan karta ödəniş",
+    description: "Köçürmə ilə ödənişi tamamlayın.",
     is_active: true,
     sort_order: 1,
   },
   {
     key: "card",
-    name: "Kartla \u00F6d\u0259ni\u015F",
-    description: "Kart vasit\u0259sil\u0259 sifari\u015Fi t\u0259sdiql\u0259yin.",
+    name: "Kartla ödəniş",
+    description: "Kart vasitəsilə sifarişi təsdiqləyin.",
     is_active: true,
     sort_order: 2,
   },
   {
     key: "cash_on_delivery",
-    name: "Qap\u0131da na\u011Fd",
-    description: "M\u0259hsulu t\u0259hvil alanda na\u011Fd \u00F6d\u0259yin.",
+    name: "Qapıda nağd",
+    description: "Məhsulu təhvil alanda nağd ödəyin.",
     is_active: true,
     sort_order: 3,
   },

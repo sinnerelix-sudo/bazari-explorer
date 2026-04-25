@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,400..800;1,400..800&display=swap');
 @import "tailwindcss" source(none);
 @source "../src";
 @import "tw-animate-css";
@@ -46,6 +46,7 @@
 
 
 :root {
+  --font-marketplace: 'Noto Sans', 'Segoe UI', Arial, sans-serif;
   --background: 30 14% 99%;
   --foreground: 0 0% 10%;
   --card: 0 0% 100%;
@@ -118,7 +119,11 @@
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
-    font-family: 'Manrope', sans-serif;
+    font-family: var(--font-marketplace);
+    font-optical-sizing: auto;
+    font-synthesis-weight: none;
+    font-synthesis-style: none;
+    text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
   }
@@ -126,10 +131,10 @@
 
 @layer utilities {
   .font-heading {
-    font-family: 'Outfit', sans-serif;
+    font-family: var(--font-marketplace);
   }
   .font-body {
-    font-family: 'Manrope', sans-serif;
+    font-family: var(--font-marketplace);
   }
   .scrollbar-hide {
     -ms-overflow-style: none;

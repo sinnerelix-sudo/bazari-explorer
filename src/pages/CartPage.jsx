@@ -24,7 +24,7 @@ const PAYMENT_ICON_MAP = {
   cash_on_delivery: Banknote,
 };
 
-const TECHNICAL_MESSAGE = "Texniki s\u0259b\u0259bl\u0259rd\u0259n \u00E7al\u0131\u015Fm\u0131r";
+const TECHNICAL_MESSAGE = "Texniki səbəblərdən çalışmır";
 
 function formatPrice(value) {
   const amount = Number(value || 0);
@@ -38,24 +38,24 @@ function normalizeWhatsappPhone(phone) {
 
 function buildWhatsappMessage({ user, items, total, paymentMethodName }) {
   const lines = [
-    "Salam, yeni sifari\u015F verm\u0259k ist\u0259yir\u0259m.",
+    "Salam, yeni sifariş vermək istəyirəm.",
     "",
-    `\u00D6d\u0259ni\u015F metodu: ${paymentMethodName}`,
-    `M\u00FC\u015Ft\u0259ri: ${user?.name || "-"}`,
+    `Ödəniş metodu: ${paymentMethodName}`,
+    `Müştəri: ${user?.name || "-"}`,
     `Email: ${user?.email || "-"}`,
     `Telefon: ${user?.phone || "-"}`,
     "",
-    "Sifari\u015F m\u0259hsullar\u0131:",
+    "Sifariş məhsulları:",
   ];
 
   items.forEach((item, index) => {
     const product = item.product;
     const subtotal = Number(product?.price || 0) * Number(item.quantity || 0);
-    lines.push(`${index + 1}. ${product?.name || "M\u0259hsul"} x${item.quantity} - ${formatPrice(subtotal)} \u20BC`);
+    lines.push(`${index + 1}. ${product?.name || "Məhsul"} x${item.quantity} - ${formatPrice(subtotal)} ₼`);
   });
 
   lines.push("");
-  lines.push(`C\u0259mi: ${formatPrice(total)} \u20BC`);
+  lines.push(`Cəmi: ${formatPrice(total)} ₼`);
 
   return lines.join("\n");
 }
@@ -112,7 +112,7 @@ export default function CartPage() {
 
     const normalizedPhone = normalizeWhatsappPhone(whatsappPhone);
     if (!normalizedPhone) {
-      window.alert("WhatsApp sifari\u015F n\u00F6mr\u0259si h\u0259l\u0259 qurulmay\u0131b.");
+      window.alert("WhatsApp sifariş nömrəsi hələ qurulmayıb.");
       return;
     }
 
@@ -132,7 +132,7 @@ export default function CartPage() {
         <Header />
         <div className="max-w-lg mx-auto text-center py-24 px-4">
           <ShoppingBag size={48} className="mx-auto text-[#8C8C8C] mb-4" />
-          <h2 className="font-heading font-bold text-xl text-[#1A1A1A] mb-2">{"S\u0259b\u0259ti g\u00F6rm\u0259k \u00FC\u00E7\u00FCn daxil olun"}</h2>
+          <h2 className="font-heading font-bold text-xl text-[#1A1A1A] mb-2">{"Səbəti görmək üçün daxil olun"}</h2>
           <Link
             to="/login"
             className="inline-block bg-[#E05A33] text-white px-6 py-2.5 rounded-full font-body font-semibold text-sm mt-4"
@@ -158,10 +158,10 @@ export default function CartPage() {
             <ChevronLeft size={22} />
           </button>
           <h1 className="font-heading font-bold text-xl sm:text-2xl text-[#1A1A1A]">
-            {"S\u0259b\u0259t "}
+            {"Səbət "}
             {items.length > 0 && (
               <span className="text-[#8C8C8C] font-normal text-base">
-                ({cart.count} {"m\u0259hsul"})
+                ({cart.count} {"məhsul"})
               </span>
             )}
           </h1>
@@ -170,16 +170,16 @@ export default function CartPage() {
         {items.length === 0 ? (
           <div className="text-center py-16">
             <ShoppingBag size={48} className="mx-auto text-[#8C8C8C] mb-4" />
-            <h2 className="font-heading font-bold text-lg text-[#1A1A1A] mb-2">{"S\u0259b\u0259tiniz bo\u015Fdur"}</h2>
+            <h2 className="font-heading font-bold text-lg text-[#1A1A1A] mb-2">{"Səbətiniz boşdur"}</h2>
             <p className="font-body text-sm text-[#8C8C8C] mb-6">
-              {"M\u0259hsul \u0259lav\u0259 edin v\u0259 al\u0131\u015F-veri\u015F\u0259 ba\u015Flay\u0131n"}
+              {"Məhsul əlavə edin və alış-verişə başlayın"}
             </p>
             <Link
               to="/"
               data-testid="continue-shopping"
               className="inline-block bg-[#E05A33] text-white px-6 py-2.5 rounded-full font-body font-semibold text-sm"
             >
-              {"Al\u0131\u015F-veri\u015F\u0259 davam et"}
+              {"Alış-verişə davam et"}
             </Link>
           </div>
         ) : (
@@ -212,11 +212,11 @@ export default function CartPage() {
                       {product.brand && <p className="font-body text-xs text-[#8C8C8C] mt-0.5">{product.brand}</p>}
                       <div className="flex items-center gap-2 mt-1.5">
                         <span className="font-heading font-bold text-[#E05A33]">
-                          {formatPrice(product.price)} {"\u20BC"}
+                          {formatPrice(product.price)} {"₼"}
                         </span>
                         {Number(product.original_price) > Number(product.price) && (
                           <span className="font-body text-xs text-[#8C8C8C] line-through">
-                            {formatPrice(product.original_price)} {"\u20BC"}
+                            {formatPrice(product.original_price)} {"₼"}
                           </span>
                         )}
                       </div>
@@ -260,41 +260,41 @@ export default function CartPage() {
                 onClick={clearCart}
                 className="text-sm font-body text-[#8C8C8C] hover:text-red-500 transition-colors"
               >
-                {"S\u0259b\u0259ti t\u0259mizl\u0259"}
+                {"Səbəti təmizlə"}
               </button>
             </div>
 
             <div className="lg:col-span-1">
               <div className="bg-white rounded-2xl border border-gray-50 p-5 sticky top-20">
-                <h3 className="font-heading font-bold text-lg text-[#1A1A1A] mb-4">{"Sifari\u015F x\u00FClas\u0259si"}</h3>
+                <h3 className="font-heading font-bold text-lg text-[#1A1A1A] mb-4">{"Sifariş xülasəsi"}</h3>
                 <div className="space-y-2 mb-4">
                   <div className="flex justify-between font-body text-sm">
                     <span className="text-[#8C8C8C]">
-                      {"M\u0259hsullar"} ({cart.count})
+                      {"Məhsullar"} ({cart.count})
                     </span>
-                    <span className="text-[#1A1A1A] font-medium">{formatPrice(cart.total)} {"\u20BC"}</span>
+                    <span className="text-[#1A1A1A] font-medium">{formatPrice(cart.total)} {"₼"}</span>
                   </div>
                   <div className="flex justify-between font-body text-sm">
-                    <span className="text-[#8C8C8C]">{"\u00C7atd\u0131r\u0131lma"}</span>
+                    <span className="text-[#8C8C8C]">{"Çatdırılma"}</span>
                     <span className="text-green-600 font-medium">Pulsuz</span>
                   </div>
                 </div>
 
                 <div className="border-t border-gray-100 pt-3 mb-5">
                   <div className="flex justify-between">
-                    <span className="font-heading font-bold text-[#1A1A1A]">{"C\u0259mi"}</span>
+                    <span className="font-heading font-bold text-[#1A1A1A]">{"Cəmi"}</span>
                     <span className="font-heading font-bold text-lg text-[#E05A33]">
-                      {formatPrice(cart.total)} {"\u20BC"}
+                      {formatPrice(cart.total)} {"₼"}
                     </span>
                   </div>
                 </div>
 
                 <div className="space-y-3 mb-5">
                   <div className="flex items-center justify-between">
-                    <h4 className="font-heading font-bold text-base text-[#1A1A1A]">{"\u00D6d\u0259ni\u015F metodlar\u0131"}</h4>
+                    <h4 className="font-heading font-bold text-base text-[#1A1A1A]">{"Ödəniş metodları"}</h4>
                     {activeMethods.length > 0 && (
                       <span className="text-[11px] font-body text-[#8C8C8C]">
-                        {"WhatsApp-a y\u00F6nl\u0259ndiril\u0259c\u0259k"}
+                        {"WhatsApp-a yönləndiriləcək"}
                       </span>
                     )}
                   </div>
@@ -366,7 +366,7 @@ export default function CartPage() {
 
                       {!paymentMethods.length && (
                         <div className="rounded-2xl border border-dashed border-gray-200 p-4 text-sm font-body text-[#8C8C8C]">
-                          {"Haz\u0131rda \u00F6d\u0259ni\u015F metodu tap\u0131lmad\u0131."}
+                          {"Hazırda ödəniş metodu tapılmadı."}
                         </div>
                       )}
                     </div>
@@ -374,13 +374,13 @@ export default function CartPage() {
 
                   {!normalizeWhatsappPhone(whatsappPhone) && (
                     <div className="rounded-2xl border border-[#FFD4C7] bg-[#FFF6F3] px-4 py-3 text-xs font-body text-[#A5533A]">
-                      {"WhatsApp sifari\u015F n\u00F6mr\u0259si h\u0259l\u0259 qurulmay\u0131b. Admin paneld\u0259n n\u00F6mr\u0259ni qurduqdan sonra checkout aktiv olacaq."}
+                      {"WhatsApp sifariş nömrəsi hələ qurulmayıb. Admin paneldən nömrəni qurduqdan sonra checkout aktiv olacaq."}
                     </div>
                   )}
 
                   {!methodsLoading && paymentMethods.length > 0 && activeMethods.length === 0 && (
                     <div className="rounded-2xl border border-[#F3D58A] bg-[#FFF9E8] px-4 py-3 text-xs font-body text-[#8A6400]">
-                      {"Haz\u0131rda istifad\u0259 edil\u0259 bil\u0259n \u00F6d\u0259ni\u015F metodu yoxdur."}
+                      {"Hazırda istifadə edilə bilən ödəniş metodu yoxdur."}
                     </div>
                   )}
                 </div>
@@ -391,7 +391,7 @@ export default function CartPage() {
                   disabled={!canCheckout}
                   className="w-full bg-[#E05A33] hover:bg-[#D94A22] disabled:bg-[#F1B7A8] disabled:cursor-not-allowed text-white py-3.5 rounded-full font-body font-semibold text-sm flex items-center justify-center gap-2 transition-all hover:shadow-lg"
                 >
-                  {"WhatsApp sifari\u015Fi yarat"} <ArrowRight size={16} />
+                  {"WhatsApp sifarişi yarat"} <ArrowRight size={16} />
                 </button>
               </div>
             </div>

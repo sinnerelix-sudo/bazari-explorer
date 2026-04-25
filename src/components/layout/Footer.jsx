@@ -4,15 +4,15 @@ import BrandMark from "./BrandMark";
 const footerLinks = [
   {
     title: "Kateqoriyalar",
-    links: ["Qad\u0131n geyimi", "Ayaqqab\u0131", "Elektronika", "Ev v\u0259 m\u0259tb\u0259x", "G\u00F6z\u0259llik"],
+    links: ["Qadın geyimi", "Ayaqqabı", "Elektronika", "Ev və mətbəx", "Gözəllik"],
   },
   {
-    title: "M\u00FC\u015Ft\u0259ri xidm\u0259ti",
-    links: ["\u00C7atd\u0131r\u0131lma", "Geri qaytarma", "FAQ", "\u00D6l\u00E7\u00FC c\u0259dv\u0259li", "\u018Flaq\u0259"],
+    title: "Müştəri xidməti",
+    links: ["Çatdırılma", "Geri qaytarma", "FAQ", "Ölçü cədvəli", "Əlaqə"],
   },
   {
-    title: "\u015Eirk\u0259t",
-    links: ["Haqq\u0131m\u0131zda", "Karyera", "Bloq", "T\u0259r\u0259fda\u015Fl\u0131q", "Ma\u011Fazalar"],
+    title: "Şirkət",
+    links: ["Haqqımızda", "Karyera", "Bloq", "Tərəfdaşlıq", "Mağazalar"],
   },
 ];
 
@@ -30,12 +30,12 @@ export default function Footer() {
               <span className="font-heading font-bold text-lg">Bazari</span>
             </div>
             <p className="text-sm text-gray-400 font-body leading-relaxed mb-4">
-              {"Premium marketplace - keyfiyy\u0259t v\u0259 stil bir yerd\u0259."}
+              {"Premium marketplace - keyfiyyət və stil bir yerdə."}
             </p>
             <div className="space-y-2.5">
               <div className="flex items-center gap-2 text-gray-400 text-sm">
                 <MapPin size={14} className="flex-shrink-0" />
-                <span className="font-body">{"Bak\u0131, Az\u0259rbaycan"}</span>
+                <span className="font-body">{"Bakı, Azərbaycan"}</span>
               </div>
               <div className="flex items-center gap-2 text-gray-400 text-sm">
                 <Phone size={14} className="flex-shrink-0" />
@@ -75,7 +75,7 @@ export default function Footer() {
 
         <div className="mt-10 pt-6 border-t border-gray-800 flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-gray-500 font-body">
-            {"2025 Bazari. B\u00FCt\u00FCn h\u00FCquqlar qorunur."}
+            {"2025 Bazari. Bütün hüquqlar qorunur."}
           </p>
           <div className="flex items-center gap-4">
             {["Visa", "MC", "GPay"].map((pm) => (

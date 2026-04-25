@@ -59,7 +59,7 @@ self.addEventListener("fetch", (event) => {
 });
 
 self.addEventListener("push", (event) => {
-  let data = { title: "Bazari", body: "Yeni bildiri\u015F!", icon: "/icon-192x192.png" };
+  let data = { title: "Bazari", body: "Yeni bildiriş!", icon: "/icon-192x192.png" };
 
   try {
     if (event.data) {
@@ -76,7 +76,7 @@ self.addEventListener("push", (event) => {
         },
         actions: payload.actions || [
           { action: "open", title: "Bax" },
-          { action: "dismiss", title: "Ba\u011Fla" },
+          { action: "dismiss", title: "Bağla" },
         ],
         vibrate: [200, 100, 200],
         requireInteraction: false,

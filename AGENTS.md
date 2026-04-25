@@ -115,3 +115,8 @@
   - Live HTML check confirmed `lang="az"`, `translate="no"`, `notranslate`, and `meta name="google" content="notranslate"`.
   - Post-deploy Android-like mobile CDP verification passed: product page showed no error, exception count `0`, `POST /api/cart/add` returned `200`.
   - The admin test cart was cleared afterward and live `DELETE /api/cart/clear` returned `count = 0`.
+- Later on 2026-04-25, the user reported visible Azerbaijani text corruption where `\u0259`-style escapes appeared in the UI, especially in admin 2FA and campaign placeholder text.
+  - Source user-facing Unicode escapes were converted to real UTF-8 Azerbaijani text in the frontend/admin/public text files and related backend payment/admin messages.
+  - The global marketplace font was changed from the previous mixed `Outfit`/`Manrope` setup to one consistent `Noto Sans` family with broad Azerbaijani glyph support, so `ə, ş, ç, ı, ğ, ö, ü` render consistently inside words.
+  - Verification after the local fix passed: no remaining `\uXXXX` Azerbaijani escape or common mojibake pattern was found under `src`, `public`, or `backend/src`; `npm.cmd run build` passed; `node --check` passed for `backend/src/paymentMethods.js` and `backend/src/routes/admin.js`.
+  - `npm.cmd run lint` was attempted afterward but timed out after roughly 3 minutes in this Windows shell.

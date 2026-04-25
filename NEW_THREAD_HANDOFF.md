@@ -137,6 +137,13 @@ Keep the local cart/payment flow testable while finishing production deployment 
     - runtime exception count was `0`
     - logged-in `POST https://api.bazari.site/api/cart/add` returned `200`
     - the admin test cart was cleared afterward and live `DELETE /api/cart/clear` returned `count = 0`
+- Later on 2026-04-25, the user reported Azerbaijani letters showing as literal Unicode escapes like `\u0259` in visible UI text:
+  - affected source text was normalized from escaped `\uXXXX` sequences to real UTF-8 Azerbaijani letters in `src`, `public`, and relevant backend message files
+  - the global font stack was switched to a single `Noto Sans` family for body and heading utilities to keep Azerbaijani glyphs visually consistent and avoid mixed fallback weights inside words
+  - local verification passed: no remaining Azerbaijani `\uXXXX` escapes or common mojibake pattern were found under `src`, `public`, or `backend/src`
+  - `npm.cmd run build` passed
+  - `node --check backend/src/paymentMethods.js` and `node --check backend/src/routes/admin.js` passed
+  - `npm.cmd run lint` was attempted but timed out after roughly 3 minutes in this Windows shell
 
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:
