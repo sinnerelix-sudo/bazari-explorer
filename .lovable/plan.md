@@ -118,6 +118,9 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - `npm.cmd run build` passed
   - backend syntax checks passed for `backend/src/paymentMethods.js` and `backend/src/routes/admin.js`
   - `npm.cmd run lint` was attempted but timed out after roughly 3 minutes in this Windows shell
+  - commit `5f51b73` pushed to `main`
+  - Vercel production deploy `dpl_EAhYy2UWzJWzDbWN9AqY1yuoTKek` completed and was aliased to `www.bazari.site`
+  - post-deploy live smoke passed: `www.bazari.site` `200`, API health `200`, live CSS includes `Noto Sans`, old `Outfit`/`Manrope` imports are gone, and public WhatsApp payment state remains configured
 
 ## Open deployment tasks
 1. Run a safe live cart checkout redirect smoke when checkout work resumes and confirm it targets `https://wa.me/994557252025?text=...` without placing a real order

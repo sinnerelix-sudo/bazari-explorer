@@ -120,3 +120,9 @@
   - The global marketplace font was changed from the previous mixed `Outfit`/`Manrope` setup to one consistent `Noto Sans` family with broad Azerbaijani glyph support, so `ə, ş, ç, ı, ğ, ö, ü` render consistently inside words.
   - Verification after the local fix passed: no remaining `\uXXXX` Azerbaijani escape or common mojibake pattern was found under `src`, `public`, or `backend/src`; `npm.cmd run build` passed; `node --check` passed for `backend/src/paymentMethods.js` and `backend/src/routes/admin.js`.
   - `npm.cmd run lint` was attempted afterward but timed out after roughly 3 minutes in this Windows shell.
+  - Commit pushed to `main`: `5f51b73` - `Fix Azerbaijani text rendering and font`.
+  - Vercel production deploy completed:
+    - deployment id: `dpl_EAhYy2UWzJWzDbWN9AqY1yuoTKek`
+    - deployment url: `https://bazari-explorer-iejckqhn3-metrekareup1-3268s-projects.vercel.app`
+    - alias confirmed on `https://www.bazari.site`
+  - Post-deploy live checks passed: `https://www.bazari.site` returned `200`, `https://api.bazari.site/api/health` returned `200`, live CSS contained `Noto Sans` and no longer contained `Outfit` or `Manrope`, and public payment payload still returned `whatsapp_phone = "994557252025"` with `whatsapp_configured = true`.

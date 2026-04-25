@@ -144,6 +144,17 @@ Keep the local cart/payment flow testable while finishing production deployment 
   - `npm.cmd run build` passed
   - `node --check backend/src/paymentMethods.js` and `node --check backend/src/routes/admin.js` passed
   - `npm.cmd run lint` was attempted but timed out after roughly 3 minutes in this Windows shell
+  - commit pushed to `main`: `5f51b73` - `Fix Azerbaijani text rendering and font`
+  - Vercel production deploy succeeded:
+    - deployment id: `dpl_EAhYy2UWzJWzDbWN9AqY1yuoTKek`
+    - deployment url: `https://bazari-explorer-iejckqhn3-metrekareup1-3268s-projects.vercel.app`
+    - alias confirmed on `https://www.bazari.site`
+  - post-deploy live verification passed:
+    - `https://www.bazari.site` -> `200`
+    - `https://api.bazari.site/api/health` -> `200`
+    - live CSS contains `Noto Sans`
+    - live CSS no longer contains `Outfit` or `Manrope`
+    - public payment payload still shows `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`
 
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:
