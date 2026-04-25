@@ -126,3 +126,15 @@
     - deployment url: `https://bazari-explorer-iejckqhn3-metrekareup1-3268s-projects.vercel.app`
     - alias confirmed on `https://www.bazari.site`
   - Post-deploy live checks passed: `https://www.bazari.site` returned `200`, `https://api.bazari.site/api/health` returned `200`, live CSS contained `Noto Sans` and no longer contained `Outfit` or `Manrope`, and public payment payload still returned `whatsapp_phone = "994557252025"` with `whatsapp_configured = true`.
+- Later on 2026-04-25, the user asked to activate the mobile bottom navigation `Kateqoriya` button so it opens a category list on phones.
+  - `src/components/layout/MobileBottomNav.jsx` was updated so the `Kateqoriya` item is a real button instead of a home link.
+  - Tapping it now opens a mobile bottom sheet with live categories loaded from `/api/categories`, with static category fallback if the request fails.
+  - Category rows link to `/category/:slug`, the sheet can be closed with the backdrop, close button, or Escape, and `/category/...` routes now mark the category nav item active.
+  - `npm.cmd run build` passed before deploy.
+  - Commit pushed to `main`: `cb46a75` - `Enable mobile category sheet`.
+  - Vercel production deploy completed:
+    - deployment id: `dpl_7HRUVEcG7gh9ihCC81Rz3Kr2foNr`
+    - deployment url: `https://bazari-explorer-ek9t3alps-metrekareup1-3268s-projects.vercel.app`
+    - alias confirmed on `https://www.bazari.site`
+  - Post-deploy live mobile CDP verification passed on `https://www.bazari.site`: `nav-categories` was found, tapping it opened `category-sheet`, 3 live category links appeared (`Premium hesablar`, `SMM xidmətləri`, `Streaming paketləri`), runtime exception count was `0`, and `Something went wrong` was absent.
+  - Final live smoke also passed: `https://www.bazari.site` -> `200`, `https://api.bazari.site/api/health` -> `200`, and public payment payload still showed `whatsapp_phone = "994557252025"` with `whatsapp_configured = true`.

@@ -155,6 +155,29 @@ Keep the local cart/payment flow testable while finishing production deployment 
     - live CSS contains `Noto Sans`
     - live CSS no longer contains `Outfit` or `Manrope`
     - public payment payload still shows `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`
+- Later on 2026-04-25, the user asked to make the mobile bottom nav `Kateqoriya` button show a category list instead of acting like a home link:
+  - `src/components/layout/MobileBottomNav.jsx` now renders the category nav item as a button
+  - tapping it opens a mobile bottom sheet
+  - the sheet fetches live categories from `/api/categories`
+  - it falls back to local static categories only if the API fails or returns empty
+  - each category row links to `/category/:slug`
+  - the sheet closes via backdrop, close button, Escape, or category selection
+  - category routes now mark the bottom nav category item as active
+  - local `npm.cmd run build` passed
+  - commit pushed to `main`: `cb46a75` - `Enable mobile category sheet`
+  - Vercel production deploy succeeded:
+    - deployment id: `dpl_7HRUVEcG7gh9ihCC81Rz3Kr2foNr`
+    - deployment url: `https://bazari-explorer-ek9t3alps-metrekareup1-3268s-projects.vercel.app`
+    - alias confirmed on `https://www.bazari.site`
+  - post-deploy live mobile CDP verification passed:
+    - `nav-categories` found
+    - tap set `aria-expanded = "true"`
+    - `category-sheet` appeared
+    - `linkCount = 3`
+    - live links were `Premium hesablar`, `SMM xidmətləri`, `Streaming paketləri`
+    - runtime exception count `0`
+    - `Something went wrong` absent
+  - final live smoke passed: `https://www.bazari.site` -> `200`, API health -> `200`, public WhatsApp payment payload still configured
 
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:

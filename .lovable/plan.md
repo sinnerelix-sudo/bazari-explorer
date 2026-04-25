@@ -121,6 +121,15 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - commit `5f51b73` pushed to `main`
   - Vercel production deploy `dpl_EAhYy2UWzJWzDbWN9AqY1yuoTKek` completed and was aliased to `www.bazari.site`
   - post-deploy live smoke passed: `www.bazari.site` `200`, API health `200`, live CSS includes `Noto Sans`, old `Outfit`/`Manrope` imports are gone, and public WhatsApp payment state remains configured
+- On 2026-04-25, the mobile bottom nav `Kateqoriya` item was activated:
+  - `src/components/layout/MobileBottomNav.jsx` now opens a mobile category bottom sheet instead of linking back to home
+  - categories are loaded from live `/api/categories` with static fallback
+  - category items route to `/category/:slug`
+  - local `npm.cmd run build` passed
+  - commit `cb46a75` pushed to `main`
+  - Vercel production deploy `dpl_7HRUVEcG7gh9ihCC81Rz3Kr2foNr` completed and was aliased to `www.bazari.site`
+  - live mobile CDP verification passed: category nav opened the sheet, 3 live category links were shown, runtime exceptions were `0`, and `Something went wrong` was absent
+  - final live smoke passed for `www.bazari.site`, API health, and public WhatsApp payment configuration
 
 ## Open deployment tasks
 1. Run a safe live cart checkout redirect smoke when checkout work resumes and confirm it targets `https://wa.me/994557252025?text=...` without placing a real order
