@@ -554,3 +554,17 @@ Current live summary as of 2026-04-26:
 - storefront homepage: production now uses the live admin-managed product feed instead of static showcase product cards
 - product detail gallery: production now supports thumbnail taps, swipe/drag, previous/next controls, and active image counter
 - WhatsApp checkout: public and admin payloads now show `whatsapp_phone = "994557252025"`, `whatsapp_configured = true`, and admin `whatsapp_source = "database"`
+
+## 2026-04-26 Flash Deals Admin Form Visibility Fix
+- User clarified that the admin product form still did not clearly show where to mark a product as `Flash Endirimlər`.
+- `src/pages/AdminPanel.jsx` was updated so product add/edit now shows a separate, prominent `Flash Endirimlər` card.
+- The card includes a visible toggle/switch, a full-width `Flash endirim düyməsini aktivləşdir` button, and an inactive note.
+- When active, it opens exactly these fields:
+  - `Flash Endirimli qiyməti`
+  - `Ümumi limit`
+  - `Bir müştəri üçün limit`
+- Existing product edit now initializes flash fields from either top-level `flash_sale_*` values or nested `flash_sale`, so normal products can be converted into flash deals from the edit form.
+- Local verification passed:
+  - `npm.cmd run build`
+  - bundle scan found the new flash admin form markers
+- Production deployment is pending from this note until the new bundle is pushed and aliased to `https://www.bazari.site`.

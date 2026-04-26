@@ -362,27 +362,39 @@ function Sidebar({ activeTab, setActiveTab, user, onLogout }) {
   );
 }
 
+const EMPTY_PRODUCT_FORM = {
+  name: "",
+  description: "",
+  price: 0,
+  original_price: 0,
+  discount: 0,
+  images: [],
+  brand: "",
+  stock: 100,
+  badge: "",
+  category_id: "",
+  seo_title: "",
+  seo_description: "",
+  flash_sale_active: false,
+  flash_sale_price: 0,
+  flash_sale_limit: 0,
+  flash_sale_per_customer_limit: 0,
+};
+
 function ProductForm({ product, categories, onSave, onCancel }) {
-  const [form, setForm] = useState(
-    product || {
-      name: "",
-      description: "",
-      price: 0,
-      original_price: 0,
-      discount: 0,
-      images: [],
-      brand: "",
-      stock: 100,
-      badge: "",
-      category_id: "",
-      seo_title: "",
-      seo_description: "",
-      flash_sale_active: false,
-      flash_sale_price: 0,
-      flash_sale_limit: 0,
-      flash_sale_per_customer_limit: 0,
-    }
-  );
+  const [form, setForm] = useState(() => {
+    const source = product || {};
+    const flashSale = source.flash_sale || {};
+    return {
+      ...EMPTY_PRODUCT_FORM,
+      ...source,
+      flash_sale_active: source.flash_sale_active ?? flashSale.active ?? false,
+      flash_sale_price: source.flash_sale_price ?? flashSale.price ?? 0,
+      flash_sale_limit: source.flash_sale_limit ?? flashSale.limit ?? 0,
+      flash_sale_per_customer_limit:
+        source.flash_sale_per_customer_limit ?? flashSale.per_customer_limit ?? flashSale.perCustomerLimit ?? 0,
+    };
+  });
   const [imageUrl, setImageUrl] = useState("");
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -482,29 +494,50 @@ function ProductForm({ product, categories, onSave, onCancel }) {
         </div>
       </div>
 
-      <div className="rounded-2xl border border-[#FFE0D5] bg-[#FFF7F2] p-4 space-y-3">
-        <label className="flex items-center justify-between gap-3">
-          <div>
-            <span className="block font-body text-sm font-semibold text-[#1A1A1A]">
-              Flash endirim
+      <section data-testid="flash-sale-section" className="rounded-2xl border-2 border-[#FFE0D5] bg-[#FFF7F2] p-4 sm:p-5 space-y-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-start gap-3">
+            <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-[#E05A33] text-white">
+              <Tag size={18} />
             </span>
-            <span className="block font-body text-xs text-[#8C8C8C] mt-0.5">
-              Məhsulu mobil “Flash Endirimlər” bölməsinə çıxarır.
-            </span>
-          </div>
-          <input
-            data-testid="product-flash-active"
-            type="checkbox"
-            checked={!!form.flash_sale_active}
-            onChange={(event) => setField("flash_sale_active", event.target.checked)}
-            className="w-5 h-5 accent-[#E05A33]"
-          />
-        </label>
-
-        {form.flash_sale_active && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
             <div>
-              <label className="block font-body text-sm text-[#595959] mb-1">Flash endirimli qiymət</label>
+              <h3 className="font-heading text-lg font-bold text-[#1A1A1A]">Flash Endirimlər</h3>
+              <p className="mt-1 font-body text-sm text-[#6B6B6B]">
+                Məhsulu Flash Endirimlər səhifəsində və telefondakı Endirimlər bölməsində göstər.
+              </p>
+            </div>
+          </div>
+
+          <label className="inline-flex cursor-pointer items-center gap-2 pt-1">
+            <span className="hidden sm:inline font-body text-xs font-semibold text-[#8C8C8C]">
+              {form.flash_sale_active ? "Aktiv" : "Passiv"}
+            </span>
+            <input
+              data-testid="product-flash-active"
+              type="checkbox"
+              checked={!!form.flash_sale_active}
+              onChange={(event) => setField("flash_sale_active", event.target.checked)}
+              className="peer sr-only"
+            />
+            <span className="relative h-7 w-12 rounded-full bg-[#D9D4CE] transition-colors peer-checked:bg-[#E05A33] after:absolute after:left-1 after:top-1 after:h-5 after:w-5 after:rounded-full after:bg-white after:shadow-sm after:transition-transform peer-checked:after:translate-x-5" />
+          </label>
+        </div>
+
+        <button
+          data-testid="product-flash-toggle"
+          type="button"
+          onClick={() => setField("flash_sale_active", !form.flash_sale_active)}
+          className={`w-full rounded-2xl px-4 py-3 text-left font-body text-sm font-bold transition-colors ${
+            form.flash_sale_active ? "bg-[#E05A33] text-white" : "bg-white text-[#E05A33] border border-[#FFD8C8]"
+          }`}
+        >
+          {form.flash_sale_active ? "Flash endirim aktivdir" : "Flash endirim düyməsini aktivləşdir"}
+        </button>
+
+        {form.flash_sale_active ? (
+          <div data-testid="flash-sale-fields" className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block font-body text-sm font-semibold text-[#595959] mb-1">Flash Endirimli qiyməti</label>
               <input
                 data-testid="product-flash-price"
                 type="number"
@@ -512,34 +545,41 @@ function ProductForm({ product, categories, onSave, onCancel }) {
                 min="0"
                 value={form.flash_sale_price || ""}
                 onChange={(event) => setField("flash_sale_price", parseFloat(event.target.value) || 0)}
-                className="w-full px-4 py-2.5 rounded-xl bg-white border border-transparent focus:border-[#E05A33] outline-none font-body text-sm"
+                className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#FFE0D5] focus:border-[#E05A33] outline-none font-body text-sm"
+                placeholder="Misal: 89.50"
               />
             </div>
             <div>
-              <label className="block font-body text-sm text-[#595959] mb-1">Ümumi limit</label>
+              <label className="block font-body text-sm font-semibold text-[#595959] mb-1">Ümumi limit</label>
               <input
                 data-testid="product-flash-limit"
                 type="number"
                 min="0"
                 value={form.flash_sale_limit || ""}
                 onChange={(event) => setField("flash_sale_limit", parseInt(event.target.value, 10) || 0)}
-                className="w-full px-4 py-2.5 rounded-xl bg-white border border-transparent focus:border-[#E05A33] outline-none font-body text-sm"
+                className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#FFE0D5] focus:border-[#E05A33] outline-none font-body text-sm"
+                placeholder="Misal: 100"
               />
             </div>
             <div>
-              <label className="block font-body text-sm text-[#595959] mb-1">Bir müştəri üçün limit</label>
+              <label className="block font-body text-sm font-semibold text-[#595959] mb-1">Bir müştəri üçün limit</label>
               <input
                 data-testid="product-flash-customer-limit"
                 type="number"
                 min="0"
                 value={form.flash_sale_per_customer_limit || ""}
                 onChange={(event) => setField("flash_sale_per_customer_limit", parseInt(event.target.value, 10) || 0)}
-                className="w-full px-4 py-2.5 rounded-xl bg-white border border-transparent focus:border-[#E05A33] outline-none font-body text-sm"
+                className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#FFE0D5] focus:border-[#E05A33] outline-none font-body text-sm"
+                placeholder="Misal: 2"
               />
             </div>
           </div>
+        ) : (
+          <div data-testid="flash-sale-inactive-note" className="rounded-2xl border border-dashed border-[#FFD8C8] bg-white/70 px-4 py-3 font-body text-sm text-[#8C8C8C]">
+            Aktivləşdirəndə aşağıda Flash Endirimli qiyməti, Ümumi limit və Bir müştəri üçün limit sahələri açılacaq.
+          </div>
         )}
-      </div>
+      </section>
 
       <div className="grid grid-cols-2 gap-3">
         <div>

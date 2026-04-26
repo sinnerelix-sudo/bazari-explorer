@@ -65,6 +65,19 @@
   - product image/info visible: about `7ms`
   - runtime exception count `0`
   - `Something went wrong` absent
+
+## 2026-04-26 Flash Deals Admin Form Visibility Fix
+- User clarified that admin product add/edit must visibly expose a `Flash Endirimlər` section, not just a small `Flash endirim` checkbox.
+- `src/pages/AdminPanel.jsx` product form now has a dedicated `Flash Endirimlər` card with:
+  - section heading `Flash Endirimlər`
+  - visible toggle/switch and button text `Flash endirim düyməsini aktivləşdir`
+  - inactive helper note explaining which fields will open
+  - active fields for `Flash Endirimli qiyməti`, `Ümumi limit`, and `Bir müştəri üçün limit`
+- The same form initialization now merges default product fields with existing product data and nested `flash_sale` values, so normal existing products can be edited and converted into flash deals safely.
+- Local verification passed:
+  - `npm.cmd run build`
+  - production bundle scan found `flash-sale-section`, `product-flash-toggle`, and `Flash Endirimlər`
+- Deployment is pending in this note until the new frontend bundle is pushed and aliased to `https://www.bazari.site`.
 - During live smoke, the first API request after idle took about `16s`, then warm API calls dropped to roughly `150-260ms`; this indicates Render cold-start remains the next infrastructure-level speed limit, separate from the frontend mock/route fix.
 
 ## 2026-04-25 Live Resume Notes

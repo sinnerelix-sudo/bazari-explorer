@@ -24,6 +24,14 @@ Finish the `bazari.site` production cutover without redesigning the app:
 - production admin payment payload was re-checked on 2026-04-25 and shows `whatsapp_phone = "994557252025"`, `whatsapp_configured = true`, `whatsapp_source = "database"`, and populated `whatsapp_updated_at`
 
 ## Already completed
+- On 2026-04-26, admin flash form visibility was tightened after user clarification:
+  - product add/edit now has a dedicated `Flash Endirimlər` card instead of a small checkbox-only row
+  - the card has a visible switch and `Flash endirim düyməsini aktivləşdir` button
+  - inactive state explains that the flash fields will open below
+  - active state shows `Flash Endirimli qiyməti`, `Ümumi limit`, and `Bir müştəri üçün limit`
+  - existing product edit initializes flash fields from both top-level `flash_sale_*` and nested `flash_sale` data
+  - local `npm.cmd run build` passed and bundle scan found the new flash admin form markers
+  - production deployment is pending from this note
 - On 2026-04-26, flash deals and category navigation were completed locally:
   - mobile `Endirimlər` now opens the new `Flash Endirimlər` page at `/flash-deals`
   - hamburger menu `Kateqoriyalar` links to the new `/categories` page
