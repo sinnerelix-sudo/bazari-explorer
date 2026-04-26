@@ -45,7 +45,27 @@
   - `node --check backend/src/routes/reviews.js`
   - `node --check backend/src/routes/categories.js`
   - `node --check backend/src/routes/homepage.js`
-- Deployment and live mobile smoke are the next required checks for this change.
+- Commit pushed to `main`: `3d260c2` - `Remove mock fallbacks and speed product pages`.
+- Vercel production deploy completed and aliased to `https://www.bazari.site`:
+  - deployment id: `dpl_AcwtcfKJZGvujF5q7G38jn8iso9D`
+  - deployment url: `https://bazari-explorer-2wuj52gju-metrekareup1-3268s-projects.vercel.app`
+- Render picked up the backend push; live product/category/homepage responses now include the new short cache headers.
+- Live smoke after deploy passed:
+  - `https://www.bazari.site` -> `200`
+  - `https://bazari.site` -> `308` redirect to `https://www.bazari.site/`
+  - `https://api.bazari.site/api/health` -> `200`
+  - `https://api.bazari.site/api/payment-methods` -> `200`
+  - public WhatsApp payload still has `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`
+- Live bundle check found no old mock strings such as `Premium Wireless`, `Qadın geyimi`, `Ayaqqabı`, `Elektronikada Böyük`, or `Populyar brendlər`.
+- Live mobile CDP verification on `https://www.bazari.site` passed:
+  - homepage load event: about `1562ms`
+  - first live product card found after about `898ms`
+  - category sheet opened with 3 live categories and no fake fashion/electronics categories
+  - product click to detail route: about `5ms`
+  - product image/info visible: about `7ms`
+  - runtime exception count `0`
+  - `Something went wrong` absent
+- During live smoke, the first API request after idle took about `16s`, then warm API calls dropped to roughly `150-260ms`; this indicates Render cold-start remains the next infrastructure-level speed limit, separate from the frontend mock/route fix.
 
 ## 2026-04-25 Live Resume Notes
 - The user explicitly wants this thread to stay live-first against `https://www.bazari.site` and `https://api.bazari.site`; do not fall back to localhost unless production work is blocked.

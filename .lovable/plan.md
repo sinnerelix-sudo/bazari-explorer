@@ -35,7 +35,14 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - reviews GET now uses read-only aggregation and limits returned reviews instead of recomputing stats with a write on every read
   - `npm.cmd run build` passed
   - `node --check` passed for touched backend routes
-  - deploy/live mobile smoke is still pending for this pass
+  - commit `3d260c2` pushed to `main`
+  - Vercel production deploy `dpl_AcwtcfKJZGvujF5q7G38jn8iso9D` completed and was aliased to `https://www.bazari.site`
+  - Render picked up the backend push; live cache headers are visible on product/category/homepage endpoints
+  - live smoke passed for `www.bazari.site`, apex redirect, API health, and public payment methods
+  - public WhatsApp payment state still shows `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`
+  - live bundle check found no old mock strings (`Premium Wireless`, `Qadın geyimi`, `Ayaqqabı`, `Elektronikada Böyük`, `Populyar brendlər`)
+  - live mobile CDP verification passed: first product card about `898ms`, product click detail route about `5ms`, product image/info about `7ms`, runtime exceptions `0`
+  - one cold API request after idle took about `16s`, then warm API calls were around `150-260ms`; Render cold-start remains the next infrastructure-level speed limit
 - The live storefront mismatch is now fixed on production:
   - `GET https://api.bazari.site/api/homepage` is live and returns `200`
   - homepage product sections no longer fall back to static showcase cards

@@ -29,7 +29,28 @@ Keep the local cart/payment flow testable while finishing production deployment 
 - Local verification already passed:
   - `npm.cmd run build`
   - `node --check` for `backend/src/routes/products.js`, `reviews.js`, `categories.js`, and `homepage.js`
-- Pending for this pass: commit/push, Vercel production deploy, live mobile smoke, and final handoff deploy note.
+- Commit pushed to `main`: `3d260c2` - `Remove mock fallbacks and speed product pages`.
+- Vercel production deploy completed and was aliased to `https://www.bazari.site`:
+  - deployment id: `dpl_AcwtcfKJZGvujF5q7G38jn8iso9D`
+  - deployment url: `https://bazari-explorer-2wuj52gju-metrekareup1-3268s-projects.vercel.app`
+- Render picked up the backend push; live product/category/homepage responses now include the new cache headers.
+- Live smoke after deploy passed:
+  - `https://www.bazari.site` -> `200`
+  - `https://bazari.site` -> `308` redirect to `https://www.bazari.site/`
+  - `https://api.bazari.site/api/health` -> `200`
+  - `https://api.bazari.site/api/payment-methods` -> `200`
+  - public WhatsApp payload still has `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`
+- Live production JS bundle no longer contains the old mock strings `Premium Wireless`, `Qadın geyimi`, `Ayaqqabı`, `Elektronikada Böyük`, or `Populyar brendlər`.
+- Live mobile CDP verification passed:
+  - homepage load event about `1562ms`
+  - first live product card about `898ms`
+  - category sheet opened with 3 live categories: `Premium hesablar`, `SMM xidmətləri`, `Streaming paketləri`
+  - fake category names were absent
+  - product click opened detail route in about `5ms`
+  - product image/info was visible in about `7ms`
+  - runtime exception count `0`
+  - `Something went wrong` absent
+- Observed infrastructure limit: the first API request after idle took about `16s`, then warm API requests were around `150-260ms`; this is Render cold-start behavior and remains the next thing to solve if first-ever load must be consistently instant.
 
 ## 2026-04-25 live resume snapshot
 - Production was re-checked again from this thread and matches the latest expected live state:
