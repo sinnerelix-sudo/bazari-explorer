@@ -16,6 +16,7 @@ import adminRoutes from "./routes/admin.js";
 import paymentMethodsRoutes from "./routes/paymentMethods.js";
 import homepageRoutes from "./routes/homepage.js";
 import { ensureBootstrapAdmin } from "./bootstrap.js";
+import { startKeepAlive } from "./keepAlive.js";
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -57,6 +58,7 @@ app.use((err, _req, res, _next) => {
 
 connectDB().then(async () => {
   await ensureBootstrapAdmin();
+  startKeepAlive();
   app.listen(PORT, () => console.log(`🚀 Backend listening on :${PORT}`));
 }).catch((err) => {
   console.error("DB connect failed:", err);
