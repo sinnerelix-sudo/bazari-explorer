@@ -1,10 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { heroBanners } from "@/data/mockData";
 
-export default function HeroBanner() {
+export default function HeroBanner({ banners = [] }) {
   const [current, setCurrent] = useState(0);
-  const total = heroBanners.length;
+  const total = banners.length;
 
   const next = useCallback(() => {
     setCurrent((prev) => (prev + 1) % total);
@@ -15,18 +14,25 @@ export default function HeroBanner() {
   }, [total]);
 
   useEffect(() => {
+    if (total === 0) return undefined;
     const timer = setInterval(next, 5000);
     return () => clearInterval(timer);
-  }, [next]);
+  }, [next, total]);
 
-  const banner = heroBanners[current];
+  useEffect(() => {
+    if (current >= total) setCurrent(0);
+  }, [current, total]);
+
+  if (total === 0) return null;
+
+  const banner = banners[current] || banners[0];
 
   return (
     <section data-testid="hero-banner" className="px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto mt-4 sm:mt-6">
       <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl">
         {/* Image */}
         <div className="relative aspect-[16/9] sm:aspect-[2.4/1] overflow-hidden">
-          {heroBanners.map((b, idx) => (
+          {banners.map((b, idx) => (
             <div
               key={b.id}
               className={`absolute inset-0 transition-opacity duration-700 ${
@@ -84,7 +90,7 @@ export default function HeroBanner() {
 
         {/* Dots */}
         <div className="absolute bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-          {heroBanners.map((_, idx) => (
+          {banners.map((_, idx) => (
             <button
               key={idx}
               data-testid={`hero-dot-${idx}`}

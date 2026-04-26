@@ -1,16 +1,19 @@
-import { categories as staticCategories } from "@/data/mockData";
+import { Link } from "react-router-dom";
 
 export default function CategoryBar({ apiCategories }) {
   const cats = apiCategories?.length
     ? apiCategories.map((c) => ({ id: c.id, name: c.name, image: c.image, slug: c.slug }))
-    : staticCategories;
+    : [];
+
+  if (cats.length === 0) return null;
 
   return (
     <section data-testid="category-bar" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-6 sm:mt-8">
       <div className="flex items-center overflow-x-auto gap-4 sm:gap-6 pb-2 scrollbar-hide sm:justify-center sm:flex-wrap">
         {cats.map((cat) => (
-          <button
+          <Link
             key={cat.id}
+            to={`/category/${cat.slug}`}
             data-testid={`category-${cat.slug}`}
             className="flex flex-col items-center gap-2 flex-shrink-0 group"
           >
@@ -25,7 +28,7 @@ export default function CategoryBar({ apiCategories }) {
             <span className="text-[11px] sm:text-xs font-body font-medium text-[#595959] group-hover:text-[#E05A33] transition-colors text-center leading-tight w-16 sm:w-[72px]">
               {cat.name}
             </span>
-          </button>
+          </Link>
         ))}
       </div>
     </section>

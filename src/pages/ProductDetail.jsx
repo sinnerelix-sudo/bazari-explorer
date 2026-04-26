@@ -1,18 +1,17 @@
-import { useState, useEffect } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useState, useEffect, useMemo } from "react";
+import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import {
   Star, Heart, ShoppingBag, ChevronLeft, Share2,
   Truck, Shield, RefreshCw, Minus, Plus, ChevronRight, Check
 } from "lucide-react";
-import axios from "axios";
 import { useCart } from "@/contexts/CartContext";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import Header from "@/components/layout/Header";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/home/ProductCard";
-
-import { API_BASE as API } from "@/lib/api";
+import { api } from "@/lib/api";
+import { fetchProduct, getCachedProduct, normalizeProductPreview } from "@/lib/productPrefetch";
 
 function RatingStars({ rating, size = 14 }) {
   return (
@@ -45,12 +44,16 @@ function ReviewBar({ label, count, total }) {
 export default function ProductDetail() {
   const { productId } = useParams();
   const navigate = useNavigate();
-  const [product, setProduct] = useState(null);
+  const location = useLocation();
+  const initialProduct = useMemo(() => {
+    return normalizeProductPreview(location.state?.productPreview) || getCachedProduct(productId);
+  }, [location.state, productId]);
+  const [product, setProduct] = useState(initialProduct);
   const [reviews, setReviews] = useState({ reviews: [], stats: {} });
   const [similar, setSimilar] = useState([]);
   const [liked, setLiked] = useState(false);
   const [qty, setQty] = useState(1);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!initialProduct);
   const [activeTab, setActiveTab] = useState("description");
   const { addToCart } = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
@@ -65,28 +68,62 @@ export default function ProductDetail() {
 
   useEffect(() => {
     window.scrollTo(0, 0);
-    const load = async () => {
-      try {
-        setLoading(true);
-        const [prodRes, revRes] = await Promise.all([
-          axios.get(`${API}/products/${productId}`),
-          axios.get(`${API}/reviews/${productId}`),
-        ]);
-        setProduct(prodRes.data);
-        setReviews(revRes.data);
-        // Load similar products
-        if (prodRes.data.category_id) {
-          const simRes = await axios.get(`${API}/products?category=${prodRes.data.category_id}&limit=4`);
-          setSimilar(simRes.data.products.filter((p) => p.id !== productId).slice(0, 4));
-        }
-      } catch (err) {
-        console.error("Failed to load product", err);
-      } finally {
+    let ignore = false;
+
+    setQty(1);
+    setActiveTab("description");
+    setAddedToCart(false);
+    setReviews({ reviews: [], stats: {} });
+    setSimilar([]);
+
+    const preview = normalizeProductPreview(location.state?.productPreview) || getCachedProduct(productId);
+    if (preview) {
+      setProduct(preview);
+      setLoading(false);
+    } else {
+      setProduct(null);
+      setLoading(true);
+    }
+
+    api
+      .get(`/reviews/${productId}`)
+      .then(({ data }) => {
+        if (!ignore) setReviews(data);
+      })
+      .catch(() => {
+        if (!ignore) setReviews({ reviews: [], stats: {} });
+      });
+
+    fetchProduct(productId)
+      .then((loadedProduct) => {
+        if (ignore) return;
+        setProduct(loadedProduct);
         setLoading(false);
-      }
+
+        if (!loadedProduct?.category_id) return;
+
+        api
+          .get(`/products?category=${loadedProduct.category_id}&limit=5&count=false`)
+          .then(({ data }) => {
+            if (ignore) return;
+            const related = (data.products || []).filter((p) => p.id !== productId).slice(0, 4);
+            setSimilar(related);
+          })
+          .catch(() => {
+            if (!ignore) setSimilar([]);
+          });
+      })
+      .catch((err) => {
+        if (ignore) return;
+        console.error("Failed to load product", err);
+        setProduct((current) => current || null);
+        setLoading(false);
+      });
+
+    return () => {
+      ignore = true;
     };
-    load();
-  }, [productId]);
+  }, [location.state, productId]);
 
   if (loading) {
     return (
@@ -155,6 +192,9 @@ export default function ProductDetail() {
                 src={product.images?.[0] || ""}
                 alt={product.name}
                 className="w-full h-full object-cover"
+                loading="eager"
+                decoding="async"
+                fetchPriority="high"
               />
               {product.discount > 0 && (
                 <div className="absolute top-4 left-4 bg-[#E05A33] text-white px-3 py-1 rounded-xl text-sm font-bold font-body">
@@ -172,7 +212,7 @@ export default function ProductDetail() {
               <div className="flex gap-2 mt-3 overflow-x-auto scrollbar-hide">
                 {product.images.map((img, i) => (
                   <div key={i} className="w-16 h-16 rounded-xl overflow-hidden border-2 border-[#E05A33]/30 flex-shrink-0">
-                    <img src={img} alt="" className="w-full h-full object-cover" />
+                    <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                   </div>
                 ))}
               </div>

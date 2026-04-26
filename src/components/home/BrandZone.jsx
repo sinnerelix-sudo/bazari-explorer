@@ -1,6 +1,6 @@
-import { brands } from "@/data/mockData";
+export default function BrandZone({ brands = [] }) {
+  if (brands.length === 0) return null;
 
-export default function BrandZone() {
   return (
     <section data-testid="brand-zone" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-12">
       <h2 className="font-heading font-bold text-lg sm:text-xl text-[#1A1A1A] mb-4 sm:mb-6">

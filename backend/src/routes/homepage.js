@@ -37,6 +37,7 @@ r.get("/", async (_req, res) => {
     ...recentProducts,
   ]).slice(0, 4);
 
+  res.set("Cache-Control", "public, max-age=10, stale-while-revalidate=60");
   res.json({
     categories: categories.map(publicCategory),
     flash_deals: flashDeals.map(publicProduct),

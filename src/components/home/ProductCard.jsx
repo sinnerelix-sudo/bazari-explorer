@@ -2,6 +2,7 @@ import { Heart, ShoppingBag, Star } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
+import { normalizeProductPreview, prefetchProduct } from "@/lib/productPrefetch";
 
 export default function ProductCard({ product, showProgress = false, linkTo }) {
   const [liked, setLiked] = useState(false);
@@ -9,10 +10,15 @@ export default function ProductCard({ product, showProgress = false, linkTo }) {
 
   const productId = product.id || product._id;
   const productLink = linkTo || (productId ? `/product/${productId}` : "");
+  const productPreview = normalizeProductPreview(product);
   const image = product.image || product.images?.[0] || "";
   const priceNew = product.priceNew ?? product.price;
   const priceOld = product.priceOld ?? product.original_price;
   const reviews = product.reviews ?? product.review_count ?? 0;
+
+  const warmProduct = () => {
+    if (productId) prefetchProduct(productId, productPreview);
+  };
 
   const handleAddToCart = async (event) => {
     event.preventDefault();
@@ -35,12 +41,21 @@ export default function ProductCard({ product, showProgress = false, linkTo }) {
       {/* Image section */}
       <div className="relative aspect-square overflow-hidden bg-[#F5F3F0]">
         {productLink ? (
-          <Link to={productLink} className="block h-full w-full" aria-label={product.name}>
+          <Link
+            to={productLink}
+            state={{ productPreview }}
+            className="block h-full w-full"
+            aria-label={product.name}
+            onPointerEnter={warmProduct}
+            onFocus={warmProduct}
+            onTouchStart={warmProduct}
+          >
             <img
               src={image}
               alt={product.name}
               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               loading="lazy"
+              decoding="async"
             />
           </Link>
         ) : (
@@ -49,6 +64,7 @@ export default function ProductCard({ product, showProgress = false, linkTo }) {
             alt={product.name}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             loading="lazy"
+            decoding="async"
           />
         )}
 
@@ -111,7 +127,14 @@ export default function ProductCard({ product, showProgress = false, linkTo }) {
       {/* Content */}
       <div className="p-3 sm:p-3.5">
         {productLink ? (
-          <Link to={productLink} className="block">
+          <Link
+            to={productLink}
+            state={{ productPreview }}
+            className="block"
+            onPointerEnter={warmProduct}
+            onFocus={warmProduct}
+            onTouchStart={warmProduct}
+          >
             <CardText
               product={product}
               priceNew={priceNew}

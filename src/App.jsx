@@ -49,6 +49,7 @@ function HomePage() {
   // Map API products to component format
   const mapProducts = (list) =>
     list?.map((p) => ({
+      ...p,
       id: p.id,
       name: p.name,
       image: p.images?.[0] || "",
@@ -64,6 +65,8 @@ function HomePage() {
   const trending = mapProducts(homeData?.trending);
   const recommended = mapProducts(homeData?.recommended);
   const flashDeals = homeData?.flash_deals || [];
+  const heroBanners = homeData?.hero_banners || homeData?.banners || [];
+  const brands = homeData?.brands || [];
 
   return (
     <div data-testid="homepage" className="min-h-screen bg-[#FDFCFB]">
@@ -73,7 +76,7 @@ function HomePage() {
       <main className="pb-20 md:pb-0">
         <PushNotificationBanner />
         <CategoryBar apiCategories={homeData?.categories} />
-        <HeroBanner />
+        <HeroBanner banners={heroBanners} />
         <CampaignBanner apiCampaigns={homeData?.campaigns} />
 
         {flashDeals.length > 0 && <FlashDeals apiProducts={flashDeals} />}
@@ -88,31 +91,6 @@ function HomePage() {
           />
         )}
 
-        {/* Mid-page Feature Banner */}
-        <section data-testid="feature-banner" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-12">
-          <div className="relative overflow-hidden rounded-2xl bg-[#1A1A1A] p-6 sm:p-10 lg:p-12">
-            <div className="relative z-10 max-w-lg">
-              <span className="inline-block text-[#F2A65A] text-xs font-body font-semibold mb-2 uppercase tracking-wider">
-                Premium keyfiyyət
-              </span>
-              <h2 className="font-heading font-bold text-2xl sm:text-3xl lg:text-4xl text-white mb-3 leading-tight">
-                Sənin üçün seçdiklərimiz
-              </h2>
-              <p className="font-body text-sm sm:text-base text-gray-400 mb-5 leading-relaxed">
-                Ən çox bəyənilən və ən çox satılan məhsullar. Keyfiyyət və qiymət balansı.
-              </p>
-              <button
-                data-testid="feature-cta-btn"
-                className="bg-[#E05A33] hover:bg-[#D94A22] text-white px-6 py-2.5 rounded-full font-body font-semibold text-sm transition-all duration-200 hover:shadow-lg hover:shadow-[#E05A33]/20"
-              >
-                Kəşf et
-              </button>
-            </div>
-            <div className="absolute -right-16 -top-16 w-64 h-64 rounded-full bg-[#E05A33]/10" />
-            <div className="absolute -right-8 -bottom-20 w-48 h-48 rounded-full bg-[#F2A65A]/10" />
-          </div>
-        </section>
-
         {recommended.length > 0 && (
           <ProductGrid
           title="Sənin üçün"
@@ -123,7 +101,7 @@ function HomePage() {
           />
         )}
 
-        <BrandZone />
+        <BrandZone brands={brands} />
       </main>
 
       <Footer />

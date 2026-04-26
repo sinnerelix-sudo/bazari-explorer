@@ -1,11 +1,7 @@
-import { MapPin, Phone, Mail, ChevronRight } from "lucide-react";
+import { MapPin, Mail, ChevronRight } from "lucide-react";
 import BrandMark from "./BrandMark";
 
 const footerLinks = [
-  {
-    title: "Kateqoriyalar",
-    links: ["Qadın geyimi", "Ayaqqabı", "Elektronika", "Ev və mətbəx", "Gözəllik"],
-  },
   {
     title: "Müştəri xidməti",
     links: ["Çatdırılma", "Geri qaytarma", "FAQ", "Ölçü cədvəli", "Əlaqə"],
@@ -36,10 +32,6 @@ export default function Footer() {
               <div className="flex items-center gap-2 text-gray-400 text-sm">
                 <MapPin size={14} className="flex-shrink-0" />
                 <span className="font-body">{"Bakı, Azərbaycan"}</span>
-              </div>
-              <div className="flex items-center gap-2 text-gray-400 text-sm">
-                <Phone size={14} className="flex-shrink-0" />
-                <span className="font-body">+994 12 345 67 89</span>
               </div>
               <div className="flex items-center gap-2 text-gray-400 text-sm">
                 <Mail size={14} className="flex-shrink-0" />

@@ -4,6 +4,7 @@ import { Search, X } from "lucide-react";
 import axios from "axios";
 
 import { API_BASE as API } from "@/lib/api";
+import { normalizeProductPreview, prefetchProduct } from "@/lib/productPrefetch";
 
 export default function SearchAutocomplete() {
   const [query, setQuery] = useState("");
@@ -101,9 +102,22 @@ export default function SearchAutocomplete() {
               {results.products?.length > 0 && (
                 <div className="px-4 pt-2 pb-3 border-t border-gray-50">
                   <span className="font-body text-[10px] text-[#8C8C8C] uppercase tracking-wider font-semibold">Məhsullar</span>
-                  {results.products.map((p) => (
-                    <Link key={p.id} to={`/product/${p.id}`} onClick={close} className="flex items-center gap-3 py-2 hover:bg-gray-50 rounded-lg px-1 -mx-1 transition-colors">
-                      {p.images?.[0] && <img src={p.images[0]} alt="" className="w-10 h-10 rounded-lg object-cover bg-[#F5F3F0]" />}
+                  {results.products.map((p) => {
+                    const productPreview = normalizeProductPreview(p);
+                    const warmProduct = () => prefetchProduct(p.id, productPreview);
+
+                    return (
+                    <Link
+                      key={p.id}
+                      to={`/product/${p.id}`}
+                      state={{ productPreview }}
+                      onClick={close}
+                      onPointerEnter={warmProduct}
+                      onFocus={warmProduct}
+                      onTouchStart={warmProduct}
+                      className="flex items-center gap-3 py-2 hover:bg-gray-50 rounded-lg px-1 -mx-1 transition-colors"
+                    >
+                      {p.images?.[0] && <img src={p.images[0]} alt="" className="w-10 h-10 rounded-lg object-cover bg-[#F5F3F0]" loading="lazy" decoding="async" />}
                       <div className="flex-1 min-w-0">
                         <span className="font-body text-sm text-[#1A1A1A] line-clamp-1">{p.name}</span>
                         <span className="font-heading font-bold text-xs text-[#E05A33]">{p.price} ₼</span>
@@ -112,7 +126,8 @@ export default function SearchAutocomplete() {
                         <span className="text-[10px] font-bold text-[#E05A33] bg-[#FFF0E6] px-1.5 py-0.5 rounded">-{p.discount}%</span>
                       )}
                     </Link>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </>

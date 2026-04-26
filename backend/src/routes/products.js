@@ -6,7 +6,7 @@ import { publicProduct, toId } from "../util.js";
 const r = Router();
 
 r.get("/", async (req, res) => {
-  const { category, q, page = 1, limit = 20 } = req.query;
+  const { category, q, page = 1, limit = 20, count = "true" } = req.query;
   const filter = {};
   if (category) {
     const cid = toId(category);
@@ -16,8 +16,12 @@ r.get("/", async (req, res) => {
   const lim = Math.min(parseInt(limit) || 20, 1000);
   const skip = (Math.max(parseInt(page) || 1, 1) - 1) * lim;
   const cursor = getDB().collection("products").find(filter).sort({ _id: -1 }).skip(skip).limit(lim);
-  const [items, total] = await Promise.all([cursor.toArray(), getDB().collection("products").countDocuments(filter)]);
-  res.json({ products: items.map(publicProduct), total, page: Number(page), limit: lim });
+  const shouldCount = count !== "false";
+  const [items, total] = await Promise.all([
+    cursor.toArray(),
+    shouldCount ? getDB().collection("products").countDocuments(filter) : Promise.resolve(null),
+  ]);
+  res.json({ products: items.map(publicProduct), total: shouldCount ? total : items.length, page: Number(page), limit: lim });
 });
 
 r.get("/:id", async (req, res) => {
@@ -25,6 +29,7 @@ r.get("/:id", async (req, res) => {
   if (!id) return res.status(404).json({ error: "Not found" });
   const p = await getDB().collection("products").findOne({ _id: id });
   if (!p) return res.status(404).json({ error: "Not found" });
+  res.set("Cache-Control", "public, max-age=15, stale-while-revalidate=60");
   res.json(publicProduct(p));
 });
 

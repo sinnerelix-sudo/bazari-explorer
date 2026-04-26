@@ -19,12 +19,46 @@ async function recomputeStats(productId) {
   return { avg_rating: avg, count, ...buckets };
 }
 
+async function readStats(productId) {
+  const db = getDB();
+  const [stats] = await db.collection("reviews").aggregate([
+    { $match: { product_id: productId } },
+    {
+      $group: {
+        _id: null,
+        count: { $sum: 1 },
+        avg_rating: { $avg: "$rating" },
+        r1: { $sum: { $cond: [{ $eq: [{ $round: ["$rating", 0] }, 1] }, 1, 0] } },
+        r2: { $sum: { $cond: [{ $eq: [{ $round: ["$rating", 0] }, 2] }, 1, 0] } },
+        r3: { $sum: { $cond: [{ $eq: [{ $round: ["$rating", 0] }, 3] }, 1, 0] } },
+        r4: { $sum: { $cond: [{ $eq: [{ $round: ["$rating", 0] }, 4] }, 1, 0] } },
+        r5: { $sum: { $cond: [{ $eq: [{ $round: ["$rating", 0] }, 5] }, 1, 0] } },
+      },
+    },
+  ]).toArray();
+
+  if (!stats) return {};
+
+  return {
+    avg_rating: Math.round((stats.avg_rating || 0) * 10) / 10,
+    count: stats.count || 0,
+    r1: stats.r1 || 0,
+    r2: stats.r2 || 0,
+    r3: stats.r3 || 0,
+    r4: stats.r4 || 0,
+    r5: stats.r5 || 0,
+  };
+}
+
 r.get("/:productId", async (req, res) => {
   const pid = toId(req.params.productId);
   if (!pid) return res.json({ reviews: [], stats: {} });
   const db = getDB();
-  const reviews = await db.collection("reviews").find({ product_id: pid }).sort({ created_at: -1 }).toArray();
-  const stats = await recomputeStats(pid);
+  const [reviews, stats] = await Promise.all([
+    db.collection("reviews").find({ product_id: pid }).sort({ created_at: -1 }).limit(20).toArray(),
+    readStats(pid),
+  ]);
+  res.set("Cache-Control", "public, max-age=15, stale-while-revalidate=60");
   res.json({
     reviews: reviews.map((r) => ({
       id: r._id.toString(),

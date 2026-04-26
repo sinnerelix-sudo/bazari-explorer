@@ -38,6 +38,7 @@ export default function CategoryPage() {
   }, [slug]);
 
   const mapProduct = (p) => ({
+    ...p,
     id: p.id, name: p.name, image: p.images?.[0] || "", priceNew: p.price,
     priceOld: p.original_price, discount: p.discount, rating: p.rating,
     reviews: p.review_count, badge: p.badge,

@@ -51,6 +51,7 @@ function CountdownTimer() {
 
 export default function FlashDeals({ apiProducts }) {
   const deals = (apiProducts || []).map((p) => ({
+    ...p,
     id: p.id,
     name: p.name,
     image: p.images?.[0] || "",
@@ -59,8 +60,8 @@ export default function FlashDeals({ apiProducts }) {
     discount: p.discount,
     rating: p.rating,
     reviews: p.review_count,
-    sold: Math.floor(Math.random() * 30) + 60,
-    total: 100,
+    sold: p.sold,
+    total: p.total,
   }));
 
   return (

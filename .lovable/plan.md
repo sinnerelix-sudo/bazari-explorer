@@ -24,6 +24,18 @@ Finish the `bazari.site` production cutover without redesigning the app:
 - production admin payment payload was re-checked on 2026-04-25 and shows `whatsapp_phone = "994557252025"`, `whatsapp_configured = true`, `whatsapp_source = "database"`, and populated `whatsapp_updated_at`
 
 ## Already completed
+- On 2026-04-26, local mock/fallback and product-speed cleanup was completed before deploy:
+  - static mock catalog file `src/data/mockData.js` was removed
+  - homepage category, hero, campaign, brand, footer category, and mobile category-sheet mock fallbacks were removed
+  - the storefront now renders live API data only for products/categories/campaigns/brands
+  - product cards and search results now pass product preview data and warm `src/lib/productPrefetch.js`
+  - product detail now renders preview/cache data immediately, then fetches full product, reviews, and similar products in non-blocking stages
+  - backend product/category/homepage/review routes received short cache headers
+  - product list supports `count=false` for fast secondary lists
+  - reviews GET now uses read-only aggregation and limits returned reviews instead of recomputing stats with a write on every read
+  - `npm.cmd run build` passed
+  - `node --check` passed for touched backend routes
+  - deploy/live mobile smoke is still pending for this pass
 - The live storefront mismatch is now fixed on production:
   - `GET https://api.bazari.site/api/homepage` is live and returns `200`
   - homepage product sections no longer fall back to static showcase cards

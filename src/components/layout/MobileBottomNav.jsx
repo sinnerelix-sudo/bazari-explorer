@@ -4,7 +4,6 @@ import { Home, LayoutGrid, Flame, ShoppingBag, User, X } from "lucide-react";
 import { useCart } from "@/contexts/CartContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { api } from "@/lib/api";
-import { categories as staticCategories } from "@/data/mockData";
 
 const navItems = [
   { id: "home", label: "Ana səhifə", icon: Home, to: "/" },
@@ -13,6 +12,30 @@ const navItems = [
   { id: "cart", label: "Səbət", icon: ShoppingBag, to: "/cart" },
   { id: "profile", label: "Profil", icon: User, to: "/profile" },
 ];
+
+let cachedCategories = null;
+let categoryRequest = null;
+
+function loadCategories() {
+  if (cachedCategories) return Promise.resolve(cachedCategories);
+  if (categoryRequest) return categoryRequest;
+
+  categoryRequest = api
+    .get("/categories")
+    .then(({ data }) => {
+      cachedCategories = Array.isArray(data) ? data : [];
+      return cachedCategories;
+    })
+    .catch(() => {
+      cachedCategories = [];
+      return cachedCategories;
+    })
+    .finally(() => {
+      categoryRequest = null;
+    });
+
+  return categoryRequest;
+}
 
 export default function MobileBottomNav() {
   const location = useLocation();
@@ -32,20 +55,38 @@ export default function MobileBottomNav() {
   const active = getActiveId();
 
   useEffect(() => {
+    let ignore = false;
+    const run = () => {
+      loadCategories().then((items) => {
+        if (!ignore) setCategories(items);
+      });
+    };
+
+    if (typeof window !== "undefined" && "requestIdleCallback" in window) {
+      const idleId = window.requestIdleCallback(run, { timeout: 1200 });
+      return () => {
+        ignore = true;
+        window.cancelIdleCallback?.(idleId);
+      };
+    }
+
+    const timer = window.setTimeout(run, 350);
+
+    return () => {
+      ignore = true;
+      window.clearTimeout(timer);
+    };
+  }, []);
+
+  useEffect(() => {
     if (!categoryOpen || categories.length > 0) return;
 
     let ignore = false;
     setCategoriesLoading(true);
 
-    api
-      .get("/categories")
-      .then(({ data }) => {
-        if (ignore) return;
-        const liveCategories = Array.isArray(data) ? data : [];
-        setCategories(liveCategories.length > 0 ? liveCategories : staticCategories);
-      })
-      .catch(() => {
-        if (!ignore) setCategories(staticCategories);
+    loadCategories()
+      .then((items) => {
+        if (!ignore) setCategories(items);
       })
       .finally(() => {
         if (!ignore) setCategoriesLoading(false);
@@ -109,7 +150,7 @@ export default function MobileBottomNav() {
                 </div>
               ) : (
                 <div className="grid grid-cols-2 gap-3">
-                  {(categories.length > 0 ? categories : staticCategories).map((category) => (
+                  {categories.map((category) => (
                     <Link
                       key={category.id || category.slug}
                       to={`/category/${category.slug}`}
@@ -131,6 +172,11 @@ export default function MobileBottomNav() {
                       </span>
                     </Link>
                   ))}
+                  {categories.length === 0 ? (
+                    <div className="col-span-2 rounded-2xl bg-[#F5F3F0] px-4 py-6 text-center font-body text-sm text-[#8C8C8C]">
+                      Kateqoriya yoxdur
+                    </div>
+                  ) : null}
                 </div>
               )}
             </div>

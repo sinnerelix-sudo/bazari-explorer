@@ -1,8 +1,9 @@
 import { ArrowRight } from "lucide-react";
-import { campaignBanners as staticCampaigns } from "@/data/mockData";
 
 export default function CampaignBanner({ apiCampaigns }) {
-  const campaigns = apiCampaigns?.length ? apiCampaigns : staticCampaigns;
+  const campaigns = apiCampaigns?.length ? apiCampaigns : [];
+
+  if (campaigns.length === 0) return null;
 
   return (
     <section data-testid="campaign-banners" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-12">

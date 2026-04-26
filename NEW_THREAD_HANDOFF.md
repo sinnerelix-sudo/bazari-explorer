@@ -14,6 +14,23 @@ Keep the local cart/payment flow testable while finishing production deployment 
   - prefer checking backend behavior on `https://api.bazari.site`
   - use local dev only if production work is blocked or the user specifically asks for localhost again
 
+## 2026-04-26 current local performance pass
+- User reported that first mobile entry still showed mock/fallback products/categories/banners and that product detail navigation felt around 2 seconds.
+- Local cleanup removed the static mock catalog source `src/data/mockData.js`.
+- Removed static fallback rendering from homepage categories, hero banners, campaign banners, brand zone, footer category links, and mobile category sheet.
+- The storefront now shows live API categories/products/campaigns/brands only; if live categories are empty/unavailable, the mobile sheet shows an empty state instead of fake categories.
+- Product cards and search results now pass product preview data through React Router state and warm a small in-memory product cache via `src/lib/productPrefetch.js`.
+- `src/pages/ProductDetail.jsx` now renders preview/cache data immediately and loads the full product, reviews, and similar products in non-blocking stages.
+- Secondary product-list calls for similar products now use `count=false`.
+- Backend route optimization was added:
+  - product/category/homepage/review GET responses set short cache headers
+  - product list route supports `count=false`
+  - review GET uses read-only aggregation and returns the latest 20 reviews instead of recomputing/writing product stats during reads
+- Local verification already passed:
+  - `npm.cmd run build`
+  - `node --check` for `backend/src/routes/products.js`, `reviews.js`, `categories.js`, and `homepage.js`
+- Pending for this pass: commit/push, Vercel production deploy, live mobile smoke, and final handoff deploy note.
+
 ## 2026-04-25 live resume snapshot
 - Production was re-checked again from this thread and matches the latest expected live state:
   - `https://www.bazari.site` -> `200`

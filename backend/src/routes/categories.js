@@ -9,6 +9,7 @@ const slugify = (s) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, "-").replac
 
 r.get("/", async (_req, res) => {
   const items = await getDB().collection("categories").find().sort({ name: 1 }).toArray();
+  res.set("Cache-Control", "public, max-age=30, stale-while-revalidate=120");
   res.json(items.map(publicCategory));
 });
 

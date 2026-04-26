@@ -31,6 +31,22 @@
   - `https://api.bazari.site/api/health` should return `200`
   - `https://api.bazari.site/api/payment-methods` should return `200`
 
+## 2026-04-26 Performance And Mock Data Notes
+- The user reported that first mobile entry still showed mock/fallback products, categories, banners, and brands before live data arrived, and that product clicks felt too slow.
+- Local frontend cleanup removed `src/data/mockData.js` and all static product/category/campaign/hero/brand fallback usage.
+- Home and mobile category sheet now render only live API data; failed or empty category fetches show an empty state instead of mock categories.
+- Product card and search result navigation now pass a product preview through route state and warm an in-memory product cache/prefetch.
+- `ProductDetail` now renders cached/preview product data immediately, then loads the full product, reviews, and similar products in separate non-blocking stages.
+- Product hero images now use eager/high-priority loading, while secondary images stay lazy.
+- Backend product/review/homepage/category routes were lightly optimized: short cache headers, `count=false` support for secondary product lists, and review GET now uses a read-only aggregate instead of recomputing/writing product stats on every read.
+- Local verification passed after these changes:
+  - `npm.cmd run build`
+  - `node --check backend/src/routes/products.js`
+  - `node --check backend/src/routes/reviews.js`
+  - `node --check backend/src/routes/categories.js`
+  - `node --check backend/src/routes/homepage.js`
+- Deployment and live mobile smoke are the next required checks for this change.
+
 ## 2026-04-25 Live Resume Notes
 - The user explicitly wants this thread to stay live-first against `https://www.bazari.site` and `https://api.bazari.site`; do not fall back to localhost unless production work is blocked.
 - On 2026-04-25 (Asia/Baku), the latest production re-check passed:
