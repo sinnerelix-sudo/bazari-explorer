@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useCart } from "@/contexts/CartContext";
 import axios from "axios";
 import {
-  User, ShoppingBag, Heart, Bell, Settings, LogOut, ChevronRight,
+  User as UserIcon, ShoppingBag, Heart, Bell, Settings, LogOut, ChevronRight,
   Package, MapPin, CreditCard, ChevronLeft, Mail, Phone, Lock, Save, Trash2, Edit2, Check
 } from "lucide-react";
 import Header from "@/components/layout/Header";
@@ -249,7 +249,7 @@ export default function ProfilePage() {
             <div>
               <label className="block text-xs font-body text-[#8C8C8C] mb-1">Ad Soyad</label>
               <div className="relative">
-                <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
+                <UserIcon size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
                 <input
                   value={profileForm.name}
                   onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
