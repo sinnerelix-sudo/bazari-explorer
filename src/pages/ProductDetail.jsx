@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { useParams, useNavigate, useLocation, Link } from "react-router-dom";
 import {
   Star, Heart, ShoppingBag, ChevronLeft, Share2,
@@ -57,6 +57,9 @@ export default function ProductDetail() {
   const [activeTab, setActiveTab] = useState("description");
   const { addToCart } = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const dragStartX = useRef(null);
+  const dragLastX = useRef(null);
 
   const handleAddToCart = async () => {
     const ok = await addToCart(productId, qty);
@@ -73,6 +76,7 @@ export default function ProductDetail() {
     setQty(1);
     setActiveTab("description");
     setAddedToCart(false);
+    setSelectedImageIndex(0);
     setReviews({ reviews: [], stats: {} });
     setSimilar([]);
 
@@ -153,6 +157,46 @@ export default function ProductDetail() {
   const stats = reviews.stats || {};
   const avgRating = stats.avg_rating || product.rating || 0;
   const totalReviews = stats.count || product.review_count || 0;
+  const productImages = product.images?.length > 0 ? product.images : [""];
+  const activeImageIndex = Math.min(selectedImageIndex, productImages.length - 1);
+  const activeImage = productImages[activeImageIndex] || "";
+  const hasMultipleImages = productImages.length > 1;
+
+  const showImageAt = (index) => {
+    if (!hasMultipleImages) return;
+    setSelectedImageIndex((index + productImages.length) % productImages.length);
+  };
+
+  const showPreviousImage = () => showImageAt(activeImageIndex - 1);
+  const showNextImage = () => showImageAt(activeImageIndex + 1);
+
+  const handleGalleryPointerDown = (event) => {
+    if (!hasMultipleImages) return;
+    dragStartX.current = event.clientX;
+    dragLastX.current = event.clientX;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+  };
+
+  const handleGalleryPointerMove = (event) => {
+    if (dragStartX.current === null) return;
+    dragLastX.current = event.clientX;
+  };
+
+  const handleGalleryPointerEnd = () => {
+    if (dragStartX.current === null || dragLastX.current === null) {
+      dragStartX.current = null;
+      dragLastX.current = null;
+      return;
+    }
+
+    const distance = dragStartX.current - dragLastX.current;
+    dragStartX.current = null;
+    dragLastX.current = null;
+
+    if (Math.abs(distance) < 42) return;
+    if (distance > 0) showNextImage();
+    else showPreviousImage();
+  };
 
   return (
     <div data-testid="product-detail-page" className="min-h-screen bg-[#FDFCFB]">
@@ -187,15 +231,53 @@ export default function ProductDetail() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-12">
           {/* Product Image */}
           <div data-testid="product-image-section" className="relative">
-            <div className="aspect-square rounded-2xl overflow-hidden bg-[#F5F3F0]">
+            <div
+              data-testid="product-gallery-main"
+              className="relative aspect-square rounded-2xl overflow-hidden bg-[#F5F3F0] select-none cursor-grab active:cursor-grabbing"
+              style={{ touchAction: "pan-y" }}
+              onPointerDown={handleGalleryPointerDown}
+              onPointerMove={handleGalleryPointerMove}
+              onPointerUp={handleGalleryPointerEnd}
+              onPointerCancel={handleGalleryPointerEnd}
+              onPointerLeave={handleGalleryPointerEnd}
+            >
               <img
-                src={product.images?.[0] || ""}
+                key={activeImage}
+                src={activeImage}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover transition-opacity duration-200"
                 loading="eager"
                 decoding="async"
                 fetchPriority="high"
+                draggable="false"
               />
+              {hasMultipleImages && (
+                <>
+                  <button
+                    type="button"
+                    data-testid="gallery-prev"
+                    aria-label="Əvvəlki şəkil"
+                    onClick={showPreviousImage}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/88 backdrop-blur-sm text-[#1A1A1A] shadow-sm flex items-center justify-center active:scale-95 transition-transform"
+                  >
+                    <ChevronLeft size={20} />
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="gallery-next"
+                    aria-label="Növbəti şəkil"
+                    onClick={showNextImage}
+                    onPointerDown={(event) => event.stopPropagation()}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/88 backdrop-blur-sm text-[#1A1A1A] shadow-sm flex items-center justify-center active:scale-95 transition-transform"
+                  >
+                    <ChevronRight size={20} />
+                  </button>
+                  <div className="absolute bottom-3 left-1/2 -translate-x-1/2 rounded-full bg-black/55 px-2.5 py-1 text-[11px] font-body font-semibold text-white">
+                    {activeImageIndex + 1}/{productImages.length}
+                  </div>
+                </>
+              )}
               {product.discount > 0 && (
                 <div className="absolute top-4 left-4 bg-[#E05A33] text-white px-3 py-1 rounded-xl text-sm font-bold font-body">
                   -{product.discount}%
@@ -208,12 +290,24 @@ export default function ProductDetail() {
               )}
             </div>
             {/* Thumbnail strip */}
-            {product.images?.length > 1 && (
+            {hasMultipleImages && (
               <div className="flex gap-2 mt-3 overflow-x-auto scrollbar-hide">
-                {product.images.map((img, i) => (
-                  <div key={i} className="w-16 h-16 rounded-xl overflow-hidden border-2 border-[#E05A33]/30 flex-shrink-0">
+                {productImages.map((img, i) => (
+                  <button
+                    key={`${img}-${i}`}
+                    type="button"
+                    data-testid={`product-thumb-${i}`}
+                    aria-label={`${i + 1}-ci şəkilə bax`}
+                    aria-current={i === activeImageIndex ? "true" : undefined}
+                    onClick={() => showImageAt(i)}
+                    className={`w-16 h-16 rounded-xl overflow-hidden border-2 flex-shrink-0 active:scale-95 transition-all ${
+                      i === activeImageIndex
+                        ? "border-[#E05A33] shadow-[0_0_0_3px_rgba(224,90,51,0.12)]"
+                        : "border-transparent hover:border-[#E05A33]/30"
+                    }`}
+                  >
                     <img src={img} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
-                  </div>
+                  </button>
                 ))}
               </div>
             )}
