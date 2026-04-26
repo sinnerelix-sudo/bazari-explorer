@@ -6,6 +6,7 @@ import Header from "@/components/layout/Header";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
 import Footer from "@/components/layout/Footer";
 import ProductCard from "@/components/home/ProductCard";
+import { mapProductForCard } from "@/lib/productPricing";
 
 import { API_BASE as API } from "@/lib/api";
 
@@ -37,12 +38,7 @@ export default function CategoryPage() {
     load();
   }, [slug]);
 
-  const mapProduct = (p) => ({
-    ...p,
-    id: p.id, name: p.name, image: p.images?.[0] || "", priceNew: p.price,
-    priceOld: p.original_price, discount: p.discount, rating: p.rating,
-    reviews: p.review_count, badge: p.badge,
-  });
+  const mapProduct = (p) => ({ ...mapProductForCard(p), badge: p.badge });
 
   const sorted = [...products].sort((a, b) => {
     if (sortBy === "price_asc") return a.price - b.price;

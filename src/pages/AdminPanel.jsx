@@ -377,6 +377,10 @@ function ProductForm({ product, categories, onSave, onCancel }) {
       category_id: "",
       seo_title: "",
       seo_description: "",
+      flash_sale_active: false,
+      flash_sale_price: 0,
+      flash_sale_limit: 0,
+      flash_sale_per_customer_limit: 0,
     }
   );
   const [imageUrl, setImageUrl] = useState("");
@@ -476,6 +480,65 @@ function ProductForm({ product, categories, onSave, onCancel }) {
             className="w-full px-4 py-2.5 rounded-xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] focus:bg-white outline-none font-body text-sm"
           />
         </div>
+      </div>
+
+      <div className="rounded-2xl border border-[#FFE0D5] bg-[#FFF7F2] p-4 space-y-3">
+        <label className="flex items-center justify-between gap-3">
+          <div>
+            <span className="block font-body text-sm font-semibold text-[#1A1A1A]">
+              Flash endirim
+            </span>
+            <span className="block font-body text-xs text-[#8C8C8C] mt-0.5">
+              Məhsulu mobil “Flash Endirimlər” bölməsinə çıxarır.
+            </span>
+          </div>
+          <input
+            data-testid="product-flash-active"
+            type="checkbox"
+            checked={!!form.flash_sale_active}
+            onChange={(event) => setField("flash_sale_active", event.target.checked)}
+            className="w-5 h-5 accent-[#E05A33]"
+          />
+        </label>
+
+        {form.flash_sale_active && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            <div>
+              <label className="block font-body text-sm text-[#595959] mb-1">Flash endirimli qiymət</label>
+              <input
+                data-testid="product-flash-price"
+                type="number"
+                step="0.01"
+                min="0"
+                value={form.flash_sale_price || ""}
+                onChange={(event) => setField("flash_sale_price", parseFloat(event.target.value) || 0)}
+                className="w-full px-4 py-2.5 rounded-xl bg-white border border-transparent focus:border-[#E05A33] outline-none font-body text-sm"
+              />
+            </div>
+            <div>
+              <label className="block font-body text-sm text-[#595959] mb-1">Ümumi limit</label>
+              <input
+                data-testid="product-flash-limit"
+                type="number"
+                min="0"
+                value={form.flash_sale_limit || ""}
+                onChange={(event) => setField("flash_sale_limit", parseInt(event.target.value, 10) || 0)}
+                className="w-full px-4 py-2.5 rounded-xl bg-white border border-transparent focus:border-[#E05A33] outline-none font-body text-sm"
+              />
+            </div>
+            <div>
+              <label className="block font-body text-sm text-[#595959] mb-1">Bir müştəri üçün limit</label>
+              <input
+                data-testid="product-flash-customer-limit"
+                type="number"
+                min="0"
+                value={form.flash_sale_per_customer_limit || ""}
+                onChange={(event) => setField("flash_sale_per_customer_limit", parseInt(event.target.value, 10) || 0)}
+                className="w-full px-4 py-2.5 rounded-xl bg-white border border-transparent focus:border-[#E05A33] outline-none font-body text-sm"
+              />
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="grid grid-cols-2 gap-3">
@@ -944,6 +1007,11 @@ export default function AdminPanel() {
                               -{product.discount}%
                             </span>
                           )}
+                          {product.flash_sale?.active && (
+                            <span className="text-[10px] font-bold text-[#E05A33] bg-[#FFF0E6] px-1.5 py-0.5 rounded">
+                              Flash
+                            </span>
+                          )}
                         </div>
                       </div>
                       <div className="flex gap-1">
@@ -970,7 +1038,7 @@ export default function AdminPanel() {
                 <h1 className="font-heading font-bold text-xl">Kateqoriyalar ({categories.length})</h1>
                 {user.role === "admin" && (
                   <button
-                    onClick={() => setCatForm({ name: "", name_ru: "", slug: "", image: "", order: categories.length + 1 })}
+                    onClick={() => setCatForm({ name: "", name_ru: "", slug: "", image: "", parent_id: "", order: categories.length + 1 })}
                     className="bg-[#E05A33] text-white px-4 py-2 rounded-full font-body font-semibold text-sm flex items-center gap-2"
                   >
                     <Plus size={16} /> Yeni
@@ -1007,6 +1075,29 @@ export default function AdminPanel() {
                       placeholder={"Şəkil URL"}
                       value={catForm.image}
                       onChange={(event) => setCatForm({ ...catForm, image: event.target.value })}
+                      className="px-3 py-2 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <select
+                      value={catForm.parent_id || ""}
+                      onChange={(event) => setCatForm({ ...catForm, parent_id: event.target.value })}
+                      className="px-3 py-2 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none"
+                    >
+                      <option value="">Ümumi kateqoriya</option>
+                      {categories
+                        .filter((category) => category.id !== catForm.id && !category.parent_id)
+                        .map((category) => (
+                          <option key={category.id} value={category.id}>
+                            Alt kateqoriya: {category.name}
+                          </option>
+                        ))}
+                    </select>
+                    <input
+                      type="number"
+                      placeholder="Sıra"
+                      value={catForm.order || ""}
+                      onChange={(event) => setCatForm({ ...catForm, order: parseInt(event.target.value, 10) || 0 })}
                       className="px-3 py-2 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none"
                     />
                   </div>

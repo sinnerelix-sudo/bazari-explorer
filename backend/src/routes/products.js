@@ -5,14 +5,52 @@ import { publicProduct, toId } from "../util.js";
 
 const r = Router();
 
+function normalizeProductPayload(body = {}, existing = {}) {
+  const flashActive = Boolean(body.flash_sale_active);
+  const flashPrice = Number(body.flash_sale_price) || 0;
+  const flashLimit = Math.max(0, Math.floor(Number(body.flash_sale_limit) || 0));
+  const flashPerCustomerLimit = Math.max(0, Math.floor(Number(body.flash_sale_per_customer_limit) || 0));
+  const existingSold = Number(existing.flash_sale_sold || 0);
+
+  return {
+    name: body.name,
+    description: body.description || "",
+    price: Number(body.price) || 0,
+    original_price: Number(body.original_price) || 0,
+    discount: Number(body.discount) || 0,
+    images: Array.isArray(body.images) ? body.images : [],
+    brand: body.brand || "",
+    stock: Number(body.stock) || 0,
+    badge: body.badge || "",
+    category_id: toId(body.category_id),
+    seo_title: body.seo_title || "",
+    seo_description: body.seo_description || "",
+    specifications: Array.isArray(body.specifications) ? body.specifications : [],
+    flash_sale_active: flashActive,
+    flash_sale_price: flashActive ? flashPrice : 0,
+    flash_sale_limit: flashActive ? flashLimit : 0,
+    flash_sale_per_customer_limit: flashActive ? flashPerCustomerLimit : 0,
+    flash_sale_sold: flashActive ? Math.min(existingSold, flashLimit || existingSold) : 0,
+  };
+}
+
 r.get("/", async (req, res) => {
-  const { category, q, page = 1, limit = 20, count = "true" } = req.query;
+  const { category, q, page = 1, limit = 20, count = "true", flash } = req.query;
   const filter = {};
   if (category) {
     const cid = toId(category);
     if (cid) filter.category_id = cid;
   }
   if (q) filter.$text = { $search: q };
+  if (flash === "true") {
+    filter.flash_sale_active = true;
+    filter.flash_sale_price = { $gt: 0 };
+    filter.$or = [
+      { flash_sale_limit: { $exists: false } },
+      { flash_sale_limit: { $lte: 0 } },
+      { $expr: { $lt: [{ $ifNull: ["$flash_sale_sold", 0] }, "$flash_sale_limit"] } },
+    ];
+  }
   const lim = Math.min(parseInt(limit) || 20, 1000);
   const skip = (Math.max(parseInt(page) || 1, 1) - 1) * lim;
   const cursor = getDB().collection("products").find(filter).sort({ _id: -1 }).skip(skip).limit(lim);
@@ -36,19 +74,7 @@ r.get("/:id", async (req, res) => {
 r.post("/", authRequired, roleRequired("admin", "seller"), async (req, res) => {
   const body = req.body || {};
   const doc = {
-    name: body.name,
-    description: body.description || "",
-    price: Number(body.price) || 0,
-    original_price: Number(body.original_price) || 0,
-    discount: Number(body.discount) || 0,
-    images: Array.isArray(body.images) ? body.images : [],
-    brand: body.brand || "",
-    stock: Number(body.stock) || 0,
-    badge: body.badge || "",
-    category_id: toId(body.category_id),
-    seo_title: body.seo_title || "",
-    seo_description: body.seo_description || "",
-    specifications: body.specifications || [],
+    ...normalizeProductPayload(body),
     rating: 0,
     review_count: 0,
     created_at: new Date(),
@@ -61,13 +87,9 @@ r.put("/:id", authRequired, roleRequired("admin", "seller"), async (req, res) =>
   const id = toId(req.params.id);
   if (!id) return res.status(404).json({ error: "Not found" });
   const body = req.body || {};
-  const update = { ...body };
-  delete update.id;
-  delete update._id;
-  if (update.category_id) update.category_id = toId(update.category_id);
-  ["price", "original_price", "discount", "stock"].forEach((k) => {
-    if (update[k] !== undefined) update[k] = Number(update[k]) || 0;
-  });
+  const existing = await getDB().collection("products").findOne({ _id: id });
+  if (!existing) return res.status(404).json({ error: "Not found" });
+  const update = normalizeProductPayload({ ...existing, ...body }, existing);
   await getDB().collection("products").updateOne({ _id: id }, { $set: update });
   const p = await getDB().collection("products").findOne({ _id: id });
   res.json(publicProduct(p));

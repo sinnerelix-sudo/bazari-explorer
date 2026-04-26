@@ -1,7 +1,7 @@
 import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
-import { TrendingUp, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Sparkles, TrendingUp } from "lucide-react";
 import { api } from "@/lib/api";
 
 import { AuthProvider } from "@/contexts/AuthContext";
@@ -21,46 +21,47 @@ import AdminPanel from "@/pages/AdminPanel";
 import AuthCallback from "@/pages/AuthCallback";
 import CartPage from "@/pages/CartPage";
 import CategoryPage from "@/pages/CategoryPage";
+import CategoriesPage from "@/pages/CategoriesPage";
+import FlashDealsPage from "@/pages/FlashDealsPage";
 import ProfilePage from "@/pages/ProfilePage";
 import PushNotificationBanner from "@/components/notifications/PushNotificationBanner";
 import { OrganizationJsonLd } from "@/components/seo/JsonLd";
+import { mapProductForCard } from "@/lib/productPricing";
 
 function HomePage() {
   const [homeData, setHomeData] = useState(null);
 
   useEffect(() => {
-    const load = async () => {
-      try {
-        const { data } = await api.get(`/homepage`);
-        setHomeData(data);
-      } catch {
-        setHomeData({
-          categories: [],
-          flash_deals: [],
-          trending: [],
-          recommended: [],
-          hero_banners: [],
-          campaigns: [],
-        });
-      }
+    let ignore = false;
+
+    api
+      .get("/homepage")
+      .then(({ data }) => {
+        if (!ignore) setHomeData(data);
+      })
+      .catch(() => {
+        if (!ignore) {
+          setHomeData({
+            categories: [],
+            flash_deals: [],
+            trending: [],
+            recommended: [],
+            hero_banners: [],
+            campaigns: [],
+          });
+        }
+      });
+
+    return () => {
+      ignore = true;
     };
-    load();
   }, []);
 
-  // Map API products to component format
   const mapProducts = (list) =>
-    list?.map((p) => ({
-      ...p,
-      id: p.id,
-      name: p.name,
-      image: p.images?.[0] || "",
-      priceNew: p.price,
-      priceOld: p.original_price,
-      discount: p.discount,
-      rating: p.rating,
-      reviews: p.review_count,
-      category: p.brand || "",
-      badge: p.badge,
+    list?.map((product) => ({
+      ...mapProductForCard(product),
+      category: product.brand || "",
+      badge: product.badge,
     })) || [];
 
   const trending = mapProducts(homeData?.trending);
@@ -84,21 +85,21 @@ function HomePage() {
 
         {trending.length > 0 && (
           <ProductGrid
-          title="Trend Məhsullar"
-          icon={<TrendingUp size={16} className="text-[#E05A33]" />}
-          products={trending}
-          testId="trending-products"
-          linkable
+            title="Trend Məhsullar"
+            icon={<TrendingUp size={16} className="text-[#E05A33]" />}
+            products={trending}
+            testId="trending-products"
+            linkable
           />
         )}
 
         {recommended.length > 0 && (
           <ProductGrid
-          title="Sənin üçün"
-          icon={<Sparkles size={16} className="text-[#E05A33]" />}
-          products={recommended}
-          testId="recommended-products"
-          linkable
+            title="Sənin üçün"
+            icon={<Sparkles size={16} className="text-[#E05A33]" />}
+            products={recommended}
+            testId="recommended-products"
+            linkable
           />
         )}
 
@@ -114,7 +115,6 @@ function HomePage() {
 function AppRouter() {
   const location = useLocation();
 
-  // Check URL fragment for session_id synchronously
   if (location.hash?.includes("session_id=")) {
     return <AuthCallback />;
   }
@@ -127,7 +127,10 @@ function AppRouter() {
       <Route path="/admin" element={<AdminPanel />} />
       <Route path="/auth/callback" element={<AuthCallback />} />
       <Route path="/cart" element={<CartPage />} />
+      <Route path="/categories" element={<CategoriesPage />} />
       <Route path="/category/:slug" element={<CategoryPage />} />
+      <Route path="/flash-deals" element={<FlashDealsPage />} />
+      <Route path="/deals" element={<FlashDealsPage />} />
       <Route path="/profile" element={<ProfilePage />} />
     </Routes>
   );

@@ -248,6 +248,21 @@ Keep the local cart/payment flow testable while finishing production deployment 
   - public payment payload still shows `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`
   - live mobile CDP verification passed on `https://www.bazari.site`: hero exists, 2 dots visible, CTA visible, dot click changed the banner/image, swipe changed it back, `Something went wrong` absent, runtime exceptions `0`, failed requests `0`
 
+- On 2026-04-26, flash deals and category navigation were implemented locally:
+  - the mobile bottom nav `Endirimlər` item now goes to `/flash-deals`, and `/deals` aliases the same page
+  - the hamburger menu `Kateqoriyalar` now goes to `/categories`
+  - the hamburger menu `Endirimlər` now goes to `/flash-deals`
+  - new `/categories` page lists parent categories and their nested subcategories from live category data
+  - the existing mobile category bottom sheet was kept and now includes a `Bütün kateqoriyalar` link
+  - admin category create/edit now supports `parent_id` and `order`, enabling nested categories such as `Məişət avadanlıqları -> Soyuducu`
+  - products now support admin-controlled flash sale fields: active state, flash price, total limit, and per-customer limit
+  - public product payloads now include `effective_price`, a `flash_sale` object, and `sold` / `total` aliases for the card progress bar
+  - homepage `flash_deals` now uses active flash-sale products only, not generic discount/mock fallback logic
+  - new `GET /api/products?flash=true` returns active flash sale products for the all-deals page
+  - flash deal cards show the restored sold/limit progress bar under the image/card content
+  - cart totals use the effective flash price, and cart add/update is capped by remaining flash limit and per-customer limit
+  - local verification passed: backend `node --check` for touched backend files, root `npm.cmd run build`, and local Vite route smoke for `/`, `/categories`, `/flash-deals` returned `200`
+
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:
   - production `GET https://api.bazari.site/api/homepage` was confirmed broken first (`404`)

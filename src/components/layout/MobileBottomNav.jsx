@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Home, LayoutGrid, Flame, ShoppingBag, User, X } from "lucide-react";
-import { useCart } from "@/contexts/CartContext";
+import { Flame, Home, LayoutGrid, ShoppingBag, User, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useCart } from "@/contexts/CartContext";
 import { api } from "@/lib/api";
 
 const navItems = [
   { id: "home", label: "Ana səhifə", icon: Home, to: "/" },
-  { id: "categories", label: "Kateqoriya", icon: LayoutGrid, to: "/" },
-  { id: "deals", label: "Endirimlər", icon: Flame, to: "/" },
+  { id: "categories", label: "Kateqoriya", icon: LayoutGrid, to: "/categories" },
+  { id: "deals", label: "Endirimlər", icon: Flame, to: "/flash-deals" },
   { id: "cart", label: "Səbət", icon: ShoppingBag, to: "/cart" },
   { id: "profile", label: "Profil", icon: User, to: "/profile" },
 ];
@@ -47,7 +47,8 @@ export default function MobileBottomNav() {
 
   const getActiveId = () => {
     if (location.pathname === "/cart") return "cart";
-    if (location.pathname.startsWith("/category/")) return "categories";
+    if (location.pathname === "/categories" || location.pathname.startsWith("/category/")) return "categories";
+    if (location.pathname === "/flash-deals" || location.pathname === "/deals") return "deals";
     if (location.pathname === "/login" || location.pathname === "/admin") return "profile";
     return "home";
   };
@@ -142,6 +143,16 @@ export default function MobileBottomNav() {
             </div>
 
             <div className="max-h-[56vh] overflow-y-auto px-4 py-4 scrollbar-hide">
+              <Link
+                to="/categories"
+                onClick={() => setCategoryOpen(false)}
+                data-testid="category-sheet-all"
+                className="mb-3 flex items-center justify-between rounded-2xl bg-[#FFF0E6] px-4 py-3 font-body font-semibold text-sm text-[#E05A33]"
+              >
+                Bütün kateqoriyalar
+                <LayoutGrid size={18} />
+              </Link>
+
               {categoriesLoading ? (
                 <div className="grid grid-cols-2 gap-3" data-testid="category-sheet-loading">
                   {[1, 2, 3, 4].map((item) => (

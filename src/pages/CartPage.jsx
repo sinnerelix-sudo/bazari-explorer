@@ -50,7 +50,7 @@ function buildWhatsappMessage({ user, items, total, paymentMethodName }) {
 
   items.forEach((item, index) => {
     const product = item.product;
-    const subtotal = Number(product?.price || 0) * Number(item.quantity || 0);
+    const subtotal = Number(product?.effective_price || product?.price || 0) * Number(item.quantity || 0);
     lines.push(`${index + 1}. ${product?.name || "Məhsul"} x${item.quantity} - ${formatPrice(subtotal)} ₼`);
   });
 

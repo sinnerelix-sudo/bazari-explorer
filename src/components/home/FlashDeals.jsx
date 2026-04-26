@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
-import { Zap, ChevronRight } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { ChevronRight, Zap } from "lucide-react";
 import ProductCard from "./ProductCard";
+import { mapProductForCard } from "@/lib/productPricing";
 
 function CountdownTimer() {
   const [timeLeft, setTimeLeft] = useState({ hours: 5, minutes: 42, seconds: 18 });
@@ -18,9 +20,7 @@ function CountdownTimer() {
           minutes = 59;
           hours--;
         }
-        if (hours < 0) {
-          return { hours: 23, minutes: 59, seconds: 59 };
-        }
+        if (hours < 0) return { hours: 23, minutes: 59, seconds: 59 };
         return { hours, minutes, seconds };
       });
     }, 1000);
@@ -31,18 +31,14 @@ function CountdownTimer() {
 
   return (
     <div data-testid="countdown-timer" className="flex items-center gap-1">
-      {[
-        { val: pad(timeLeft.hours), label: "s" },
-        { val: pad(timeLeft.minutes), label: "d" },
-        { val: pad(timeLeft.seconds), label: "sn" },
-      ].map((unit, i) => (
-        <div key={i} className="flex items-center gap-1">
+      {[pad(timeLeft.hours), pad(timeLeft.minutes), pad(timeLeft.seconds)].map((value, index) => (
+        <div key={index} className="flex items-center gap-1">
           <div className="bg-[#1A1A1A] text-white px-2 py-1 rounded-lg min-w-[32px] text-center">
             <span className="text-sm sm:text-base font-heading font-bold tabular-nums">
-              {unit.val}
+              {value}
             </span>
           </div>
-          {i < 2 && <span className="text-[#1A1A1A] font-bold text-sm">:</span>}
+          {index < 2 && <span className="text-[#1A1A1A] font-bold text-sm">:</span>}
         </div>
       ))}
     </div>
@@ -50,19 +46,9 @@ function CountdownTimer() {
 }
 
 export default function FlashDeals({ apiProducts }) {
-  const deals = (apiProducts || []).map((p) => ({
-    ...p,
-    id: p.id,
-    name: p.name,
-    image: p.images?.[0] || "",
-    priceNew: p.price,
-    priceOld: p.original_price,
-    discount: p.discount,
-    rating: p.rating,
-    reviews: p.review_count,
-    sold: p.sold,
-    total: p.total,
-  }));
+  const deals = (apiProducts || []).map(mapProductForCard);
+
+  if (deals.length === 0) return null;
 
   return (
     <section data-testid="flash-deals" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 sm:mt-12">
@@ -78,12 +64,13 @@ export default function FlashDeals({ apiProducts }) {
           </div>
           <CountdownTimer />
         </div>
-        <button
+        <Link
+          to="/flash-deals"
           data-testid="flash-deals-see-all"
           className="flex items-center gap-1 text-[#E05A33] font-body font-medium text-sm hover:underline flex-shrink-0"
         >
           Hamısı <ChevronRight size={16} />
-        </button>
+        </Link>
       </div>
       <div className="flex overflow-x-auto gap-3 sm:gap-4 pb-2 scrollbar-hide sm:grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 sm:overflow-visible">
         {deals.map((product) => (

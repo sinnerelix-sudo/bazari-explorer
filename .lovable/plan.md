@@ -24,6 +24,16 @@ Finish the `bazari.site` production cutover without redesigning the app:
 - production admin payment payload was re-checked on 2026-04-25 and shows `whatsapp_phone = "994557252025"`, `whatsapp_configured = true`, `whatsapp_source = "database"`, and populated `whatsapp_updated_at`
 
 ## Already completed
+- On 2026-04-26, flash deals and category navigation were completed locally:
+  - mobile `Endirimlər` now opens the new `Flash Endirimlər` page at `/flash-deals`
+  - hamburger menu `Kateqoriyalar` links to the new `/categories` page
+  - hamburger menu `Endirimlər` links to `/flash-deals`
+  - admin product add/edit can enable `Flash endirim` and then edit flash price, total limit, and per-customer limit
+  - active flash products are returned by `/api/products?flash=true` and homepage `flash_deals`
+  - flash cards show the sold/limit progress bar again
+  - cart pricing and cart quantity updates respect active flash sale price and limits
+  - admin category create/edit now supports parent categories and order for subcategories
+  - local verification passed: backend `node --check`, root `npm.cmd run build`, and route smoke for `/`, `/categories`, `/flash-deals`
 - On 2026-04-26, local mock/fallback and product-speed cleanup was completed before deploy:
   - static mock catalog file `src/data/mockData.js` was removed
   - homepage category, hero, campaign, brand, footer category, and mobile category-sheet mock fallbacks were removed

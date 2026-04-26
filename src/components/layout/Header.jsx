@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { ShoppingBag, Menu, X, Heart, Home, LayoutGrid, Tag, User, LogIn } from "lucide-react";
+import { Heart, Home, LayoutGrid, LogIn, Menu, ShoppingBag, Tag, User, X } from "lucide-react";
 import SearchAutocomplete from "./SearchAutocomplete";
 import NotificationPanel from "./NotificationPanel";
 import BrandMark from "./BrandMark";
@@ -14,8 +14,8 @@ export default function Header() {
 
   const menuItems = [
     { label: "Ana səhifə", to: "/", icon: Home },
-    { label: "Kateqoriyalar", to: "/", icon: LayoutGrid },
-    { label: "Endirimlər", to: "/", icon: Tag },
+    { label: "Kateqoriyalar", to: "/categories", icon: LayoutGrid },
+    { label: "Endirimlər", to: "/flash-deals", icon: Tag },
     { label: "Səbət", to: "/cart", icon: ShoppingBag },
     ...(user
       ? [{ label: user.role === "admin" ? "Admin Panel" : "Profil", to: user.role === "admin" ? "/admin" : "/login", icon: User }]
@@ -34,9 +34,11 @@ export default function Header() {
           <div className="flex items-center justify-between h-14 sm:h-16">
             <div className="flex items-center gap-3">
               <button
+                type="button"
                 data-testid="mobile-menu-btn"
                 className="lg:hidden p-2 -ml-2 rounded-xl hover:bg-gray-50 transition-colors"
                 onClick={() => setMenuOpen(true)}
+                aria-label="Menyunu aç"
               >
                 <Menu size={22} />
               </button>
@@ -81,27 +83,27 @@ export default function Header() {
         </div>
       </header>
 
-      {/* Mobile menu - rendered OUTSIDE header to avoid stacking context issues */}
       {menuOpen && (
         <div className="lg:hidden fixed inset-0" style={{ zIndex: 9999 }}>
-          {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/40" onClick={() => setMenuOpen(false)} />
-          {/* Panel */}
+          <button
+            type="button"
+            className="absolute inset-0 bg-black/40"
+            aria-label="Menyunu bağla"
+            onClick={() => setMenuOpen(false)}
+          />
           <div
             data-testid="mobile-menu-overlay"
             className="absolute top-0 left-0 bottom-0 w-[280px] bg-white flex flex-col shadow-2xl"
           >
-            {/* Menu header */}
             <div className="border-b border-gray-100 px-5 py-4 flex items-center justify-between flex-shrink-0">
               <Link to="/" onClick={() => setMenuOpen(false)} className="flex items-center gap-2">
                 <BrandMark className="w-8 h-8 rounded-xl" />
                 <span className="font-heading font-bold text-lg text-[#1A1A1A]">Bazari</span>
               </Link>
-              <button data-testid="mobile-menu-close" onClick={() => setMenuOpen(false)} className="p-2 rounded-xl hover:bg-gray-50">
+              <button type="button" data-testid="mobile-menu-close" onClick={() => setMenuOpen(false)} className="p-2 rounded-xl hover:bg-gray-50">
                 <X size={20} className="text-[#595959]" />
               </button>
             </div>
-            {/* Menu items */}
             <nav className="flex-1 overflow-y-auto py-3 px-3">
               {menuItems.map((item) => {
                 const Icon = item.icon;
@@ -118,7 +120,6 @@ export default function Header() {
                 );
               })}
             </nav>
-            {/* User info at bottom */}
             {user && (
               <div className="border-t border-gray-100 px-5 py-4 flex-shrink-0">
                 <div className="flex items-center gap-3">

@@ -18,15 +18,29 @@ export function normalizeProductPreview(product) {
     : product.image
       ? [product.image]
       : [];
+  const basePrice = Number(product.price ?? product.priceNew ?? 0);
+  const flashSale = product.flash_sale || {};
+  const flashActive =
+    typeof flashSale.active === "boolean" ? flashSale.active : Boolean(product.flash_sale_active);
+  const flashPrice = Number(flashSale.price ?? product.flash_sale_price ?? 0);
+  const effectivePrice = flashActive && flashPrice > 0 ? flashPrice : basePrice;
+  const originalPrice = flashActive
+    ? basePrice
+    : Number(product.original_price ?? product.priceOld ?? 0);
+  const flashDiscount =
+    flashActive && basePrice > effectivePrice
+      ? Math.round(((basePrice - effectivePrice) / basePrice) * 100)
+      : Number(product.discount ?? 0);
 
   return {
     ...product,
     id,
     images,
     image: product.image || images[0] || "",
-    price: product.price ?? product.priceNew ?? 0,
-    original_price: product.original_price ?? product.priceOld ?? 0,
-    discount: product.discount ?? 0,
+    price: effectivePrice,
+    original_price: originalPrice,
+    discount: flashDiscount,
+    base_price: basePrice,
     rating: product.rating ?? 0,
     review_count: product.review_count ?? product.reviews ?? 0,
     stock: product.stock ?? 0,

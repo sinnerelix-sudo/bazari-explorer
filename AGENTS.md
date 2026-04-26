@@ -245,3 +245,30 @@
   - `Something went wrong` absent
   - runtime exception count `0`
   - failed request count `0`
+
+## 2026-04-26 Flash Deals And Category Navigation Notes
+- User asked to activate the mobile `Endirimlər` button as `Flash Endirimlər`, make flash deals admin-controlled per product, restore the flash progress/limit bar under product images, and make the hamburger menu `Kateqoriyalar` / `Endirimlər` links functional.
+- Backend product payload now supports:
+  - `flash_sale_active`
+  - `flash_sale_price`
+  - `flash_sale_limit`
+  - `flash_sale_per_customer_limit`
+  - `flash_sale_sold`
+- Public product responses now include `effective_price`, `flash_sale`, `sold`, and `total` so storefront cards can show flash price and the sold/limit bar without hardcoding values.
+- `GET /api/products?flash=true` returns active, not-sold-out flash sale products only.
+- `GET /api/homepage` now fills `flash_deals` from active flash-sale products instead of generic discount fallbacks.
+- Cart totals now use the effective flash price, and cart add/update caps quantity by total flash remaining and per-customer flash limit.
+- Admin product add/edit form now has a `Flash endirim` toggle; when enabled it shows flash discounted price, total limit, and per-customer limit fields.
+- New storefront route `/flash-deals` shows all active flash deals with the progress bar under cards; `/deals` is kept as an alias.
+- Mobile bottom nav `Endirimlər` now links to `/flash-deals`; hamburger menu `Endirimlər` also links there.
+- New storefront route `/categories` shows all parent categories with nested subcategories. Hamburger menu `Kateqoriyalar` links to it, while the existing mobile category sheet keeps working and includes a `Bütün kateqoriyalar` link.
+- Admin category form now supports selecting a parent category and order so subcategories like `Məişət avadanlıqları -> Soyuducu` can be created from admin data.
+- Local verification passed:
+  - `node --check backend/src/util.js`
+  - `node --check backend/src/routes/products.js`
+  - `node --check backend/src/routes/homepage.js`
+  - `node --check backend/src/routes/categories.js`
+  - `node --check backend/src/routes/cart.js`
+  - `node --check backend/src/db.js`
+  - `npm.cmd run build`
+  - local Vite smoke: `/`, `/categories`, and `/flash-deals` returned `200`
