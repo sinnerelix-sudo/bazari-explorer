@@ -43,6 +43,15 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - live bundle check found no old mock strings (`Premium Wireless`, `Qadın geyimi`, `Ayaqqabı`, `Elektronikada Böyük`, `Populyar brendlər`)
   - live mobile CDP verification passed: first product card about `898ms`, product click detail route about `5ms`, product image/info about `7ms`, runtime exceptions `0`
   - one cold API request after idle took about `16s`, then warm API calls were around `150-260ms`; Render cold-start remains the next infrastructure-level speed limit
+- On 2026-04-26, product detail image gallery controls were completed and deployed:
+  - `src/pages/ProductDetail.jsx` now supports active image state per product
+  - users can swipe/drag the main image to change photos
+  - users can tap thumbnail buttons under the main image to change photos
+  - previous/next controls and an image counter show when multiple images exist
+  - `npm.cmd run build` passed
+  - commit `9a582d8` pushed to `main`
+  - Vercel production deploy `dpl_AdSDwSTUBfHPNKVAaFkZuvahZ1bR` completed and was aliased to `https://www.bazari.site`
+  - live mobile CDP verification passed: thumbnail tap and swipe both changed the main image, active thumbnail state updated, runtime exceptions `0`, failed requests `0`
 - The live storefront mismatch is now fixed on production:
   - `GET https://api.bazari.site/api/homepage` is live and returns `200`
   - homepage product sections no longer fall back to static showcase cards

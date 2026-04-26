@@ -174,3 +174,29 @@
     - alias confirmed on `https://www.bazari.site`
   - Post-deploy live mobile CDP verification passed on `https://www.bazari.site`: `nav-categories` was found, tapping it opened `category-sheet`, 3 live category links appeared (`Premium hesablar`, `SMM xidmətləri`, `Streaming paketləri`), runtime exception count was `0`, and `Something went wrong` was absent.
   - Final live smoke also passed: `https://www.bazari.site` -> `200`, `https://api.bazari.site/api/health` -> `200`, and public payment payload still showed `whatsapp_phone = "994557252025"` with `whatsapp_configured = true`.
+
+## 2026-04-26 Product Gallery Notes
+- The user asked for the product detail image gallery to be interactive:
+  - manual swipe/drag on the main image
+  - thumbnail taps below the image
+  - no redesign of the product page
+- `src/pages/ProductDetail.jsx` now tracks the active product image and keeps the main image, thumbnails, counter, and previous/next controls in sync.
+- The main product image supports pointer swipe/drag with vertical page scroll preserved through `touchAction: "pan-y"`.
+- Thumbnail images are real buttons with active state (`aria-current="true"`) and `data-testid="product-thumb-{index}"` for verification.
+- Previous/next overlay buttons are available when a product has multiple images:
+  - `data-testid="gallery-prev"`
+  - `data-testid="gallery-next"`
+- Local verification passed:
+  - `npm.cmd run build`
+- Commit pushed to `main`: `9a582d8` - `Enable product image gallery controls`.
+- Vercel production deploy completed:
+  - deployment id: `dpl_AdSDwSTUBfHPNKVAaFkZuvahZ1bR`
+  - deployment url: `https://bazari-explorer-54aiv7q3e-metrekareup1-3268s-projects.vercel.app`
+  - alias confirmed on `https://www.bazari.site`
+- Live mobile CDP verification passed on `https://www.bazari.site/product/69ea342614e252d11f447f26`:
+  - tapping `product-thumb-1` changed the main image
+  - swipe right changed back to the previous image
+  - swipe left changed to the next image
+  - active thumbnail state updated correctly
+  - runtime exception count `0`
+  - failed request count `0`

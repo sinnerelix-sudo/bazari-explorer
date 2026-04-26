@@ -217,6 +217,16 @@ Keep the local cart/payment flow testable while finishing production deployment 
     - `Something went wrong` absent
   - final live smoke passed: `https://www.bazari.site` -> `200`, API health -> `200`, public WhatsApp payment payload still configured
 
+- On 2026-04-26, the product detail image gallery was activated:
+  - `src/pages/ProductDetail.jsx` now tracks the active image for each product
+  - the main product image can be changed by manual swipe/drag
+  - thumbnail buttons below the image change the active image
+  - previous/next overlay controls and a `1/n` image counter appear when multiple images exist
+  - local `npm.cmd run build` passed
+  - commit `9a582d8` pushed to `main`
+  - Vercel production deploy `dpl_AdSDwSTUBfHPNKVAaFkZuvahZ1bR` completed and was aliased to `www.bazari.site`
+  - live mobile CDP verification passed on `/product/69ea342614e252d11f447f26`: thumbnail tap changed the image, swipe right/left changed images, active thumbnail state updated, runtime exceptions were `0`, and failed requests were `0`
+
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:
   - production `GET https://api.bazari.site/api/homepage` was confirmed broken first (`404`)
@@ -489,11 +499,12 @@ Invoke-RestMethod -Method Post -Uri 'http://127.0.0.1:10000/api/cart/add' -Conte
 ## Resume prompt
 Read `AGENTS.md`, `NEW_THREAD_HANDOFF.md`, and `.lovable/plan.md` in `C:\Users\User\.codex\worktrees\7a2e\bazari-explorer`, then continue the `bazari.site` production deployment. Start with `git status`, preserve the existing uncommitted work, re-check the current DNS/deploy state before acting, and continue without redesigning the app or hardcoding secrets.
 
-Current live summary as of 2026-04-25:
+Current live summary as of 2026-04-26:
 - frontend: fixed on Vercel, `www.bazari.site` returns `200`
 - apex: `bazari.site` redirects to `www`
 - backend: `api.bazari.site/api/health` and `/api/payment-methods` both return `200`
 - auth/admin: production login, `/api/auth/me`, and payment method toggle all passed
 - Cloudinary: production upload smoke now passed through the live frontend server function and a temporary admin product create/delete cycle
 - storefront homepage: production now uses the live admin-managed product feed instead of static showcase product cards
+- product detail gallery: production now supports thumbnail taps, swipe/drag, previous/next controls, and active image counter
 - WhatsApp checkout: public and admin payloads now show `whatsapp_phone = "994557252025"`, `whatsapp_configured = true`, and admin `whatsapp_source = "database"`
