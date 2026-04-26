@@ -21,35 +21,53 @@ export default function ProfilePage() {
   const [orders, setOrders] = useState([]);
   const [addresses, setAddresses] = useState([]);
   const [favorites, setFavorites] = useState([]);
-  const [profileForm, setProfileForm] = useState({ name: user?.name || "", phone: user?.phone || "" });
+  const [profileForm, setProfileForm] = useState({ name: "", phone: "" });
   const [updatingProfile, setUpdatingProfile] = useState(false);
   const [activeSection, setActiveSection] = useState("overview");
 
   useEffect(() => {
-    if (activeSection === "orders") loadOrders();
-    if (activeSection === "addresses") loadAddresses();
-    if (activeSection === "favorites") loadFavorites();
+    if (user) {
+      setProfileForm({ name: user.name || "", phone: user.phone || "" });
+    }
+  }, [user]);
+
+  useEffect(() => {
     if (authLoading) return;
     if (!user) { navigate("/login"); return; }
     if (user.role === "admin" || user.role === "seller") { navigate("/admin"); return; }
-    loadNotifications();
+    
+    if (activeSection === "notifications") loadNotifications();
+    if (activeSection === "orders") loadOrders();
+    if (activeSection === "addresses") loadAddresses();
+    if (activeSection === "favorites") loadFavorites();
+  }, [user, authLoading, activeSection]);
+
+  const loadNotifications = async () => {
+    try {
+      const { data } = await axios.get(`${API}/notifications`, { withCredentials: true });
+      setNotifications(data);
+    } catch {}
+  };
+
   const loadOrders = async () => {
-    // Mock orders for now
     setOrders([
       { id: "ORD-001", date: "2026-04-20", total: 53.85, status: "Tamamlanıb", items: [{ name: "Super Crest 2400W", qty: 1 }] },
     ]);
   };
+
   const loadAddresses = async () => {
     setAddresses([
       { id: 1, title: "Ev", address: "Bakı ş., Nərimanov r., A.Nemətulla küç. 45", is_default: true },
     ]);
   };
+
   const loadFavorites = async () => {
     try {
       const { data } = await axios.get(`${API}/products?limit=10`, { withCredentials: true });
       setFavorites(data.products || []);
     } catch {}
   };
+
   const handleUpdateProfile = async (e) => {
     e.preventDefault();
     setUpdatingProfile(true);
@@ -61,14 +79,6 @@ export default function ProfilePage() {
     } finally {
       setUpdatingProfile(false);
     }
-  };
-  }, [user, authLoading]);
-
-  const loadNotifications = async () => {
-    try {
-      const { data } = await axios.get(`${API}/notifications`, { withCredentials: true });
-      setNotifications(data);
-    } catch {}
   };
 
   const handleLogout = async () => { await logout(); navigate("/"); };
@@ -91,7 +101,6 @@ export default function ProfilePage() {
     <div data-testid="profile-page" className="min-h-screen bg-[#FDFCFB]">
       <Header />
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 pb-24 md:pb-12">
-        {/* Mobile back */}
         <div className="sm:hidden flex items-center gap-3 py-3">
           <button onClick={() => navigate(-1)} className="p-2 -ml-2 rounded-xl hover:bg-gray-50">
             <ChevronLeft size={22} />
@@ -99,7 +108,6 @@ export default function ProfilePage() {
           <span className="font-heading font-bold text-lg">Profilim</span>
         </div>
 
-        {/* Profile header */}
         <div data-testid="profile-header" className="bg-white rounded-2xl border border-gray-50 p-5 sm:p-6 mt-2 sm:mt-6 mb-4">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-[#E05A33]/10 flex items-center justify-center flex-shrink-0">
@@ -115,7 +123,6 @@ export default function ProfilePage() {
               {user.phone && <p className="font-body text-xs text-[#8C8C8C] mt-0.5">{user.phone}</p>}
             </div>
           </div>
-          {/* Quick stats */}
           <div className="grid grid-cols-3 gap-3 mt-5">
             {[
               { label: "Səbət", val: cart.count || 0, to: "/cart" },
@@ -130,7 +137,6 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        {/* Menu items */}
         <div className="space-y-1.5">
           {menuItems.map((item) => {
             const Icon = item.icon;
@@ -157,9 +163,10 @@ export default function ProfilePage() {
           })}
         </div>
 
-        {/* Push Notification Toggle */}
         <div className="mt-4">
           <PushNotificationToggle />
+        </div>
+
         {activeSection === "notifications" && (
           <div data-testid="profile-notifications" className="mt-3 bg-white rounded-xl border border-gray-50 divide-y divide-gray-50 overflow-hidden">
             {notifications.length === 0 ? (
@@ -228,12 +235,12 @@ export default function ProfilePage() {
                 </div>
                 <p className="text-sm font-body text-[#595959]">{a.address}</p>
                 <div className="mt-3 flex gap-2">
-                  <button className="text-xs font-body font-semibold text-[#595959] flex items-center gap-1"><Edit2 size={12}/> Redaktə</button>
-                  <button className="text-xs font-body font-semibold text-red-400 flex items-center gap-1"><Trash2 size={12}/> Sil</button>
+                  <button type="button" className="text-xs font-body font-semibold text-[#595959] flex items-center gap-1"><Edit2 size={12}/> Redaktə</button>
+                  <button type="button" className="text-xs font-body font-semibold text-red-400 flex items-center gap-1"><Trash2 size={12}/> Sil</button>
                 </div>
               </div>
             ))}
-            <button className="w-full py-3 rounded-xl border-2 border-dashed border-gray-200 text-[#8C8C8C] font-body text-sm hover:border-[#E05A33] hover:text-[#E05A33] transition-all">+ Yeni ünvan əlavə et</button>
+            <button type="button" className="w-full py-3 rounded-xl border-2 border-dashed border-gray-200 text-[#8C8C8C] font-body text-sm hover:border-[#E05A33] hover:text-[#E05A33] transition-all">+ Yeni ünvan əlavə et</button>
           </div>
         )}
 
@@ -262,6 +269,7 @@ export default function ProfilePage() {
               </div>
             </div>
             <button
+              type="submit"
               disabled={updatingProfile}
               className="w-full bg-[#E05A33] text-white py-3 rounded-full font-body font-semibold text-sm disabled:opacity-50"
             >
@@ -269,11 +277,7 @@ export default function ProfilePage() {
             </button>
           </form>
         )}
-        </div>
 
-        {/* Notification section expanded */}
-
-        {/* Logout */}
         <button
           data-testid="profile-logout"
           onClick={handleLogout}
