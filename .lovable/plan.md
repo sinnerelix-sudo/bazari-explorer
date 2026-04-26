@@ -34,6 +34,11 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - cart pricing and cart quantity updates respect active flash sale price and limits
   - admin category create/edit now supports parent categories and order for subcategories
   - local verification passed: backend `node --check`, root `npm.cmd run build`, and route smoke for `/`, `/categories`, `/flash-deals`
+  - commit `956a0ec` pushed to `main`
+  - Vercel production deploy `dpl_ETQnZAnyb9dHAhYEtkBMRJcwHL4w` completed and was aliased to `www.bazari.site`
+  - Render backend picked up the backend code; live products expose `flash_sale` and `effective_price`
+  - live smoke passed for `www`, `/categories`, `/flash-deals`, API health, payment methods, homepage, and flash product query
+  - live mobile CDP passed for bottom nav `Endirimlər -> /flash-deals` and hamburger `Kateqoriyalar -> /categories` with runtime exceptions `0`
 - On 2026-04-26, local mock/fallback and product-speed cleanup was completed before deploy:
   - static mock catalog file `src/data/mockData.js` was removed
   - homepage category, hero, campaign, brand, footer category, and mobile category-sheet mock fallbacks were removed

@@ -272,3 +272,24 @@
   - `node --check backend/src/db.js`
   - `npm.cmd run build`
   - local Vite smoke: `/`, `/categories`, and `/flash-deals` returned `200`
+- Commit pushed to `main`: `956a0ec` - `Add admin flash deals and category pages`.
+- Render backend picked up the pushed backend code; live `GET /api/products?limit=1` now returns `flash_sale` and `effective_price`.
+- Vercel production deploy completed:
+  - deployment id: `dpl_ETQnZAnyb9dHAhYEtkBMRJcwHL4w`
+  - deployment url: `https://bazari-explorer-4ob3lqaah-metrekareup1-3268s-projects.vercel.app`
+  - alias confirmed on `https://www.bazari.site`
+- Live smoke after deploy passed:
+  - `https://www.bazari.site` -> `200`
+  - `https://www.bazari.site/categories` -> `200`
+  - `https://www.bazari.site/flash-deals` -> `200`
+  - `https://api.bazari.site/api/health` -> `200`
+  - public payment payload still has `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`
+  - `GET https://api.bazari.site/api/homepage` returned `hero_banners = 2`, `flash_deals = 0` because no product is currently flash-active yet
+  - `GET https://api.bazari.site/api/products?flash=true&limit=5` returned an empty active flash list cleanly
+- Live mobile CDP verification passed:
+  - bottom nav `Endirimlər` opened `/flash-deals`
+  - hamburger menu opened, and `Kateqoriyalar` opened `/categories`
+  - `flash-deals-page` and `categories-page` rendered
+  - runtime exception count `0`
+  - failed request count `0`
+  - `Something went wrong` absent

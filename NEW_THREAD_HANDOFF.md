@@ -262,6 +262,16 @@ Keep the local cart/payment flow testable while finishing production deployment 
   - flash deal cards show the restored sold/limit progress bar under the image/card content
   - cart totals use the effective flash price, and cart add/update is capped by remaining flash limit and per-customer limit
   - local verification passed: backend `node --check` for touched backend files, root `npm.cmd run build`, and local Vite route smoke for `/`, `/categories`, `/flash-deals` returned `200`
+  - commit pushed to `main`: `956a0ec` - `Add admin flash deals and category pages`
+  - Render backend picked up the new backend code; live products now include `flash_sale` and `effective_price`
+  - Vercel production deploy completed:
+    - deployment id: `dpl_ETQnZAnyb9dHAhYEtkBMRJcwHL4w`
+    - deployment url: `https://bazari-explorer-4ob3lqaah-metrekareup1-3268s-projects.vercel.app`
+    - alias confirmed on `https://www.bazari.site`
+  - live smoke passed for `www.bazari.site`, `/categories`, `/flash-deals`, API health, public payment methods, homepage, and flash product query
+  - public payment payload still shows `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`
+  - live homepage currently returns `flash_deals = 0` because no admin product has flash sale active yet; after admin enables one, it will appear in the homepage section and `/flash-deals`
+  - live mobile CDP verification passed: bottom nav `Endirimlər` opened `/flash-deals`, hamburger `Kateqoriyalar` opened `/categories`, both pages rendered, runtime exceptions were `0`, failed requests were `0`, and `Something went wrong` was absent
 
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:
