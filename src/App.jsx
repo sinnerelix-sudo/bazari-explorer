@@ -39,6 +39,7 @@ function HomePage() {
           flash_deals: [],
           trending: [],
           recommended: [],
+          hero_banners: [],
           campaigns: [],
         });
       }

@@ -27,6 +27,8 @@ export async function connectDB() {
     db.collection("products").createIndex({ name: "text", description: "text", brand: "text" }),
     db.collection("products").createIndex({ category_id: 1 }),
     db.collection("categories").createIndex({ slug: 1 }, { unique: true }),
+    db.collection("hero_banners").createIndex({ is_active: 1, order: 1 }),
+    db.collection("hero_banners").createIndex({ seed_key: 1 }, { unique: true, sparse: true }),
     db.collection("carts").createIndex({ user_id: 1 }, { unique: true }),
     db.collection("app_settings").createIndex({ key: 1 }, { unique: true }),
     db.collection("payment_methods").createIndex({ key: 1 }, { unique: true }),

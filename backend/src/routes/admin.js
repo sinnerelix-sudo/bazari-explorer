@@ -2,6 +2,7 @@ import { Router } from "express";
 import { getDB } from "../db.js";
 import { authRequired, roleRequired, publicUser } from "../auth.js";
 import { toId } from "../util.js";
+import { ensureDefaultHeroBanners, normalizeHeroBannerInput, publicHeroBanner } from "../heroBanners.js";
 import {
   ensurePaymentMethods,
   getWhatsappOrderPhoneConfig,
@@ -38,6 +39,52 @@ r.get("/payment-methods", authRequired, roleRequired("admin"), async (_req, res)
     whatsapp_source: whatsappConfig.source,
     whatsapp_updated_at: whatsappConfig.updated_at,
   });
+});
+
+r.get("/hero-banners", authRequired, roleRequired("admin"), async (_req, res) => {
+  const db = getDB();
+  await ensureDefaultHeroBanners(db);
+  const banners = await db.collection("hero_banners").find().sort({ order: 1, _id: 1 }).toArray();
+  res.json(banners.map(publicHeroBanner));
+});
+
+r.post("/hero-banners", authRequired, roleRequired("admin"), async (req, res) => {
+  const normalized = normalizeHeroBannerInput(req.body || {});
+  if (normalized.error) return res.status(400).json({ error: normalized.error });
+
+  const now = new Date();
+  const doc = {
+    ...normalized,
+    created_at: now,
+    updated_at: now,
+  };
+
+  const { insertedId } = await getDB().collection("hero_banners").insertOne(doc);
+  res.json(publicHeroBanner({ ...doc, _id: insertedId }));
+});
+
+r.put("/hero-banners/:id", authRequired, roleRequired("admin"), async (req, res) => {
+  const id = toId(req.params.id);
+  if (!id) return res.status(404).json({ error: "Not found" });
+
+  const collection = getDB().collection("hero_banners");
+  const current = await collection.findOne({ _id: id });
+  if (!current) return res.status(404).json({ error: "Not found" });
+
+  const normalized = normalizeHeroBannerInput(req.body || {}, current);
+  if (normalized.error) return res.status(400).json({ error: normalized.error });
+
+  await collection.updateOne({ _id: id }, { $set: { ...normalized, updated_at: new Date() } });
+  const updated = await collection.findOne({ _id: id });
+  res.json(publicHeroBanner(updated));
+});
+
+r.delete("/hero-banners/:id", authRequired, roleRequired("admin"), async (req, res) => {
+  const id = toId(req.params.id);
+  if (!id) return res.status(404).json({ error: "Not found" });
+
+  await getDB().collection("hero_banners").deleteOne({ _id: id });
+  res.json({ ok: true });
 });
 
 r.put("/payment-methods/whatsapp-phone", authRequired, roleRequired("admin"), async (req, res) => {

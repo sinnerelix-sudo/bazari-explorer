@@ -31,7 +31,7 @@ function getAdminTabs(user) {
     { id: "dashboard", label: "Dashboard", icon: BarChart3 },
     { id: "products", label: "Məhsullar", icon: Package },
     { id: "categories", label: "Kateqoriyalar", icon: LayoutGrid },
-    { id: "campaigns", label: "Kampaniyalar", icon: Tag },
+    { id: "campaigns", label: "Hero bannerlər", icon: Tag },
     ...(user?.role === "admin"
       ? [
           { id: "payments", label: "Ödənişlər", icon: CreditCard },
@@ -51,6 +51,8 @@ function getMobileTabLabel(tabId) {
       return "Məhsul";
     case "categories":
       return "Kateqor.";
+    case "campaigns":
+      return "Banner";
     case "payments":
       return "Ödəniş";
     case "users":
@@ -62,6 +64,267 @@ function getMobileTabLabel(tabId) {
     default:
       return tabId;
   }
+}
+
+const HERO_ACTION_OPTIONS = [
+  { value: "none", label: "Link yoxdur" },
+  { value: "internal", label: "Məhsul/kateqoriya linki" },
+  { value: "coupon", label: "Kupon kopyala" },
+  { value: "external", label: "Başqa sayta yönləndir" },
+];
+
+function createHeroBannerForm(order = 1) {
+  return {
+    title: "",
+    subtitle: "",
+    eyebrow: "Xüsusi təklif",
+    image: "",
+    cta_text: "İndi al",
+    action_type: "internal",
+    action_value: "",
+    duration_seconds: 5,
+    order,
+    is_active: true,
+  };
+}
+
+function heroBannerToForm(banner) {
+  return {
+    id: banner.id,
+    title: banner.title || "",
+    subtitle: banner.subtitle || "",
+    eyebrow: banner.eyebrow || "Xüsusi təklif",
+    image: banner.image || "",
+    cta_text: banner.cta_text || banner.cta || "",
+    action_type: banner.action_type || "none",
+    action_value: banner.action_value || "",
+    duration_seconds: banner.duration_seconds || 5,
+    order: banner.order || 1,
+    is_active: banner.is_active !== false,
+  };
+}
+
+function getHeroActionPlaceholder(type) {
+  if (type === "coupon") return "BAZARI10";
+  if (type === "external") return "https://example.com";
+  if (type === "internal") return "/category/premium-hesablar və ya /product/id";
+  return "CTA linki deaktivdir";
+}
+
+function HeroBannerForm({ form, setForm, products, categories, onSave, onCancel, saving }) {
+  const [uploading, setUploading] = useState(false);
+
+  const setField = (key, value) => setForm((current) => ({ ...current, [key]: value }));
+
+  const internalTargets = [
+    ...categories
+      .filter((category) => category.slug)
+      .map((category) => ({
+        value: `/category/${category.slug}`,
+        label: `Kateqoriya: ${category.name}`,
+      })),
+    ...products.map((product) => ({
+      value: `/product/${product.id}`,
+      label: `Məhsul: ${product.name}`,
+    })),
+  ];
+
+  const handleUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const url = await uploadToCloudinary(file, { folder: "bazari/hero-banners" });
+      setField("image", url);
+    } catch (err) {
+      console.error(err);
+      window.alert("Yükləmə xətası: " + (err?.message || "naməlum"));
+    } finally {
+      setUploading(false);
+      event.target.value = "";
+    }
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    onSave(form);
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-50 p-5 mb-5 space-y-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <h2 className="font-heading font-bold text-lg text-[#1A1A1A]">
+            {form.id ? "Hero banneri redaktə et" : "Yeni hero banner"}
+          </h2>
+          <p className="font-body text-xs text-[#8C8C8C] mt-1">
+            Şəkil, CTA yazısı, link tipi və ekranda qalma saniyəsi buradan idarə olunur.
+          </p>
+        </div>
+        <button type="button" onClick={onCancel} className="p-2 rounded-full hover:bg-gray-50">
+          <X size={18} className="text-[#8C8C8C]" />
+        </button>
+      </div>
+
+      <div className="grid lg:grid-cols-[1.2fr_0.8fr] gap-5">
+        <div className="space-y-3">
+          <div className="grid sm:grid-cols-2 gap-3">
+            <input
+              value={form.title}
+              onChange={(event) => setField("title", event.target.value)}
+              placeholder="Başlıq"
+              required
+              className="px-3 py-2.5 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none focus:ring-1 focus:ring-[#E05A33]"
+            />
+            <input
+              value={form.eyebrow}
+              onChange={(event) => setField("eyebrow", event.target.value)}
+              placeholder="Kiçik üst yazı"
+              className="px-3 py-2.5 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none focus:ring-1 focus:ring-[#E05A33]"
+            />
+          </div>
+
+          <textarea
+            value={form.subtitle}
+            onChange={(event) => setField("subtitle", event.target.value)}
+            placeholder="Alt açıqlama"
+            rows={2}
+            className="w-full px-3 py-2.5 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none resize-none focus:ring-1 focus:ring-[#E05A33]"
+          />
+
+          <div className="grid sm:grid-cols-[1fr_auto] gap-3">
+            <input
+              value={form.image}
+              onChange={(event) => setField("image", event.target.value)}
+              placeholder="Banner şəkil URL"
+              required
+              className="px-3 py-2.5 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none focus:ring-1 focus:ring-[#E05A33]"
+            />
+            <label className="cursor-pointer px-4 py-2.5 rounded-xl bg-[#1A1A1A] text-white font-body text-sm font-semibold flex items-center justify-center gap-2">
+              <Upload size={15} />
+              {uploading ? "Yüklənir..." : "Şəkil yüklə"}
+              <input type="file" accept="image/*" className="hidden" onChange={handleUpload} disabled={uploading} />
+            </label>
+          </div>
+
+          <div className="grid sm:grid-cols-3 gap-3">
+            <input
+              value={form.cta_text}
+              onChange={(event) => setField("cta_text", event.target.value)}
+              placeholder="CTA: İndi al, Bax və ya boş"
+              className="px-3 py-2.5 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none focus:ring-1 focus:ring-[#E05A33]"
+            />
+            <input
+              type="number"
+              min="1"
+              max="120"
+              value={form.duration_seconds}
+              onChange={(event) => setField("duration_seconds", event.target.value)}
+              placeholder="Saniyə"
+              className="px-3 py-2.5 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none focus:ring-1 focus:ring-[#E05A33]"
+            />
+            <input
+              type="number"
+              min="1"
+              value={form.order}
+              onChange={(event) => setField("order", event.target.value)}
+              placeholder="Sıra"
+              className="px-3 py-2.5 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none focus:ring-1 focus:ring-[#E05A33]"
+            />
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            <select
+              value={form.action_type}
+              onChange={(event) => {
+                const actionType = event.target.value;
+                setForm((current) => ({
+                  ...current,
+                  action_type: actionType,
+                  action_value: actionType === "none" ? "" : current.action_value,
+                }));
+              }}
+              className="px-3 py-2.5 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none focus:ring-1 focus:ring-[#E05A33]"
+            >
+              {HERO_ACTION_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
+            <input
+              value={form.action_value}
+              onChange={(event) => setField("action_value", event.target.value)}
+              placeholder={getHeroActionPlaceholder(form.action_type)}
+              disabled={form.action_type === "none"}
+              className="px-3 py-2.5 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none disabled:opacity-60 focus:ring-1 focus:ring-[#E05A33]"
+            />
+          </div>
+
+          {form.action_type === "internal" && internalTargets.length > 0 && (
+            <select
+              value=""
+              onChange={(event) => {
+                if (event.target.value) setField("action_value", event.target.value);
+              }}
+              className="w-full px-3 py-2.5 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none focus:ring-1 focus:ring-[#E05A33]"
+            >
+              <option value="">Məhsul və ya kateqoriya seç</option>
+              {internalTargets.map((target) => (
+                <option key={target.value} value={target.value}>
+                  {target.label}
+                </option>
+              ))}
+            </select>
+          )}
+
+          <label className="inline-flex items-center gap-2 rounded-full bg-[#F5F3F0] px-3 py-2 font-body text-sm text-[#595959]">
+            <input
+              type="checkbox"
+              checked={form.is_active}
+              onChange={(event) => setField("is_active", event.target.checked)}
+              className="accent-[#E05A33]"
+            />
+            Aktiv göstər
+          </label>
+        </div>
+
+        <div className="rounded-2xl overflow-hidden bg-[#1A1A1A] min-h-[220px] relative">
+          {form.image ? (
+            <img src={form.image} alt="" className="absolute inset-0 w-full h-full object-cover" />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center text-white/50">
+              <ImageIcon size={32} />
+            </div>
+          )}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/25 to-transparent" />
+          <div className="absolute inset-0 p-5 flex flex-col justify-center">
+            <span className="text-white/75 text-xs font-body uppercase tracking-wide">{form.eyebrow || "Xüsusi təklif"}</span>
+            <h3 className="font-heading font-bold text-2xl text-white mt-2 line-clamp-2">{form.title || "Banner başlığı"}</h3>
+            {form.subtitle && <p className="font-body text-sm text-white/85 mt-2 line-clamp-2">{form.subtitle}</p>}
+            {form.cta_text && (
+              <span className="mt-4 inline-flex w-fit rounded-full bg-[#E05A33] px-5 py-2 text-sm font-body font-semibold text-white">
+                {form.cta_text}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        <button
+          type="submit"
+          disabled={saving || uploading}
+          className="bg-[#E05A33] text-white px-5 py-2.5 rounded-full font-body text-sm font-semibold disabled:opacity-60"
+        >
+          {saving ? "Saxlanır..." : "Saxla"}
+        </button>
+        <button type="button" onClick={onCancel} className="px-5 py-2.5 rounded-full border border-gray-200 font-body text-sm">
+          Ləğv et
+        </button>
+      </div>
+    </form>
+  );
 }
 
 function Sidebar({ activeTab, setActiveTab, user, onLogout }) {
@@ -331,6 +594,9 @@ export default function AdminPanel() {
   const [notifTitle, setNotifTitle] = useState("");
   const [notifMsg, setNotifMsg] = useState("");
   const [catForm, setCatForm] = useState(null);
+  const [heroBanners, setHeroBanners] = useState([]);
+  const [heroBannerForm, setHeroBannerForm] = useState(null);
+  const [heroBannerSaving, setHeroBannerSaving] = useState(false);
 
   const tabs = useMemo(() => getAdminTabs(user), [user]);
 
@@ -376,6 +642,21 @@ export default function AdminPanel() {
         setWhatsappSource(data?.whatsapp_source || "unset");
         setWhatsappUpdatedAt(data?.whatsapp_updated_at || null);
         setWhatsappFeedback("");
+      } else if (tab === "campaigns") {
+        if (user.role !== "admin") {
+          setHeroBanners([]);
+          setHeroBannerForm(null);
+          return;
+        }
+        const [bannersRes, productsRes, categoriesRes] = await Promise.all([
+          ax.get("/admin/hero-banners"),
+          ax.get("/products?limit=100&count=false"),
+          ax.get("/categories"),
+        ]);
+        setHeroBanners(bannersRes.data || []);
+        setProducts(productsRes.data?.products || []);
+        setCategories(categoriesRes.data || []);
+        setHeroBannerForm(null);
       } else if (tab === "users") {
         const { data } = await ax.get("/admin/users");
         setUsers(data || []);
@@ -441,6 +722,33 @@ export default function AdminPanel() {
     if (catForm.id) await ax.put(`/categories/${catForm.id}`, catForm);
     else await ax.post("/categories", catForm);
     setCatForm(null);
+    load();
+  };
+
+  const handleSaveHeroBanner = async (form) => {
+    const payload = {
+      ...form,
+      duration_seconds: Number(form.duration_seconds) || 5,
+      order: Number(form.order) || heroBanners.length + 1,
+      is_active: Boolean(form.is_active),
+    };
+
+    setHeroBannerSaving(true);
+    try {
+      if (form.id) await ax.put(`/admin/hero-banners/${form.id}`, payload);
+      else await ax.post("/admin/hero-banners", payload);
+      setHeroBannerForm(null);
+      await load();
+    } catch (err) {
+      window.alert(err?.response?.data?.error || "Hero banneri saxlamaq mümkün olmadı.");
+    } finally {
+      setHeroBannerSaving(false);
+    }
+  };
+
+  const handleDeleteHeroBanner = async (id) => {
+    if (!window.confirm("Hero banner silinsin?")) return;
+    await ax.delete(`/admin/hero-banners/${id}`);
     load();
   };
 
@@ -1089,10 +1397,109 @@ export default function AdminPanel() {
           )}
 
           {tab === "campaigns" && (
-            <div className="text-center py-16">
-              <Tag size={40} className="mx-auto text-[#8C8C8C] mb-3" />
-              <p className="font-body text-[#8C8C8C]">Kampaniya idarəetməsi tezliklə</p>
-            </div>
+            <>
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+                <div>
+                  <h1 className="font-heading font-bold text-xl">Hero bannerlər ({heroBanners.length})</h1>
+                  <p className="font-body text-sm text-[#8C8C8C] mt-1">
+                    Ana səhifənin əsas slider şəkilləri, CTA-ları, keçid linkləri və saniyələri.
+                  </p>
+                </div>
+                {user.role === "admin" && (
+                  <button
+                    type="button"
+                    data-testid="add-hero-banner-btn"
+                    onClick={() => setHeroBannerForm(createHeroBannerForm(heroBanners.length + 1))}
+                    className="bg-[#E05A33] hover:bg-[#D94A22] text-white px-4 py-2 rounded-full font-body font-semibold text-sm flex items-center justify-center gap-2"
+                  >
+                    <Plus size={16} /> Yeni banner
+                  </button>
+                )}
+              </div>
+
+              {heroBannerForm && (
+                <HeroBannerForm
+                  form={heroBannerForm}
+                  setForm={setHeroBannerForm}
+                  products={products}
+                  categories={categories}
+                  onSave={handleSaveHeroBanner}
+                  onCancel={() => setHeroBannerForm(null)}
+                  saving={heroBannerSaving}
+                />
+              )}
+
+              {loading ? (
+                <div className="flex justify-center py-12">
+                  <div className="w-8 h-8 border-2 border-[#E05A33] border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : heroBanners.length === 0 ? (
+                <div className="text-center py-16 bg-white rounded-2xl border border-gray-50">
+                  <Tag size={40} className="mx-auto text-[#8C8C8C] mb-3" />
+                  <p className="font-body text-[#8C8C8C]">Hələ hero banner yoxdur.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {heroBanners.map((banner) => (
+                    <div
+                      key={banner.id}
+                      data-testid={`admin-hero-banner-${banner.id}`}
+                      className="bg-white rounded-2xl border border-gray-50 p-3 sm:p-4 flex flex-col sm:flex-row gap-3 sm:items-center"
+                    >
+                      <div className="relative w-full sm:w-44 aspect-[16/9] rounded-xl overflow-hidden bg-[#F5F3F0] flex-shrink-0">
+                        {banner.image ? (
+                          <img src={banner.image} alt="" className="w-full h-full object-cover" />
+                        ) : (
+                          <ImageIcon size={20} className="absolute inset-0 m-auto text-[#8C8C8C]" />
+                        )}
+                        <span className={`absolute top-2 left-2 rounded-full px-2 py-1 text-[10px] font-body font-bold ${banner.is_active ? "bg-green-500 text-white" : "bg-white/80 text-[#595959]"}`}>
+                          {banner.is_active ? "Aktiv" : "Passiv"}
+                        </span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <h3 className="font-heading font-bold text-base text-[#1A1A1A] truncate">{banner.title}</h3>
+                          <span className="rounded-full bg-[#FFF0E6] px-2 py-1 text-[10px] font-body font-bold text-[#E05A33]">
+                            {banner.duration_seconds}s
+                          </span>
+                          <span className="rounded-full bg-[#F5F3F0] px-2 py-1 text-[10px] font-body font-bold text-[#595959]">
+                            Sıra {banner.order}
+                          </span>
+                        </div>
+                        {banner.subtitle && (
+                          <p className="font-body text-sm text-[#595959] mt-1 line-clamp-1">{banner.subtitle}</p>
+                        )}
+                        <div className="flex flex-wrap gap-2 mt-2 text-[11px] font-body text-[#8C8C8C]">
+                          <span>CTA: {banner.cta_text || "boş"}</span>
+                          <span>Tip: {banner.action_type}</span>
+                          {banner.action_value && <span className="truncate max-w-[260px]">Link: {banner.action_value}</span>}
+                        </div>
+                      </div>
+                      {user.role === "admin" && (
+                        <div className="flex sm:flex-col gap-1 self-end sm:self-center">
+                          <button
+                            type="button"
+                            onClick={() => setHeroBannerForm(heroBannerToForm(banner))}
+                            className="p-2 rounded-lg hover:bg-gray-50"
+                            aria-label="Hero banneri redaktə et"
+                          >
+                            <Pencil size={15} className="text-[#595959]" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteHeroBanner(banner.id)}
+                            className="p-2 rounded-lg hover:bg-red-50"
+                            aria-label="Hero banneri sil"
+                          >
+                            <Trash2 size={15} className="text-red-400" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
           )}
         </div>
       </main>

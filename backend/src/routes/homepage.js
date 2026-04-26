@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { getDB } from "../db.js";
 import { publicCategory, publicProduct } from "../util.js";
+import { ensureDefaultHeroBanners, publicHeroBanner } from "../heroBanners.js";
 
 const r = Router();
 
@@ -20,9 +21,11 @@ function uniqueById(items) {
 
 r.get("/", async (_req, res) => {
   const db = getDB();
+  await ensureDefaultHeroBanners(db);
 
-  const [categories, recentProducts, topRatedProducts] = await Promise.all([
+  const [categories, heroBanners, recentProducts, topRatedProducts] = await Promise.all([
     db.collection("categories").find().sort({ name: 1 }).toArray(),
+    db.collection("hero_banners").find({ is_active: { $ne: false } }).sort({ order: 1, _id: 1 }).toArray(),
     db.collection("products").find().sort({ _id: -1 }).limit(24).toArray(),
     db.collection("products").find().sort({ review_count: -1, rating: -1, _id: -1 }).limit(24).toArray(),
   ]);
@@ -40,6 +43,7 @@ r.get("/", async (_req, res) => {
   res.set("Cache-Control", "public, max-age=10, stale-while-revalidate=60");
   res.json({
     categories: categories.map(publicCategory),
+    hero_banners: heroBanners.map(publicHeroBanner),
     flash_deals: flashDeals.map(publicProduct),
     trending: trendingProducts.map(publicProduct),
     recommended: recommendedProducts.map(publicProduct),

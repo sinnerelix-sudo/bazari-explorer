@@ -227,6 +227,19 @@ Keep the local cart/payment flow testable while finishing production deployment 
   - Vercel production deploy `dpl_AdSDwSTUBfHPNKVAaFkZuvahZ1bR` completed and was aliased to `www.bazari.site`
   - live mobile CDP verification passed on `/product/69ea342614e252d11f447f26`: thumbnail tap changed the image, swipe right/left changed images, active thumbnail state updated, runtime exceptions were `0`, and failed requests were `0`
 
+- On 2026-04-26, admin-editable homepage hero banners were implemented locally:
+  - new backend helper `backend/src/heroBanners.js` normalizes, validates, serializes, and seeds hero banners
+  - MongoDB now has `hero_banners` indexes for active ordering and sparse seed keys
+  - `GET /api/homepage` now returns active `hero_banners`
+  - admin routes were added under `/api/admin/hero-banners` for list/create/update/delete
+  - each banner supports image, title, subtitle, eyebrow, CTA text, duration seconds, order, active state, and action config
+  - action types support no link, internal product/category path, external URL, and coupon copy
+  - if no banners exist, two starter banners are seeded from real product/category data so the admin can edit them afterward
+  - `src/components/home/HeroBanner.jsx` now supports per-banner autoplay timing, prev/next, dots, mobile swipe/drag, CTA internal navigation, external redirect, and coupon copy feedback
+  - `src/pages/AdminPanel.jsx` now exposes the old campaigns tab as `Hero bannerlər` with image upload/URL, preview, CTA/link/duration/order/active controls, and product/category quick target selection
+  - local verification passed: backend `node --check` for touched files, root `npm.cmd run build`, and a temporary backend smoke returned `homepage_hero_banners = 2` plus `admin_hero_banners = 2`
+  - this feature is not yet documented as production-deployed in this handoff unless a later note adds the commit/deploy IDs
+
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:
   - production `GET https://api.bazari.site/api/homepage` was confirmed broken first (`404`)

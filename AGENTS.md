@@ -200,3 +200,28 @@
   - active thumbnail state updated correctly
   - runtime exception count `0`
   - failed request count `0`
+
+## 2026-04-26 Admin Hero Banner Notes
+- The user asked for the homepage to have an admin-editable hero banner slider with one or two starter/mock banners.
+- Backend support was added for a MongoDB `hero_banners` collection:
+  - public homepage payload now includes active `hero_banners`
+  - admin CRUD routes are available under `/api/admin/hero-banners`
+  - each banner supports title, subtitle, eyebrow, image URL/upload URL, CTA text, action type, action value, active state, order, and per-banner duration seconds
+  - action types are `none`, `internal`, `external`, and `coupon`
+  - internal links must start with `/`, external links must be `http`/`https`, and coupon actions copy the configured code
+  - if the collection is empty, two starter banners are seeded from live product/category data so the admin can edit them afterward
+- `src/components/home/HeroBanner.jsx` was upgraded without redesigning the page:
+  - per-banner autoplay timing uses `duration_seconds` / `duration_ms`
+  - manual prev/next, dots, and mobile pointer swipe/drag are supported
+  - CTA clicks navigate internal links, redirect external links, or copy coupon codes
+  - blank CTA text hides the button
+- `src/pages/AdminPanel.jsx` now uses the old campaigns tab as `Hero bannerlər`:
+  - admins can create, edit, delete, activate/deactivate, order, upload/change image, set duration, set CTA text, choose action type, and select product/category internal targets
+  - sellers do not get hero-banner admin data
+- Verification passed:
+  - `node --check backend/src/heroBanners.js`
+  - `node --check backend/src/routes/admin.js`
+  - `node --check backend/src/routes/homepage.js`
+  - `node --check backend/src/db.js`
+  - `npm.cmd run build`
+  - temporary local backend smoke returned `homepage_hero_banners = 2` and `admin_hero_banners = 2`
