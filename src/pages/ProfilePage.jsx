@@ -21,10 +21,11 @@ export default function ProfilePage() {
   const [activeSection, setActiveSection] = useState("overview");
 
   useEffect(() => {
+    if (authLoading) return;
     if (!user) { navigate("/login"); return; }
     if (user.role === "admin" || user.role === "seller") { navigate("/admin"); return; }
     loadNotifications();
-  }, [user]);
+  }, [user, authLoading]);
 
   const loadNotifications = async () => {
     try {

@@ -40,7 +40,7 @@ function loadCategories() {
 export default function MobileBottomNav() {
   const location = useLocation();
   const { cart } = useCart();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [categoryOpen, setCategoryOpen] = useState(false);
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(false);
@@ -204,7 +204,7 @@ export default function MobileBottomNav() {
           {navItems.map((item) => {
             const Icon = item.icon;
             const isActive = active === item.id || (categoryOpen && item.id === "categories");
-            const to = item.id === "profile" ? (user ? (user.role === "admin" ? "/admin" : "/profile") : "/login") : item.to;
+            const to = item.id === "profile" ? (authLoading ? "/profile" : (user ? (user.role === "admin" ? "/admin" : "/profile") : "/login")) : item.to;
             const content = (
               <>
                 <div className="relative">

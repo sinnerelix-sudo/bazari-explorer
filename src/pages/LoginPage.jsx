@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Eye, EyeOff, Mail, Lock, User, Phone } from "lucide-react";
@@ -23,9 +23,18 @@ export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { login, register } = useAuth();
+  const { user, login, register, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!authLoading && user) {
+      if (user.role === "admin" || user.role === "seller") {
+        navigate("/admin");
+      } else {
+        navigate("/profile");
+      }
+    }
+  }, [user, authLoading, navigate]);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
