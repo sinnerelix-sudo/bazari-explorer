@@ -61,6 +61,11 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - the homepage `HeroBanner` component now supports admin timing, dots, prev/next, swipe/drag, and CTA actions
   - the admin campaigns tab was converted to `Hero bannerlər` with image upload/URL, live preview, CTA/link/duration/order/active fields, and product/category quick target selection
   - verification passed: backend `node --check`, root `npm.cmd run build`, and temporary local API smoke with `homepage_hero_banners = 2` and `admin_hero_banners = 2`
+  - commit `8785b3e` pushed to `main`
+  - Vercel production deploy `dpl_C8CeKpJyhfuG64ZKJTbhkGXYBQVe` completed and was aliased to `https://www.bazari.site`
+  - Render backend picked up the push; live homepage API now returns `hero_banners = 2`
+  - live smoke passed for `www.bazari.site`, apex redirect, API health, public payment methods, and WhatsApp configuration
+  - live mobile CDP verification passed: hero exists, 2 dots visible, CTA visible, dot click and swipe changed banners, runtime exceptions `0`, failed requests `0`
 - The live storefront mismatch is now fixed on production:
   - `GET https://api.bazari.site/api/homepage` is live and returns `200`
   - homepage product sections no longer fall back to static showcase cards

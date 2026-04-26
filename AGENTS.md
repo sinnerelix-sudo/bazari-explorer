@@ -225,3 +225,23 @@
   - `node --check backend/src/db.js`
   - `npm.cmd run build`
   - temporary local backend smoke returned `homepage_hero_banners = 2` and `admin_hero_banners = 2`
+- Commit pushed to `main`: `8785b3e` - `Add admin managed hero banners`.
+- Vercel production deploy completed:
+  - deployment id: `dpl_C8CeKpJyhfuG64ZKJTbhkGXYBQVe`
+  - deployment url: `https://bazari-explorer-hfefb7w4p-metrekareup1-3268s-projects.vercel.app`
+  - alias confirmed on `https://www.bazari.site`
+- Render backend picked up the push; live `GET https://api.bazari.site/api/homepage` returned `hero_banners = 2`.
+- Live smoke after deploy passed:
+  - `https://www.bazari.site` -> `200`
+  - `https://bazari.site` -> `308` redirect to `https://www.bazari.site/`
+  - `https://api.bazari.site/api/health` -> `200`
+  - public payment payload still has `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`
+- Live mobile CDP verification on `https://www.bazari.site` passed:
+  - hero banner exists
+  - 2 hero dots visible
+  - CTA button visible
+  - dot click changed banner/image
+  - swipe changed banner/image back
+  - `Something went wrong` absent
+  - runtime exception count `0`
+  - failed request count `0`

@@ -238,7 +238,15 @@ Keep the local cart/payment flow testable while finishing production deployment 
   - `src/components/home/HeroBanner.jsx` now supports per-banner autoplay timing, prev/next, dots, mobile swipe/drag, CTA internal navigation, external redirect, and coupon copy feedback
   - `src/pages/AdminPanel.jsx` now exposes the old campaigns tab as `Hero bannerlər` with image upload/URL, preview, CTA/link/duration/order/active controls, and product/category quick target selection
   - local verification passed: backend `node --check` for touched files, root `npm.cmd run build`, and a temporary backend smoke returned `homepage_hero_banners = 2` plus `admin_hero_banners = 2`
-  - this feature is not yet documented as production-deployed in this handoff unless a later note adds the commit/deploy IDs
+  - commit pushed to `main`: `8785b3e` - `Add admin managed hero banners`
+  - Vercel production deploy completed:
+    - deployment id: `dpl_C8CeKpJyhfuG64ZKJTbhkGXYBQVe`
+    - deployment url: `https://bazari-explorer-hfefb7w4p-metrekareup1-3268s-projects.vercel.app`
+    - alias confirmed on `https://www.bazari.site`
+  - Render backend picked up the pushed backend code; live `GET https://api.bazari.site/api/homepage` now returns `hero_banners = 2`
+  - live smoke passed for `www.bazari.site`, apex redirect, API health, and public payment methods
+  - public payment payload still shows `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`
+  - live mobile CDP verification passed on `https://www.bazari.site`: hero exists, 2 dots visible, CTA visible, dot click changed the banner/image, swipe changed it back, `Something went wrong` absent, runtime exceptions `0`, failed requests `0`
 
 ## What has already been done
 - On 2026-04-23 later in the live-first production pass, the storefront/homepage mismatch was fixed on the live site:
