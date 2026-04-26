@@ -77,7 +77,16 @@
 - Local verification passed:
   - `npm.cmd run build`
   - production bundle scan found `flash-sale-section`, `product-flash-toggle`, and `Flash Endirimlər`
-- Deployment is pending in this note until the new frontend bundle is pushed and aliased to `https://www.bazari.site`.
+- Commit pushed to `main`: `8ff4191` - `Clarify admin flash deal controls`.
+- Vercel production deploy completed:
+  - deployment id: `dpl_BiLLXgspu9ddecXpFdZodmEgvA44`
+  - deployment url: `https://bazari-explorer-ot3n139ei-metrekareup1-3268s-projects.vercel.app`
+  - alias confirmed on `https://www.bazari.site`
+- Live smoke after deploy passed:
+  - `https://www.bazari.site/admin` -> `200`
+  - production bundle `assets/App-CAmeYkMQ.js` contains `flash-sale-section`, `product-flash-toggle`, and `Flash Endirimlər`
+  - `https://api.bazari.site/api/health` -> `200`
+  - public payment payload still has `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`
 - During live smoke, the first API request after idle took about `16s`, then warm API calls dropped to roughly `150-260ms`; this indicates Render cold-start remains the next infrastructure-level speed limit, separate from the frontend mock/route fix.
 
 ## 2026-04-25 Live Resume Notes

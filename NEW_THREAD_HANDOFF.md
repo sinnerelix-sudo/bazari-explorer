@@ -567,4 +567,13 @@ Current live summary as of 2026-04-26:
 - Local verification passed:
   - `npm.cmd run build`
   - bundle scan found the new flash admin form markers
-- Production deployment is pending from this note until the new bundle is pushed and aliased to `https://www.bazari.site`.
+- Commit pushed to `main`: `8ff4191` - `Clarify admin flash deal controls`.
+- Vercel production deploy completed:
+  - deployment id: `dpl_BiLLXgspu9ddecXpFdZodmEgvA44`
+  - deployment url: `https://bazari-explorer-ot3n139ei-metrekareup1-3268s-projects.vercel.app`
+  - alias confirmed on `https://www.bazari.site`
+- Live smoke after deploy passed:
+  - `https://www.bazari.site/admin` -> `200`
+  - production bundle `assets/App-CAmeYkMQ.js` contains `flash-sale-section`, `product-flash-toggle`, and `Flash Endirimlər`
+  - `https://api.bazari.site/api/health` -> `200`
+  - public payment payload still has `whatsapp_phone = "994557252025"` and `whatsapp_configured = true`

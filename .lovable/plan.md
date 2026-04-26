@@ -31,7 +31,10 @@ Finish the `bazari.site` production cutover without redesigning the app:
   - active state shows `Flash Endirimli qiyməti`, `Ümumi limit`, and `Bir müştəri üçün limit`
   - existing product edit initializes flash fields from both top-level `flash_sale_*` and nested `flash_sale` data
   - local `npm.cmd run build` passed and bundle scan found the new flash admin form markers
-  - production deployment is pending from this note
+  - commit `8ff4191` pushed to `main`
+  - Vercel production deploy `dpl_BiLLXgspu9ddecXpFdZodmEgvA44` completed and was aliased to `www.bazari.site`
+  - live `https://www.bazari.site/admin` returned `200`
+  - live production bundle `assets/App-CAmeYkMQ.js` contains `flash-sale-section`, `product-flash-toggle`, and `Flash Endirimlər`
 - On 2026-04-26, flash deals and category navigation were completed locally:
   - mobile `Endirimlər` now opens the new `Flash Endirimlər` page at `/flash-deals`
   - hamburger menu `Kateqoriyalar` links to the new `/categories` page
