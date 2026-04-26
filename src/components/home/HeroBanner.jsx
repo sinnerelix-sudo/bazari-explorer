@@ -129,7 +129,7 @@ export default function HeroBanner({ banners = [] }) {
             </div>
           ))}
 
-          <div className="absolute inset-0 flex items-center pb-12 sm:pb-0 px-6 sm:px-12 lg:px-16">
+          <div className="absolute inset-0 flex items-center pb-20 sm:pb-0 px-6 sm:px-12 lg:px-16">
             <div className="max-w-md">
               <span className="inline-block text-white/80 text-xs sm:text-sm font-body font-medium mb-2 tracking-wide uppercase">
                 {banner.eyebrow || "Xüsusi təklif"}
