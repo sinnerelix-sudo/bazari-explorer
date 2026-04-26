@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useCallback } from "react";
+import { createContext, useContext, useState, useCallback, useEffect } from "react";
 import axios from "axios";
 import { useAuth } from "./AuthContext";
 
@@ -9,6 +9,16 @@ export function CartProvider({ children }) {
   const { user } = useAuth();
   const [cart, setCart] = useState({ items: [], total: 0, count: 0 });
   const [loading, setLoading] = useState(false);
+  const [deliveryConfig, setDeliveryConfig] = useState({ fee: 5, free_limit: 50 });
+
+  const fetchDeliveryConfig = useCallback(async () => {
+    try {
+      const { data } = await axios.get(`${API}/settings/delivery`);
+      setDeliveryConfig(data);
+    } catch (err) {
+      console.error("Delivery config load failed:", err);
+    }
+  }, []);
 
   const fetchCart = useCallback(async () => {
     if (!user) return;
@@ -19,6 +29,10 @@ export function CartProvider({ children }) {
       // not logged in
     }
   }, [user]);
+
+  useEffect(() => {
+    fetchDeliveryConfig();
+  }, [fetchDeliveryConfig]);
 
   const addToCart = async (productId, quantity = 1) => {
     if (!user) {
@@ -65,8 +79,27 @@ export function CartProvider({ children }) {
     }
   };
 
+  const isFreeDelivery = cart.total >= deliveryConfig.free_limit;
+  const currentDeliveryFee = isFreeDelivery ? 0 : deliveryConfig.fee;
+  const finalTotal = cart.total + currentDeliveryFee;
+
   return (
-    <CartContext.Provider value={{ cart, loading, fetchCart, addToCart, updateQuantity, removeFromCart, clearCart }}>
+    <CartContext.Provider 
+      value={{ 
+        cart, 
+        loading, 
+        deliveryConfig,
+        currentDeliveryFee,
+        isFreeDelivery,
+        finalTotal,
+        fetchCart, 
+        addToCart, 
+        updateQuantity, 
+        removeFromCart, 
+        clearCart,
+        fetchDeliveryConfig
+      }}
+    >
       {children}
     </CartContext.Provider>
   );

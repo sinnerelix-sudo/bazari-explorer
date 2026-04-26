@@ -16,6 +16,7 @@ import adminRoutes from "./routes/admin.js";
 import paymentMethodsRoutes from "./routes/paymentMethods.js";
 import homepageRoutes from "./routes/homepage.js";
 import { ensureBootstrapAdmin } from "./bootstrap.js";
+import settingsRoutes from "./routes/settings.js";
 import { startKeepAlive } from "./keepAlive.js";
 
 const app = express();
@@ -48,6 +49,7 @@ app.use("/api/search", searchRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/push", pushRoutes);
 app.use("/api/payment-methods", paymentMethodsRoutes);
+app.use("/api/settings", settingsRoutes);
 app.use("/api/homepage", homepageRoutes);
 app.use("/api/admin", adminRoutes);
 

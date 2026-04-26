@@ -687,6 +687,9 @@ export default function AdminPanel() {
   const [whatsappUpdatedAt, setWhatsappUpdatedAt] = useState(null);
   const [whatsappSaving, setWhatsappSaving] = useState(false);
   const [whatsappFeedback, setWhatsappFeedback] = useState("");
+  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [freeLimit, setFreeLimit] = useState(0);
+  const [deliverySaving, setDeliverySaving] = useState(false);
   const [editProd, setEditProd] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -742,6 +745,9 @@ export default function AdminPanel() {
         setPaymentMethods(data?.methods || []);
         setWhatsappPhone(data?.whatsapp_phone || "");
         setWhatsappDraft(data?.whatsapp_phone || "");
+        const delivRes = await ax.get("/settings/delivery");
+        setDeliveryFee(delivRes.data.fee || 0);
+        setFreeLimit(delivRes.data.free_limit || 0);
         setWhatsappSource(data?.whatsapp_source || "unset");
         setWhatsappUpdatedAt(data?.whatsapp_updated_at || null);
         setWhatsappFeedback("");
@@ -813,6 +819,17 @@ export default function AdminPanel() {
           ? "WhatsApp sifariş nömrəsi yeniləndi."
           : "WhatsApp sifariş nömrəsi sıfırlandı."
       );
+  const handleSaveDelivery = async () => {
+    setDeliverySaving(true);
+    try {
+      await ax.put("/settings/delivery", { fee: Number(deliveryFee), free_limit: Number(freeLimit) });
+      window.alert("Çatdırılma tənzimləmələri yadda saxlanıldı");
+    } catch (err) {
+      window.alert(err.response?.data?.error || "Xəta baş verdi");
+    } finally {
+      setDeliverySaving(false);
+    }
+  };
     } catch (err) {
       setWhatsappFeedback(err?.response?.data?.error || "WhatsApp nömrəsini saxlamaq mümkün olmadı.");
     } finally {
@@ -1189,6 +1206,50 @@ export default function AdminPanel() {
               <div className="flex items-center justify-between mb-5">
                 <div>
                   <h1 className="font-heading font-bold text-xl">{"Ödəniş metodları"}</h1>
+              <div className="mb-8 bg-white rounded-2xl border-2 border-[#FFF0E6] p-5 sm:p-6 shadow-sm">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-10 h-10 rounded-xl bg-[#E05A33] text-white flex items-center justify-center">
+                    <Package size={20} />
+                  </div>
+                  <div>
+                    <h2 className="font-heading font-bold text-lg text-[#1A1A1A]">Çatdırılma Tənzimləmələri</h2>
+                    <p className="font-body text-xs text-[#8C8C8C]">Pulsuz çatdırılma limiti və standart haqq</p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div className="space-y-2">
+                    <label className="block font-body text-sm font-semibold text-[#595959]">Standart çatdırılma haqqı (₼)</label>
+                    <input
+                      type="number"
+                      value={deliveryFee}
+                      onChange={(e) => setDeliveryFee(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] focus:bg-white outline-none font-body text-sm transition-all"
+                      placeholder="Məsələn: 5"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block font-body text-sm font-semibold text-[#595959]">Pulsuz çatdırılma limiti (₼)</label>
+                    <input
+                      type="number"
+                      value={freeLimit}
+                      onChange={(e) => setFreeLimit(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] focus:bg-white outline-none font-body text-sm transition-all"
+                      placeholder="Məsələn: 50"
+                    />
+                  </div>
+                </div>
+
+                <div className="mt-6 pt-6 border-t border-gray-50">
+                  <button
+                    onClick={handleSaveDelivery}
+                    disabled={deliverySaving}
+                    className="bg-[#E05A33] hover:bg-[#D94A22] text-white px-8 py-3 rounded-full font-body font-bold text-sm transition-all shadow-lg shadow-[#E05A33]/20 active:scale-95 disabled:opacity-50"
+                  >
+                    {deliverySaving ? "Saxlanılır..." : "Tənzimləmələri Saxla"}
+                  </button>
+                </div>
+              </div>
                   <p className="font-body text-sm text-[#8C8C8C] mt-1">{"Checkout sifarişləri WhatsApp-a yönləndiriləcək."}</p>
                 </div>
                 <div className="px-3 py-2 rounded-full bg-[#F5F3F0] text-xs font-body text-[#595959]">

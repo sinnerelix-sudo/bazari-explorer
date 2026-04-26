@@ -36,7 +36,7 @@ function normalizeWhatsappPhone(phone) {
   return String(phone || "").replace(/[^\d]/g, "");
 }
 
-function buildWhatsappMessage({ user, items, total, paymentMethodName }) {
+function buildWhatsappMessage({ user, items, subtotal, deliveryFee, total, paymentMethodName }) {
   const lines = [
     "Salam, yeni sifariş vermək istəyirəm.",
     "",
@@ -50,18 +50,20 @@ function buildWhatsappMessage({ user, items, total, paymentMethodName }) {
 
   items.forEach((item, index) => {
     const product = item.product;
-    const subtotal = Number(product?.effective_price || product?.price || 0) * Number(item.quantity || 0);
-    lines.push(`${index + 1}. ${product?.name || "Məhsul"} x${item.quantity} - ${formatPrice(subtotal)} ₼`);
+    const itemSubtotal = Number(product?.effective_price || product?.price || 0) * Number(item.quantity || 0);
+    lines.push(`${index + 1}. ${product?.name || "Məhsul"} x${item.quantity} - ${formatPrice(itemSubtotal)} ₼`);
   });
 
   lines.push("");
-  lines.push(`Cəmi: ${formatPrice(total)} ₼`);
+  lines.push(`Məhsullar: ${formatPrice(subtotal)} ₼`);
+  lines.push(`Çatdırılma: ${deliveryFee > 0 ? formatPrice(deliveryFee) + " ₼" : "Pulsuz"}`);
+  lines.push(`Cəmi ödəniləcək: ${formatPrice(total)} ₼`);
 
   return lines.join("\n");
 }
 
 export default function CartPage() {
-  const { cart, fetchCart, updateQuantity, removeFromCart, clearCart } = useCart();
+  const { cart, fetchCart, updateQuantity, removeFromCart, clearCart, deliveryConfig, currentDeliveryFee, isFreeDelivery, finalTotal } = useCart();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [paymentMethods, setPaymentMethods] = useState([]);
@@ -119,7 +121,9 @@ export default function CartPage() {
     const message = buildWhatsappMessage({
       user,
       items,
-      total: cart.total,
+      subtotal: cart.total,
+      deliveryFee: currentDeliveryFee,
+      total: finalTotal,
       paymentMethodName: selectedMethod.name,
     });
 
@@ -276,15 +280,24 @@ export default function CartPage() {
                   </div>
                   <div className="flex justify-between font-body text-sm">
                     <span className="text-[#8C8C8C]">{"Çatdırılma"}</span>
-                    <span className="text-green-600 font-medium">Pulsuz</span>
+                    {isFreeDelivery ? (
+                      <span className="text-green-600 font-medium">Pulsuz</span>
+                    ) : (
+                      <span className="text-[#1A1A1A] font-medium">{formatPrice(currentDeliveryFee)} {"₼"}</span>
+                    )}
                   </div>
+                  {!isFreeDelivery && deliveryConfig.free_limit > 0 && (
+                    <p className="text-[10px] text-[#E05A33] font-body bg-[#FFF0E6] p-2 rounded-lg mt-1">
+                      Daha <b>{formatPrice(deliveryConfig.free_limit - cart.total)} ₼</b>-lıq məhsul əlavə edərək pulsuz çatdırılma əldə edə bilərsiniz!
+                    </p>
+                  )}
                 </div>
 
                 <div className="border-t border-gray-100 pt-3 mb-5">
                   <div className="flex justify-between">
                     <span className="font-heading font-bold text-[#1A1A1A]">{"Cəmi"}</span>
                     <span className="font-heading font-bold text-lg text-[#E05A33]">
-                      {formatPrice(cart.total)} {"₼"}
+                      {formatPrice(finalTotal)} {"₼"}
                     </span>
                   </div>
                 </div>
