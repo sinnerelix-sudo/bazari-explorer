@@ -71,4 +71,15 @@ r.post("/2fa/verify", authRequired, async (req, res) => {
   res.json({ ok: true });
 });
 
+r.put("/profile", authRequired, async (req, res) => {
+  const { name, phone } = req.body || {};
+  if (!name) return res.status(400).json({ error: "Ad boş ola bilməz" });
+  const db = getDB();
+  await db.collection("users").updateOne(
+    { _id: req.user._id },
+    { $set: { name, phone: phone || null, updated_at: new Date() } }
+  );
+  const updatedUser = await db.collection("users").findOne({ _id: req.user._id });
+  res.json(publicUser(updatedUser));
+});
 export default r;

@@ -5,7 +5,7 @@ import { useCart } from "@/contexts/CartContext";
 import axios from "axios";
 import {
   User, ShoppingBag, Heart, Bell, Settings, LogOut, ChevronRight,
-  Package, MapPin, CreditCard, ChevronLeft
+  Package, MapPin, CreditCard, ChevronLeft, Mail, Phone, Lock, Save, Trash2, Edit2, Check
 } from "lucide-react";
 import Header from "@/components/layout/Header";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
@@ -18,13 +18,50 @@ export default function ProfilePage() {
   const { cart } = useCart();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [addresses, setAddresses] = useState([]);
+  const [favorites, setFavorites] = useState([]);
+  const [profileForm, setProfileForm] = useState({ name: user?.name || "", phone: user?.phone || "" });
+  const [updatingProfile, setUpdatingProfile] = useState(false);
   const [activeSection, setActiveSection] = useState("overview");
 
   useEffect(() => {
+    if (activeSection === "orders") loadOrders();
+    if (activeSection === "addresses") loadAddresses();
+    if (activeSection === "favorites") loadFavorites();
     if (authLoading) return;
     if (!user) { navigate("/login"); return; }
     if (user.role === "admin" || user.role === "seller") { navigate("/admin"); return; }
     loadNotifications();
+  const loadOrders = async () => {
+    // Mock orders for now
+    setOrders([
+      { id: "ORD-001", date: "2026-04-20", total: 53.85, status: "Tamamlanıb", items: [{ name: "Super Crest 2400W", qty: 1 }] },
+    ]);
+  };
+  const loadAddresses = async () => {
+    setAddresses([
+      { id: 1, title: "Ev", address: "Bakı ş., Nərimanov r., A.Nemətulla küç. 45", is_default: true },
+    ]);
+  };
+  const loadFavorites = async () => {
+    try {
+      const { data } = await axios.get(`${API}/products?limit=10`, { withCredentials: true });
+      setFavorites(data.products || []);
+    } catch {}
+  };
+  const handleUpdateProfile = async (e) => {
+    e.preventDefault();
+    setUpdatingProfile(true);
+    try {
+      await axios.put(`${API}/auth/profile`, profileForm, { withCredentials: true });
+      window.alert("Profil yeniləndi");
+    } catch (err) {
+      window.alert(err.response?.data?.error || "Xəta baş verdi");
+    } finally {
+      setUpdatingProfile(false);
+    }
+  };
   }, [user, authLoading]);
 
   const loadNotifications = async () => {
@@ -47,7 +84,6 @@ export default function ProfilePage() {
     { id: "favorites", label: "Sevimlilər", icon: Heart, desc: "Sevimli məhsullar", badge: null },
     { id: "notifications", label: "Bildirişlər", icon: Bell, desc: "Bütün bildirişlər", badge: notifications.filter((n) => !n.is_read).length || null },
     { id: "addresses", label: "Ünvanlarım", icon: MapPin, desc: "Çatdırılma ünvanları", badge: null },
-    { id: "payment", label: "Ödəniş üsulları", icon: CreditCard, desc: "Kart məlumatları", badge: null },
     { id: "settings", label: "Hesab parametrləri", icon: Settings, desc: "Profil məlumatları", badge: null },
   ];
 
@@ -124,9 +160,6 @@ export default function ProfilePage() {
         {/* Push Notification Toggle */}
         <div className="mt-4">
           <PushNotificationToggle />
-        </div>
-
-        {/* Notification section expanded */}
         {activeSection === "notifications" && (
           <div data-testid="profile-notifications" className="mt-3 bg-white rounded-xl border border-gray-50 divide-y divide-gray-50 overflow-hidden">
             {notifications.length === 0 ? (
@@ -142,6 +175,103 @@ export default function ProfilePage() {
             )}
           </div>
         )}
+
+        {activeSection === "orders" && (
+          <div className="mt-3 space-y-2">
+            {orders.length === 0 ? (
+              <div className="bg-white p-8 rounded-xl border border-gray-50 text-center font-body text-sm text-[#8C8C8C]">Sifarişiniz yoxdur</div>
+            ) : (
+              orders.map((o) => (
+                <div key={o.id} className="bg-white p-4 rounded-xl border border-gray-50">
+                  <div className="flex justify-between mb-2">
+                    <span className="font-heading font-bold text-sm">{o.id}</span>
+                    <span className="text-xs text-green-600 font-semibold">{o.status}</span>
+                  </div>
+                  {o.items.map((i, idx) => (
+                    <p key={idx} className="text-sm font-body text-[#595959]">{i.name} x {i.qty}</p>
+                  ))}
+                  <div className="mt-2 pt-2 border-t border-gray-50 flex justify-between">
+                    <span className="text-xs text-[#8C8C8C]">{o.date}</span>
+                    <span className="font-heading font-bold text-[#E05A33]">{o.total} ₼</span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {activeSection === "favorites" && (
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            {favorites.length === 0 ? (
+              <div className="col-span-2 bg-white p-8 rounded-xl border border-gray-50 text-center font-body text-sm text-[#8C8C8C]">Sevimli məhsulunuz yoxdur</div>
+            ) : (
+              favorites.map((f) => (
+                <Link key={f.id} to={`/product/${f.id}`} className="bg-white rounded-xl border border-gray-50 overflow-hidden">
+                  <img src={f.images?.[0]} className="aspect-square object-cover" alt="" />
+                  <div className="p-2">
+                    <p className="text-xs font-body font-semibold truncate">{f.name}</p>
+                    <p className="text-sm font-heading font-bold text-[#E05A33]">{f.price} ₼</p>
+                  </div>
+                </Link>
+              ))
+            )}
+          </div>
+        )}
+
+        {activeSection === "addresses" && (
+          <div className="mt-3 space-y-2">
+            {addresses.map((a) => (
+              <div key={a.id} className="bg-white p-4 rounded-xl border border-gray-50">
+                <div className="flex justify-between items-start mb-1">
+                  <h4 className="font-heading font-bold text-sm">{a.title}</h4>
+                  {a.is_default && <span className="text-[10px] bg-green-50 text-green-600 px-2 py-0.5 rounded-full font-bold">Əsas</span>}
+                </div>
+                <p className="text-sm font-body text-[#595959]">{a.address}</p>
+                <div className="mt-3 flex gap-2">
+                  <button className="text-xs font-body font-semibold text-[#595959] flex items-center gap-1"><Edit2 size={12}/> Redaktə</button>
+                  <button className="text-xs font-body font-semibold text-red-400 flex items-center gap-1"><Trash2 size={12}/> Sil</button>
+                </div>
+              </div>
+            ))}
+            <button className="w-full py-3 rounded-xl border-2 border-dashed border-gray-200 text-[#8C8C8C] font-body text-sm hover:border-[#E05A33] hover:text-[#E05A33] transition-all">+ Yeni ünvan əlavə et</button>
+          </div>
+        )}
+
+        {activeSection === "settings" && (
+          <form onSubmit={handleUpdateProfile} className="mt-3 bg-white p-5 rounded-xl border border-gray-50 space-y-4">
+            <div>
+              <label className="block text-xs font-body text-[#8C8C8C] mb-1">Ad Soyad</label>
+              <div className="relative">
+                <User size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
+                <input
+                  value={profileForm.name}
+                  onChange={(e) => setProfileForm({ ...profileForm, name: e.target.value })}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none focus:ring-1 focus:ring-[#E05A33]"
+                />
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-body text-[#8C8C8C] mb-1">Telefon</label>
+              <div className="relative">
+                <Phone size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
+                <input
+                  value={profileForm.phone}
+                  onChange={(e) => setProfileForm({ ...profileForm, phone: e.target.value })}
+                  className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-[#F5F3F0] font-body text-sm outline-none focus:ring-1 focus:ring-[#E05A33]"
+                />
+              </div>
+            </div>
+            <button
+              disabled={updatingProfile}
+              className="w-full bg-[#E05A33] text-white py-3 rounded-full font-body font-semibold text-sm disabled:opacity-50"
+            >
+              {updatingProfile ? "Saxlanılır..." : "Yadda saxla"}
+            </button>
+          </form>
+        )}
+        </div>
+
+        {/* Notification section expanded */}
 
         {/* Logout */}
         <button
