@@ -5,7 +5,7 @@ import axios from "axios";
 // If it is missing, stay on relative /api instead of silently talking to an old host.
 const configuredBackendUrl =
   typeof import.meta !== "undefined"
-    ? import.meta.env?.VITE_BACKEND_URL || import.meta.env?.VITE_API_URL || ""
+    ? import.meta.env?.VITE_BACKEND_URL || import.meta.env?.VITE_API_URL || "https://api.bazari.site"
     : "";
 
 export const BACKEND_URL = configuredBackendUrl.replace(/\/$/, "");
