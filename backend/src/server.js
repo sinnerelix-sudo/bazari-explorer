@@ -39,6 +39,8 @@ app.use(express.json({ limit: "2mb" }));
 app.use(cookieParser());
 
 app.get("/", (_req, res) => res.json({ ok: true, service: "modamall-backend" }));
+app.get("/api/direct-test", (req, res) => res.json({ msg: "I AM RUNNING THIS CODE" }));
+
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
 app.use("/api/auth", authRoutes);
