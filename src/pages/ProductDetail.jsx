@@ -5,7 +5,9 @@ import {
   Truck, Shield, RefreshCw, Minus, Plus, ChevronRight, Check
 } from "lucide-react";
 import BonusPanel from "@/components/product/BonusPanel";
+import GuestBonusPanel from "@/components/product/GuestBonusPanel";
 import { useCart } from "@/contexts/CartContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import Header from "@/components/layout/Header";
 import MobileBottomNav from "@/components/layout/MobileBottomNav";
@@ -59,6 +61,8 @@ export default function ProductDetail() {
   const { addToCart } = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
   const [isBonusPanelOpen, setIsBonusPanelOpen] = useState(false);
+  const [isGuestPanelOpen, setIsGuestPanelOpen] = useState(false);
+  const { user } = useAuth();
 
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const dragStartX = useRef(null);
@@ -400,7 +404,7 @@ export default function ProductDetail() {
             </div>
 
               <button
-                onClick={() => setIsBonusPanelOpen(true)}
+                onClick={() => user ? setIsBonusPanelOpen(true) : setIsGuestPanelOpen(true)}
                 className="w-full py-4 rounded-full border-2 border-[#E05A33]/20 text-[#E05A33] font-body font-bold text-base hover:bg-[#E05A33]/5 transition-all flex items-center justify-center gap-2 mb-4"
               >
                 <Share2 size={18} /> Məhsulu sat və qazan
@@ -532,6 +536,7 @@ export default function ProductDetail() {
 
       
       <BonusPanel open={isBonusPanelOpen} onOpenChange={setIsBonusPanelOpen} product={product} />
+      <GuestBonusPanel open={isGuestPanelOpen} onOpenChange={setIsGuestPanelOpen} />
       <Footer />
       <MobileBottomNav />
     </div>
