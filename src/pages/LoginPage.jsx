@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { api } from "@/lib/api";
 import { useAuth } from "@/contexts/AuthContext";
-import { Eye, EyeOff, Mail, Lock, User, Phone } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, Check } from "lucide-react";
 import BrandMark from "@/components/layout/BrandMark";
 
 function formatApiError(payload, fallbackMessage) {
@@ -24,10 +24,12 @@ export default function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [otp, setOtp] = useState("");
+  
+  const [otpLoading, setOtpLoading] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isOtpVerified, setIsOtpVerified] = useState(false);
-  const [otpLoading, setOtpLoading] = useState(false);
+  const [generatedCode, setGeneratedCode] = useState("");
+  const [isWaitingForWhatsApp, setIsWaitingForWhatsApp] = useState(false);
 
   const { user, login, register, loading: authLoading } = useAuth();
   const navigate = useNavigate();
@@ -41,10 +43,6 @@ export default function LoginPage() {
       }
     }
   }, [user, authLoading, navigate]);
-  
-  
-  const [generatedCode, setGeneratedCode] = useState("");
-  const [isWaitingForWhatsApp, setIsWaitingForWaitingForWhatsApp] = useState(false);
 
   const handleGenerateCode = async () => {
     if (!phone) {
@@ -57,7 +55,7 @@ export default function LoginPage() {
       const { data } = await api.post("/otp/generate", { phone });
       setGeneratedCode(data.code);
       setIsOtpSent(true);
-      setIsWaitingForWaitingForWhatsApp(true);
+      setIsWaitingForWhatsApp(true);
     } catch (err) {
       setError(formatApiError(err.response?.data, "Kod yaradılmadı"));
     } finally {
@@ -74,7 +72,7 @@ export default function LoginPage() {
           const { data } = await api.get(`/otp/check-status?phone=${phone}`);
           if (data.verified) {
             setIsOtpVerified(true);
-            setIsWaitingForWaitingForWhatsApp(false);
+            setIsWaitingForWhatsApp(false);
             clearInterval(interval);
           }
         } catch (err) {
@@ -86,25 +84,22 @@ export default function LoginPage() {
   }, [isWaitingForWhatsApp, phone]);
 
   const handleWhatsAppRedirect = () => {
-    const businessPhone = "15556344242"; // Test number, ideally should be config
+    const businessPhone = "15556344242"; 
     const message = encodeURIComponent(generatedCode);
     window.open(`https://wa.me/${businessPhone}?text=${message}`, '_blank');
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
     setLoading(true);
     try {
-      
       if (isRegister) {
         if (!isOtpVerified) {
           setError("Zəhmət olmasa nömrənizi WhatsApp ilə təsdiqləyin");
           setLoading(false);
           return;
         }
-
         const user = await register(name, email, password, phone);
         if (user.role === "admin" || user.role === "seller") {
           navigate("/admin");
@@ -126,18 +121,14 @@ export default function LoginPage() {
     }
   };
 
-  
-
   return (
     <div data-testid="login-page" className="min-h-screen bg-[#FDFCFB] flex items-center justify-center px-4">
-        <div className="w-full max-w-md">
-          {/* Logo */}
-          <Link to="/" className="flex items-center justify-center gap-2 mb-8">
-            <BrandMark className="w-10 h-10 rounded-xl" />
-            <span className="font-heading font-bold text-2xl text-[#1A1A1A]">Bazari</span>
+      <div className="w-full max-w-md">
+        <Link to="/" className="flex items-center justify-center gap-2 mb-8">
+          <BrandMark className="w-10 h-10 rounded-xl" />
+          <span className="font-heading font-bold text-2xl text-[#1A1A1A]">Bazari</span>
         </Link>
 
-        {/* Card */}
         <div className="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 shadow-sm">
           <h1 className="font-heading font-bold text-xl text-[#1A1A1A] mb-1 text-center">
             {isRegister ? "Qeydiyyat" : "Daxil ol"}
@@ -147,13 +138,57 @@ export default function LoginPage() {
           </p>
 
           {error && (
-            <div data-testid="auth-error" className="bg-red-50 text-red-600 text-sm font-body p-3 rounded-xl mb-4">
+            <div data-testid="auth-error" className="bg-red-50 text-red-600 text-sm font-body p-3 rounded-xl mb-4 text-center">
               {error}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-                        {isRegister && (
+            {isRegister && (
+              <div className="relative">
+                <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
+                <input
+                  data-testid="register-name"
+                  type="text"
+                  placeholder="Ad Soyad"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  required
+                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] focus:bg-white outline-none font-body text-sm transition-all"
+                />
+              </div>
+            )}
+            
+            <div className="relative">
+              <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
+              <input
+                data-testid="login-email"
+                type="email"
+                placeholder="Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] focus:bg-white outline-none font-body text-sm transition-all"
+              />
+            </div>
+
+            <div className="relative">
+              <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
+              <input
+                data-testid="login-password"
+                type={showPass ? "text" : "password"}
+                placeholder="Parol"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                className="w-full pl-11 pr-11 py-3 rounded-xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] focus:bg-white outline-none font-body text-sm transition-all"
+              />
+              <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8C8C8C]">
+                {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+
+            {isRegister && (
               <div className="space-y-3">
                 <div className="relative flex flex-col gap-3">
                   <div className="relative">
@@ -182,7 +217,7 @@ export default function LoginPage() {
 
                   {isOtpSent && !isOtpVerified && (
                     <div className="bg-[#FFF7F2] border border-[#E05A33]/20 p-4 rounded-2xl animate-in fade-in zoom-in duration-300">
-                       <p className="font-body text-xs text-[#595959] text-center mb-3">
+                       <p className="font-body text-xs text-[#595959] text-center mb-3 text-left">
                          Nömrənizi təsdiqləmək üçün aşağıdakı düyməni sıxıb WhatsApp-da mesajı göndərin.
                        </p>
                        <div className="bg-white py-3 rounded-xl border-2 border-dashed border-[#E05A33]/30 text-center mb-4">
@@ -210,12 +245,27 @@ export default function LoginPage() {
                     </div>
                   )}
                 </div>
-                
                 <p className="text-[10px] text-[#E05A33] font-body bg-[#FFF0E6] p-2 rounded-lg">
-                   <b>Diqqət:</b> Sadəcə WhatsApp nömrənizi qeyd edin. Təsdiqləmə üçün heç bir kod kopyalamayacaqsınız, sadəcə butona basıb WhatsApp-da mesajı göndərin.
+                   <b>Diqqət:</b> Sadəcə WhatsApp nömrənizi qeyd edin. Təsdiqləmə üçün butona basıb WhatsApp-da mesajı göndərin.
                 </p>
               </div>
             )}
+
+            <button
+              data-testid="auth-submit-btn"
+              type="submit"
+              disabled={loading}
+              className="w-full bg-[#E05A33] hover:bg-[#D94A22] text-white py-3.5 rounded-full font-body font-semibold text-sm transition-all disabled:opacity-50 mt-2"
+            >
+              {loading ? "Gözləyin..." : isRegister ? "Qeydiyyatdan keç" : "Daxil ol"}
+            </button>
+          </form>
+
+          <p className="text-center mt-6 font-body text-sm text-[#8C8C8C]">
+            {isRegister ? "Artıq hesabın var?" : "Hesabın yoxdur?"}{" "}
+            <button
+              data-testid="toggle-auth-mode"
+              onClick={() => { setIsRegister(!isRegister); setError(""); setIsOtpSent(false); setIsOtpVerified(false); }}
               className="text-[#E05A33] font-semibold hover:underline"
             >
               {isRegister ? "Daxil ol" : "Qeydiyyat"}
