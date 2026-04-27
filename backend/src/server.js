@@ -63,7 +63,7 @@ app.use((err, _req, res, _next) => {
 connectDB().then(async () => {
   await ensureBootstrapAdmin();
   startKeepAlive();
-  app.listen(PORT, () => console.log(`🚀 Backend listening on :${PORT}`));
+  app.listen(PORT, () => console.log(`🚀 Bazari Backend active on :${PORT}`));
 }).catch((err) => {
   console.error("DB connect failed:", err);
   process.exit(1);

@@ -52,7 +52,7 @@ export default function LoginPage() {
     setOtpLoading(true);
     setError("");
     try {
-      const { data } = await api.post("/otp/generate", { phone });
+      const { data } = await api.post("otp/generate", { phone });
       setGeneratedCode(data.code);
       setIsOtpSent(true);
       setIsWaitingForWhatsApp(true);
@@ -69,7 +69,7 @@ export default function LoginPage() {
     if (isWaitingForWhatsApp && phone) {
       interval = setInterval(async () => {
         try {
-          const { data } = await api.get(`/otp/check-status?phone=${phone}`);
+          const { data } = await api.get(`otp/check-status?phone=${phone}`);
           if (data.verified) {
             setIsOtpVerified(true);
             setIsWaitingForWhatsApp(false);
