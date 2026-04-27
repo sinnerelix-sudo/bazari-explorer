@@ -4,6 +4,7 @@ import {
   Star, Heart, ShoppingBag, ChevronLeft, Share2,
   Truck, Shield, RefreshCw, Minus, Plus, ChevronRight, Check
 } from "lucide-react";
+import BonusPanel from "@/components/product/BonusPanel";
 import { useCart } from "@/contexts/CartContext";
 import { ProductJsonLd, BreadcrumbJsonLd } from "@/components/seo/JsonLd";
 import Header from "@/components/layout/Header";
@@ -57,6 +58,8 @@ export default function ProductDetail() {
   const [activeTab, setActiveTab] = useState("description");
   const { addToCart } = useCart();
   const [addedToCart, setAddedToCart] = useState(false);
+  const [isBonusPanelOpen, setIsBonusPanelOpen] = useState(false);
+
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const dragStartX = useRef(null);
   const dragLastX = useRef(null);
@@ -396,6 +399,13 @@ export default function ProductDetail() {
               </button>
             </div>
 
+              <button
+                onClick={() => setIsBonusPanelOpen(true)}
+                className="w-full py-4 rounded-full border-2 border-[#E05A33]/20 text-[#E05A33] font-body font-bold text-base hover:bg-[#E05A33]/5 transition-all flex items-center justify-center gap-2 mb-4"
+              >
+                <Share2 size={18} /> Məhsulu sat və qazan
+              </button>
+
             {/* Features */}
             <div className="grid grid-cols-3 gap-3 mb-6 p-4 bg-[#F5F3F0] rounded-2xl">
               {[
@@ -520,6 +530,8 @@ export default function ProductDetail() {
         )}
       </main>
 
+      
+      <BonusPanel open={isBonusPanelOpen} onOpenChange={setIsBonusPanelOpen} product={product} />
       <Footer />
       <MobileBottomNav />
     </div>

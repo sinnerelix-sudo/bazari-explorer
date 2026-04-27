@@ -54,6 +54,7 @@ export function publicProduct(p) {
     original_price: p.original_price || 0,
     discount: p.discount || 0,
     images: p.images || [],
+    videos: p.videos || [],
     brand: p.brand || "",
     stock: p.stock ?? 0,
     badge: p.badge || "",
@@ -71,6 +72,7 @@ export function publicProduct(p) {
     flash_sale: flashSale,
     sold: flashSale.sold,
     total: flashSale.limit,
+    bonus_amount: Number(p.bonus_amount || 0),
     created_at: p.created_at,
   };
 }

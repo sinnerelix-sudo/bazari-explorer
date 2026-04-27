@@ -366,7 +366,9 @@ const EMPTY_PRODUCT_FORM = {
   name: "",
   description: "",
   price: 0,
+  bonus_amount: 0,
   original_price: 0,
+  bonus_amount: 0,
   discount: 0,
   images: [],
   brand: "",
@@ -377,6 +379,7 @@ const EMPTY_PRODUCT_FORM = {
   seo_description: "",
   flash_sale_active: false,
   flash_sale_price: 0,
+  bonus_amount: 0,
   flash_sale_limit: 0,
   flash_sale_per_customer_limit: 0,
 };

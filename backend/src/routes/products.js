@@ -19,6 +19,7 @@ function normalizeProductPayload(body = {}, existing = {}) {
     original_price: Number(body.original_price) || 0,
     discount: Number(body.discount) || 0,
     images: Array.isArray(body.images) ? body.images : [],
+    videos: Array.isArray(body.videos) ? body.videos : [],
     brand: body.brand || "",
     stock: Number(body.stock) || 0,
     badge: body.badge || "",
@@ -31,6 +32,7 @@ function normalizeProductPayload(body = {}, existing = {}) {
     flash_sale_limit: flashActive ? flashLimit : 0,
     flash_sale_per_customer_limit: flashActive ? flashPerCustomerLimit : 0,
     flash_sale_sold: flashActive ? Math.min(existingSold, flashLimit || existingSold) : 0,
+    bonus_amount: Number(body.bonus_amount) || 0,
   };
 }
 
