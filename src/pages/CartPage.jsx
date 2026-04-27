@@ -63,7 +63,7 @@ function buildWhatsappMessage({ user, items, subtotal, deliveryFee, total, payme
 }
 
 export default function CartPage() {
-  const { cart, fetchCart, updateQuantity, removeFromCart, clearCart, deliveryConfig, currentDeliveryFee, isFreeDelivery, finalTotal } = useCart();
+  const { cart, cartFetched, fetchCart, updateQuantity, removeFromCart, clearCart, deliveryConfig, currentDeliveryFee, isFreeDelivery, finalTotal } = useCart();
   const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [paymentMethods, setPaymentMethods] = useState([]);
@@ -131,7 +131,7 @@ export default function CartPage() {
   };
 
   
-  if (authLoading) {
+  if (authLoading || (user && !cartFetched && cart.items.length === 0)) {
     return (
       <div className="min-h-screen bg-[#FDFCFB]">
         <Header />

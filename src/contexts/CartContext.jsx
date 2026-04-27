@@ -16,6 +16,7 @@ export function CartProvider({ children }) {
     }
   });
   const [loading, setLoading] = useState(false);
+  const [cartFetched, setCartFetched] = useState(false);
   const [deliveryConfig, setDeliveryConfig] = useState({ fee: 5, free_limit: 50 });
 
   const fetchDeliveryConfig = useCallback(async () => {
@@ -32,6 +33,7 @@ export function CartProvider({ children }) {
     try {
       const { data } = await axios.get(`${API}/cart`, { withCredentials: true });
       setCart(data);
+      setCartFetched(true);
     } catch {
       // not logged in
     }
