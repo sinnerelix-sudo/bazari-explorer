@@ -42,7 +42,11 @@ export default function LoginPage() {
     }
   }, [user, authLoading, navigate]);
   
-  const handleSendOtp = async () => {
+  
+  const [generatedCode, setGeneratedCode] = useState("");
+  const [isWaitingForWhatsApp, setIsWaitingForWaitingForWhatsApp] = useState(false);
+
+  const handleGenerateCode = async () => {
     if (!phone) {
       setError("Zəhmət olmasa WhatsApp nömrənizi daxil edin");
       return;
@@ -50,28 +54,43 @@ export default function LoginPage() {
     setOtpLoading(true);
     setError("");
     try {
-      await api.post("/otp/send", { phone });
+      const { data } = await api.post("/otp/generate", { phone });
+      setGeneratedCode(data.code);
       setIsOtpSent(true);
+      setIsWaitingForWaitingForWhatsApp(true);
     } catch (err) {
-      setError(formatApiError(err.response?.data, "Kod göndərilmədi"));
+      setError(formatApiError(err.response?.data, "Kod yaradılmadı"));
     } finally {
       setOtpLoading(false);
     }
   };
 
-  const handleVerifyOtp = async () => {
-    if (!otp) return;
-    setOtpLoading(true);
-    setError("");
-    try {
-      await api.post("/otp/verify", { phone, code: otp });
-      setIsOtpVerified(true);
-    } catch (err) {
-      setError(formatApiError(err.response?.data, "Kod yanlışdır"));
-    } finally {
-      setOtpLoading(false);
+  // Polling for verification status
+  useEffect(() => {
+    let interval;
+    if (isWaitingForWhatsApp && phone) {
+      interval = setInterval(async () => {
+        try {
+          const { data } = await api.get(`/otp/check-status?phone=${phone}`);
+          if (data.verified) {
+            setIsOtpVerified(true);
+            setIsWaitingForWaitingForWhatsApp(false);
+            clearInterval(interval);
+          }
+        } catch (err) {
+          console.error("Status check failed", err);
+        }
+      }, 2000);
     }
+    return () => clearInterval(interval);
+  }, [isWaitingForWhatsApp, phone]);
+
+  const handleWhatsAppRedirect = () => {
+    const businessPhone = "15556344242"; // Test number, ideally should be config
+    const message = encodeURIComponent(generatedCode);
+    window.open(`https://wa.me/${businessPhone}?text=${message}`, '_blank');
   };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -134,124 +153,69 @@ export default function LoginPage() {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {isRegister && (
-              <div className="relative">
-                <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
-                <input
-                  data-testid="register-name"
-                  type="text"
-                  placeholder="Ad Soyad"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  required
-                  className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] focus:bg-white outline-none font-body text-sm transition-all"
-                />
-              </div>
-            )}
-            <div className="relative">
-              <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
-              <input
-                data-testid="login-email"
-                type="email"
-                placeholder="Email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] focus:bg-white outline-none font-body text-sm transition-all"
-              />
-            </div>
-            <div className="relative">
-              <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
-              <input
-                data-testid="login-password"
-                type={showPass ? "text" : "password"}
-                placeholder="Parol"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                className="w-full pl-11 pr-11 py-3 rounded-xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] focus:bg-white outline-none font-body text-sm transition-all"
-              />
-              <button type="button" onClick={() => setShowPass(!showPass)} className="absolute right-4 top-1/2 -translate-y-1/2 text-[#8C8C8C]">
-                {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
-              </button>
-            </div>
-            {isRegister && (
+                        {isRegister && (
               <div className="space-y-3">
-                <div className="relative flex gap-2">
-                  <div className="relative flex-1">
+                <div className="relative flex flex-col gap-3">
+                  <div className="relative">
                     <Phone size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
                     <input
                       data-testid="register-phone"
                       type="tel"
-                      placeholder="WhatsApp nömrəsi"
+                      placeholder="WhatsApp nömrəniz"
                       value={phone}
                       onChange={(e) => { setPhone(e.target.value); setIsOtpVerified(false); setIsOtpSent(false); }}
-                      disabled={isOtpVerified}
+                      disabled={isOtpVerified || isOtpSent}
                       className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] focus:bg-white outline-none font-body text-sm transition-all disabled:opacity-60"
                     />
                   </div>
-                  {!isOtpVerified && (
+                  
+                  {!isOtpSent && !isOtpVerified && (
                     <button
                       type="button"
-                      onClick={handleSendOtp}
+                      onClick={handleGenerateCode}
                       disabled={otpLoading || !phone}
-                      className="px-4 py-3 rounded-xl bg-[#1A1A1A] text-white font-body font-semibold text-xs hover:bg-black transition-all disabled:opacity-50"
+                      className="w-full py-3 rounded-xl bg-[#1A1A1A] text-white font-body font-semibold text-sm hover:bg-black transition-all disabled:opacity-50"
                     >
-                      {otpLoading ? "..." : isOtpSent ? "Yenidən" : "Kodu al"}
+                      {otpLoading ? "Gözləyin..." : "Təsdiq kodu yarat"}
                     </button>
                   )}
+
+                  {isOtpSent && !isOtpVerified && (
+                    <div className="bg-[#FFF7F2] border border-[#E05A33]/20 p-4 rounded-2xl animate-in fade-in zoom-in duration-300">
+                       <p className="font-body text-xs text-[#595959] text-center mb-3">
+                         Nömrənizi təsdiqləmək üçün aşağıdakı düyməni sıxıb WhatsApp-da mesajı göndərin.
+                       </p>
+                       <div className="bg-white py-3 rounded-xl border-2 border-dashed border-[#E05A33]/30 text-center mb-4">
+                         <span className="font-heading font-bold text-xl text-[#E05A33] tracking-widest">{generatedCode}</span>
+                       </div>
+                       <button
+                         type="button"
+                         onClick={handleWhatsAppRedirect}
+                         className="w-full py-3.5 bg-[#25D366] text-white rounded-full font-body font-bold text-sm flex items-center justify-center gap-2 hover:bg-[#20bd5c] shadow-lg shadow-[#25D366]/20 transition-all"
+                       >
+                         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                           <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.353-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.128.571-.075 1.758-.716 2.003-1.408.245-.693.245-1.287.172-1.408-.074-.122-.272-.196-.57-.346z"/>
+                         </svg>
+                         WhatsApp ilə göndər
+                       </button>
+                       <p className="text-[10px] text-[#8C8C8C] text-center mt-3 animate-pulse">
+                         WhatsApp-da mesajı göndərdikdən sonra buranı bağlamayın...
+                       </p>
+                    </div>
+                  )}
+
                   {isOtpVerified && (
-                    <div className="px-4 py-3 rounded-xl bg-green-50 text-green-600 font-body font-bold text-xs flex items-center gap-1">
-                      Təsdiqləndi
+                    <div className="w-full py-4 bg-green-50 text-green-600 rounded-2xl font-body font-bold text-sm flex items-center justify-center gap-2 border border-green-100">
+                      <Check size={20} /> Nömrəniz təsdiqləndi!
                     </div>
                   )}
                 </div>
                 
                 <p className="text-[10px] text-[#E05A33] font-body bg-[#FFF0E6] p-2 rounded-lg">
-                   Sadəcə <b>WhatsApp</b> nömrənizi qeyd edin. Təsdiq kodu WhatsApp-a göndəriləcək.
+                   <b>Diqqət:</b> Sadəcə WhatsApp nömrənizi qeyd edin. Təsdiqləmə üçün heç bir kod kopyalamayacaqsınız, sadəcə butona basıb WhatsApp-da mesajı göndərin.
                 </p>
-
-                {isOtpSent && !isOtpVerified && (
-                  <div className="relative flex gap-2 animate-in fade-in slide-in-from-top-2 duration-300">
-                    <div className="relative flex-1">
-                      <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-[#8C8C8C]" />
-                      <input
-                        type="text"
-                        placeholder="6 rəqəmli kod"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value)}
-                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-[#F5F3F0] border border-transparent focus:border-[#E05A33] focus:bg-white outline-none font-body text-sm transition-all"
-                      />
-                    </div>
-                    <button
-                      type="button"
-                      onClick={handleVerifyOtp}
-                      disabled={otpLoading || otp.length < 6}
-                      className="px-4 py-3 rounded-xl bg-[#E05A33] text-white font-body font-semibold text-xs hover:bg-[#D94A22] transition-all disabled:opacity-50"
-                    >
-                      {otpLoading ? "..." : "Təsdiqlə"}
-                    </button>
-                  </div>
-                )}
               </div>
             )}
-            <button
-              data-testid="auth-submit-btn"
-              type="submit"
-              disabled={loading}
-              className="w-full bg-[#E05A33] hover:bg-[#D94A22] text-white py-3 rounded-full font-body font-semibold text-sm transition-all disabled:opacity-50"
-            >
-              {loading ? "Gözləyin..." : isRegister ? "Qeydiyyatdan keç" : "Daxil ol"}
-            </button>
-          </form>
-
-
-
-          <p className="text-center mt-5 font-body text-sm text-[#8C8C8C]">
-            {isRegister ? "Artıq hesabın var?" : "Hesabın yoxdur?"}{" "}
-            <button
-              data-testid="toggle-auth-mode"
-              onClick={() => { setIsRegister(!isRegister); setError(""); }}
               className="text-[#E05A33] font-semibold hover:underline"
             >
               {isRegister ? "Daxil ol" : "Qeydiyyat"}
