@@ -5,6 +5,7 @@ import cors from "cors";
 
 import { connectDB } from "./db.js";
 import authRoutes from "./routes/auth.js";
+import otpRoutes from "./routes/otp.js";
 import productRoutes from "./routes/products.js";
 import categoryRoutes from "./routes/categories.js";
 import cartRoutes from "./routes/cart.js";
@@ -41,6 +42,7 @@ app.get("/", (_req, res) => res.json({ ok: true, service: "modamall-backend" }))
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
 app.use("/api/auth", authRoutes);
+app.use("/api/otp", otpRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/cart", cartRoutes);

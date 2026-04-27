@@ -37,6 +37,7 @@ export async function connectDB() {
     db.collection("reviews").createIndex({ product_id: 1 }),
     db.collection("notifications").createIndex({ user_id: 1, created_at: -1 }),
     db.collection("push_subscriptions").createIndex({ user_id: 1 }),
+    db.collection("otps").createIndex({ created_at: 1 }, { expireAfterSeconds: 300 }),
   ]);
 
   return db;
