@@ -1,6 +1,6 @@
 import { Router } from "express";
 import { getDB } from "../db.js";
-import { authRequired, adminOnly } from "../auth.js";
+import { authRequired, roleRequired } from "../auth.js";
 
 const r = Router();
 
@@ -12,7 +12,7 @@ r.get("/delivery", async (_req, res) => {
 });
 
 // Admin: Update delivery settings
-r.put("/delivery", authRequired, adminOnly, async (req, res) => {
+r.put("/delivery", authRequired, roleRequired("admin"), async (req, res) => {
   const { fee, free_limit } = req.body || {};
   if (typeof fee !== "number" || typeof free_limit !== "number") {
     return res.status(400).json({ error: "Yanlış rəqəm formatı" });
