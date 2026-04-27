@@ -42,6 +42,8 @@ app.get("/", (_req, res) => res.json({ ok: true, service: "modamall-backend" }))
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
 
 app.use("/api/auth", authRoutes);
+app.get("/api/test-otp", (req, res) => res.json({ ok: "works" }));
+
 app.use("/api/otp", otpRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/categories", categoryRoutes);
