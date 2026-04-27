@@ -64,7 +64,7 @@ function buildWhatsappMessage({ user, items, subtotal, deliveryFee, total, payme
 
 export default function CartPage() {
   const { cart, fetchCart, updateQuantity, removeFromCart, clearCart, deliveryConfig, currentDeliveryFee, isFreeDelivery, finalTotal } = useCart();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [paymentMethods, setPaymentMethods] = useState([]);
   const [selectedMethodId, setSelectedMethodId] = useState("");
@@ -129,6 +129,19 @@ export default function CartPage() {
 
     window.location.href = `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`;
   };
+
+  
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-[#FDFCFB]">
+        <Header />
+        <div className="flex items-center justify-center py-32">
+          <div className="w-8 h-8 border-2 border-[#E05A33] border-t-transparent rounded-full animate-spin" />
+        </div>
+        <MobileBottomNav />
+      </div>
+    );
+  }
 
   if (!user) {
     return (

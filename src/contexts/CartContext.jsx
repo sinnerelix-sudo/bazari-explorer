@@ -7,7 +7,14 @@ const CartContext = createContext(null);
 
 export function CartProvider({ children }) {
   const { user } = useAuth();
-  const [cart, setCart] = useState({ items: [], total: 0, count: 0 });
+  const [cart, setCart] = useState(() => {
+    try {
+      const saved = localStorage.getItem("bazari_cart");
+      return saved ? JSON.parse(saved) : { items: [], total: 0, count: 0 };
+    } catch {
+      return { items: [], total: 0, count: 0 };
+    }
+  });
   const [loading, setLoading] = useState(false);
   const [deliveryConfig, setDeliveryConfig] = useState({ fee: 5, free_limit: 50 });
 
@@ -29,6 +36,18 @@ export function CartProvider({ children }) {
       // not logged in
     }
   }, [user]);
+  useEffect(() => {
+    localStorage.setItem("bazari_cart", JSON.stringify(cart));
+  }, [cart]);
+
+  useEffect(() => {
+    if (user) {
+      fetchCart();
+    } else {
+      setCart({ items: [], total: 0, count: 0 });
+    }
+  }, [user, fetchCart]);
+
 
   useEffect(() => {
     fetchDeliveryConfig();
